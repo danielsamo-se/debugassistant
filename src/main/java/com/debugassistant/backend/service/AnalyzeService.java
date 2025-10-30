@@ -2,7 +2,8 @@ package com.debugassistant.backend.service;
 
 import com.debugassistant.backend.dto.AnalyzeRequest;
 import com.debugassistant.backend.dto.AnalyzeResponse;
-
+import com.debugassistant.backend.parser.ParserRegistry;
+import com.debugassistant.backend.parser.ParsedError;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,14 +11,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AnalyzeService {
 
-    private final ErrorParser errorParser;
+    private final ParserRegistry parserRegistry;
 
     public AnalyzeResponse analyze(AnalyzeRequest request) {
 
-        // V1 Parser
-        ParsedError parsed = errorParser.parse(request.getStackTrace());
+        ParsedError parsed = parserRegistry.parse(request.getStackTrace());
 
-        // Dummy Score (Woche 1)
+        // dummy score
         int score = parsed.message().length();
 
         return AnalyzeResponse.builder()

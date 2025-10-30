@@ -2,6 +2,7 @@ package com.debugassistant.backend.controller;
 
 import com.debugassistant.backend.dto.AnalyzeRequest;
 import com.debugassistant.backend.dto.AnalyzeResponse;
+import com.debugassistant.backend.service.AnalyzeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
