@@ -1,7 +1,7 @@
 package com.debugassistant.backend.parser;
 
-import com.debugassistant.backend.exceptions.InvalidStackTraceException;
-import com.debugassistant.backend.exceptions.UnsupportedLanguageException;
+import com.debugassistant.backend.exception.InvalidStackTraceException;
+import com.debugassistant.backend.exception.UnsupportedLanguageException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
