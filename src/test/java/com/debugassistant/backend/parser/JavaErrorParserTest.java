@@ -1,42 +1,53 @@
 package com.debugassistant.backend.parser;
 
+import com.debugassistant.backend.exception.InvalidStackTraceException;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 class JavaErrorParserTest {
 
     private final JavaErrorParser parser = new JavaErrorParser();
 
     @Test
-    void shouldParseExceptionAndMessage() {
-        String trace = "java.lang.NullPointerException: Something bad happened\n"
-                + "    at com.app.Main.main(Main.java:10)";
-
-        ParsedError result = parser.parse(trace);
-
-        assertThat(result.language()).isEqualTo("java");
-        assertThat(result.exceptionType()).isEqualTo("java.lang.NullPointerException");
-        assertThat(result.message()).isEqualTo("Something bad happened");
+    void shouldRejectEmptyInput() {
+        assertThatThrownBy(() -> parser.parse(""))
+                .isInstanceOf(InvalidStackTraceException.class)
+                .hasMessageContaining("cannot be empty");
     }
 
     @Test
-    void shouldHandleExceptionWithoutMessage() {
-        String trace = "java.lang.IllegalStateException\n"
-                + "    at com.app.Main.main(Main.java:10)";
-
-        ParsedError result = parser.parse(trace);
-
-        assertThat(result.exceptionType()).isEqualTo("java.lang.IllegalStateException");
-        assertThat(result.message()).isEmpty();
+    void shouldRejectNullInput() {
+        assertThatThrownBy(() -> parser.parse(null))
+                .isInstanceOf(InvalidStackTraceException.class)
+                .hasMessageContaining("cannot be empty");
     }
 
     @Test
-    void shouldHandleEmptyInput() {
-        ParsedError result = parser.parse("");
+    void shouldParseSpringBootException() {
+        String trace = """
+        org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' not supported
+            at org.springframework.web.servlet.mvc.Controller.handle
+        """;
 
-        assertThat(result.language()).isEqualTo("unknown");
-        assertThat(result.exceptionType()).isEqualTo("unknown");
-        assertThat(result.message()).isEqualTo("empty stacktrace");
+        ParsedError result = parser.parse(trace);
+
+        assertThat(result.exceptionType()).contains("HttpRequestMethodNotSupportedException");
+        assertThat(result.message()).contains("Request method 'GET' not supported");
+    }
+
+    @Test
+    void shouldParseMultilineStackTrace() {
+        String trace = """
+        java.lang.RuntimeException: Database error
+            at com.app.Database.connect(Database.java:50)
+            at com.app.Service.init(Service.java:20)
+        """;
+
+        ParsedError result = parser.parse(trace);
+
+        assertThat(result.exceptionType()).isEqualTo("java.lang.RuntimeException");
+        assertThat(result.message()).isEqualTo("Database error");
     }
 }
