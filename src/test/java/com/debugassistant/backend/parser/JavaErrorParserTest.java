@@ -50,4 +50,18 @@ class JavaErrorParserTest {
         assertThat(result.exceptionType()).isEqualTo("java.lang.RuntimeException");
         assertThat(result.message()).isEqualTo("Database error");
     }
+
+    @Test
+    void shouldParseExceptionWithoutMessage() {
+        String trace = """
+        java.lang.IllegalStateException
+            at com.app.Main.main(Main.java:10)
+        """;
+
+        ParsedError result = parser.parse(trace);
+
+        assertThat(result.language()).isEqualTo("java");
+        assertThat(result.exceptionType()).isEqualTo("java.lang.IllegalStateException");
+        assertThat(result.message()).isEmpty();
+    }
 }

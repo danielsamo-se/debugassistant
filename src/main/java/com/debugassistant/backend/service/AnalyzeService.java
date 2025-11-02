@@ -2,12 +2,15 @@ package com.debugassistant.backend.service;
 
 import com.debugassistant.backend.dto.AnalyzeRequest;
 import com.debugassistant.backend.dto.AnalyzeResponse;
-import com.debugassistant.backend.parser.ParserRegistry;
 import com.debugassistant.backend.parser.ParsedError;
+import com.debugassistant.backend.parser.ParserRegistry;
 import com.debugassistant.backend.ranking.RankingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +34,11 @@ public class AnalyzeService {
                 .language(parsed.language())
                 .exceptionType(parsed.exceptionType())
                 .message(parsed.message())
+                .keywords(parsed.keywords())
+                .rootCause(parsed.rootCause())
                 .score(score)
+                .results(List.of())
+                .timestamp(Instant.now())
                 .build();
     }
 }
