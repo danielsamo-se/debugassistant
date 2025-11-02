@@ -18,12 +18,12 @@ public class AnalyzeService {
     private final RankingService rankingService;
 
     public AnalyzeResponse analyze(AnalyzeRequest request) {
-        log.info("Analyzing stack trace, length: {}", request.getStackTrace().length());  // ← NEU!
+        log.info("Analyzing stack trace, length: {}", request.getStackTrace().length());
 
         ParsedError parsed = parserRegistry.parse(request.getStackTrace());
 
         log.debug("Parsed: type={}, message={}",
-                parsed.exceptionType(), parsed.message());  // ← NEU!
+                parsed.exceptionType(), parsed.message());
 
         int score = rankingService.calculateDummyScore(parsed);
 
