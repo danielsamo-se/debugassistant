@@ -1,3 +1,12 @@
+export interface SearchResult {
+    source: string;
+    title: string;
+    url: string;
+    reactions: number;
+    score: number;
+    comments?: number;
+}
+
 export interface AnalyzeResponse {
     language: string;
     exceptionType: string;
@@ -6,5 +15,5 @@ export interface AnalyzeResponse {
     keywords: string[];
     rootCause: string | null;
     timestamp: string;
-    results: any[];
+    results: SearchResult[];
 }
