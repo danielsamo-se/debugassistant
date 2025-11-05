@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Handles the connection to GitHub and searches for possible solution
+ * Handles the connection to GitHub and searches for possible solutions.
  */
 @Service
 @Slf4j
@@ -19,7 +19,6 @@ public class GitHubClient {
 
     private final RestClient restClient;
 
-    // client setup
     public GitHubClient(@Value("${github.token}") String token) {
         this.restClient = RestClient.builder()
                 .baseUrl("https://api.github.com")
@@ -29,13 +28,16 @@ public class GitHubClient {
     }
 
     public List<GitHubIssue> searchIssues(String query) {
-        log.info("Searching GitHub for: {}", query);
+        // filter for quality: only popular repos (stars > 10) and sort by helpfulness
+        String smartQuery = query + " is:issue is:public stars:>10 sort:reactions-desc";
+
+        log.info("Searching GitHub with query: {}", smartQuery);
 
         try {
             GitHubSearchResponse response = restClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/search/issues")
-                            .queryParam("q", query)
+                            .queryParam("q", smartQuery)
                             .queryParam("per_page", 5)
                             .build())
                     .retrieve()
@@ -48,7 +50,6 @@ public class GitHubClient {
             return response.items();
 
         } catch (Exception e) {
-            // fallback if GitHub is down or rate limit is hit
             log.error("GitHub API call failed: {}", e.getMessage());
             return Collections.emptyList();
         }

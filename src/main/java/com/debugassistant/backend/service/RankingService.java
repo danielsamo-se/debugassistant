@@ -14,7 +14,6 @@ public class RankingService {
             return 0.0;
         }
 
-        // safety check for null values
         int comments = issue.comments() != null ? issue.comments() : 0;
         int reactions = 0;
 
@@ -22,7 +21,14 @@ public class RankingService {
             reactions = issue.reactions().totalCount();
         }
 
-        // reactions count double because they indicate a helpful solution
-        return (reactions * 2.0) + comments;
+        // reactions are worth more than comments
+        double score = (reactions * 2.0) + comments;
+
+        // closed issue likely contains a solution
+        if ("closed".equalsIgnoreCase(issue.state())) {
+            score += 5.0;
+        }
+
+        return score;
     }
 }
