@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -26,22 +25,26 @@ public class AnalyzeService {
     private final ParserRegistry parserRegistry;
     private final RankingService rankingService;
     private final GitHubClient gitHubClient;
+    private final QueryBuilder queryBuilder; // <-- NEU
 
     public AnalyzeResponse analyze(AnalyzeRequest request) {
         log.info("Analyzing stack trace");
 
-        // parse the error to get language and message
+        // parse the error
         ParsedError parsed = parserRegistry.parse(request.getStackTrace());
         log.debug("Parsed: type={}, message={}", parsed.exceptionType(), parsed.message());
 
-        // build query and search on GitHub
-        String query = parsed.exceptionType() + " " + parsed.message();
+        // build a smart GitHub query
+        String query = queryBuilder.buildSmartQuery(parsed);
+        log.info("Generated GitHub query: {}", query);
+
+        // search on GitHub
         List<GitHubIssue> issues = gitHubClient.searchIssues(query);
 
-        // convert and rank the results
+        // convert and rank results
         List<SearchResult> results = issues.stream()
                 .map(this::mapToSearchResult)
-                .sorted(Comparator.comparingDouble(SearchResult::getScore).reversed()) // best score first
+                .sorted(Comparator.comparingDouble(SearchResult::getScore).reversed())
                 .toList();
 
         return AnalyzeResponse.builder()
@@ -58,7 +61,6 @@ public class AnalyzeService {
 
     private SearchResult mapToSearchResult(GitHubIssue issue) {
         double score = rankingService.calculateScore(issue);
-        // handle null reactions
         int reactions = (issue.reactions() != null && issue.reactions().totalCount() != null)
                 ? issue.reactions().totalCount()
                 : 0;
