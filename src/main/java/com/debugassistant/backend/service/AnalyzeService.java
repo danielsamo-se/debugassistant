@@ -53,7 +53,7 @@ public class AnalyzeService {
                 .message(parsed.message())
                 .keywords(parsed.keywords())
                 .rootCause(parsed.rootCause())
-                .score(results.isEmpty() ? 0 : results.get(0).getScore().intValue())
+                .score(results.isEmpty() ? 0 : results.getFirst().getScore().intValue())
                 .results(results)
                 .timestamp(Instant.now())
                 .build();
