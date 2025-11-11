@@ -11,14 +11,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AnalyzeServiceTest {
@@ -32,62 +32,113 @@ class AnalyzeServiceTest {
     @Mock
     private RankingService rankingService;
 
+    @Mock
+    private QueryBuilder queryBuilder;
+
     @InjectMocks
     private AnalyzeService analyzeService;
 
     @Test
     void shouldAnalyzeAndReturnResults() {
         String trace = "java.lang.NPE: null";
-        ParsedError parsedError = new ParsedError("java", "NPE", "null");
-        GitHubIssue issue = new GitHubIssue("Fix NPE", "url", "open", 2, null);
 
+        ParsedError parsedError = ParsedError.builder()
+                .language("java")
+                .exceptionType("NPE")
+                .message("null")
+                .keywords(Set.of("npe"))
+                .build();
+
+        GitHubIssue issue = new GitHubIssue(
+                "Fix NPE",          // title
+                "url",              // html_url
+                "open",             // state
+                2,                  // comments
+                null,               // reactions
+                Instant.now(),      // created_at
+                "some body"         // body
+        );
         when(parserRegistry.parse(trace)).thenReturn(parsedError);
-        when(gitHubClient.searchIssues(anyString())).thenReturn(List.of(issue));
-        when(rankingService.calculateScore(any())).thenReturn(5.0);
+        when(queryBuilder.build("NPE", "null", parsedError.keywords())).thenReturn("built-query");
+        when(gitHubClient.searchIssues("built-query")).thenReturn(List.of(issue));
+        when(rankingService.calculateScore(eq(issue), anySet())).thenReturn(5.0);
 
         AnalyzeResponse response = analyzeService.analyze(new AnalyzeRequest(trace));
 
         assertThat(response.getLanguage()).isEqualTo("java");
         assertThat(response.getResults()).hasSize(1);
         assertThat(response.getScore()).isEqualTo(5);
+        assertThat(response.getResults().getFirst().getTitle()).isEqualTo("Fix NPE");
 
-        verify(gitHubClient).searchIssues("NPE null");
+        verify(parserRegistry).parse(trace);
+        verify(queryBuilder).build("NPE", "null", parsedError.keywords());
+        verify(gitHubClient).searchIssues("built-query");
+        verify(rankingService).calculateScore(eq(issue), anySet());
     }
 
     @Test
     void shouldHandleEmptyGitHubResultsWithoutCrashing() {
         String trace = "Traceback...";
-        ParsedError parsedError = new ParsedError("python", "Error", "msg");
+        ParsedError parsedError = ParsedError.builder()
+                .language("python")
+                .exceptionType("Error")
+                .message("msg")
+                .keywords(Set.of())
+                .build();
 
         when(parserRegistry.parse(trace)).thenReturn(parsedError);
-        when(gitHubClient.searchIssues(anyString())).thenReturn(Collections.emptyList());
+        when(queryBuilder.build(anyString(), anyString(), anySet())).thenReturn("built-query");
+        when(gitHubClient.searchIssues("built-query")).thenReturn(Collections.emptyList());
 
         AnalyzeResponse response = analyzeService.analyze(new AnalyzeRequest(trace));
 
         assertThat(response.getResults()).isEmpty();
         assertThat(response.getScore()).isZero();
+
+        verify(rankingService, never()).calculateScore(any(), anySet());
     }
 
     @Test
     void shouldSortResultsByScoreDescending() {
         String trace = "Error";
-        ParsedError parsed = new ParsedError("java", "Err", "msg");
+        ParsedError parsed = ParsedError.builder()
+                .language("java")
+                .exceptionType("Err")
+                .message("msg")
+                .keywords(Set.of("err"))
+                .build();
 
-        GitHubIssue badIssue = new GitHubIssue("Bad", "url1", "open", 0, null);
-        GitHubIssue goodIssue = new GitHubIssue("Good", "url2", "open", 5, null);
+        GitHubIssue lowIssue = new GitHubIssue(
+                "Low",
+                "url1",
+                "open",
+                0,
+                null,
+                Instant.now().minusSeconds(3600),
+                "body1"
+        );
 
+        GitHubIssue highIssue = new GitHubIssue(
+                "High",
+                "url2",
+                "open",
+                5,
+                null,
+                Instant.now(),
+                "body2"
+        );
         when(parserRegistry.parse(anyString())).thenReturn(parsed);
-        when(gitHubClient.searchIssues(anyString())).thenReturn(List.of(badIssue, goodIssue));
+        when(queryBuilder.build(anyString(), anyString(), anySet())).thenReturn("built-query");
+        when(gitHubClient.searchIssues("built-query")).thenReturn(List.of(lowIssue, highIssue));
 
-        when(rankingService.calculateScore(badIssue)).thenReturn(2.0);
-        when(rankingService.calculateScore(goodIssue)).thenReturn(10.0);
+        when(rankingService.calculateScore(eq(lowIssue), anySet())).thenReturn(2.0);
+        when(rankingService.calculateScore(eq(highIssue), anySet())).thenReturn(10.0);
 
         AnalyzeResponse response = analyzeService.analyze(new AnalyzeRequest(trace));
 
         assertThat(response.getResults()).hasSize(2);
-        assertThat(response.getResults().get(0).getTitle()).isEqualTo("Good");
-        assertThat(response.getResults().get(1).getTitle()).isEqualTo("Bad");
-
+        assertThat(response.getResults().get(0).getTitle()).isEqualTo("High");
+        assertThat(response.getResults().get(1).getTitle()).isEqualTo("Low");
         assertThat(response.getScore()).isEqualTo(10);
     }
 }

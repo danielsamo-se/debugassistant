@@ -2,20 +2,21 @@ package com.debugassistant.backend.dto.github;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.Instant;
+
 public record GitHubIssue(
         String title,
 
         @JsonProperty("html_url")
         String htmlUrl,
-
         String state,
-
-        // can be null
         Integer comments,
+        Reactions reactions,
 
-        Reactions reactions
+        @JsonProperty("created_at")
+        Instant createdAt,
+        String body
 ) {
-
     public record Reactions(
             @JsonProperty("total_count")
             Integer totalCount

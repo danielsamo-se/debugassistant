@@ -3,12 +3,23 @@ package com.debugassistant.backend.service;
 import com.debugassistant.backend.parser.ParsedError;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+
+/**
+ * Builds search queries for GitHub Issue Search
+ * Combines exception, message tokens and extracted keywords
+ */
 
 @Component
 public class QueryBuilder {
 
+
+    /**
+     * Builds a simple query from a ParsedError
+     */
     public String buildSmartQuery(ParsedError error) {
 
         String base = error.exceptionType() != null
@@ -26,6 +37,39 @@ public class QueryBuilder {
         return (core + " in:title,body").trim();
     }
 
+    /**
+     * Creates a normalized search query and produces tokens to improve the search
+     */
+    public String build(String exceptionType, String message, Set<String> keywords) {
+
+        List<String> parts = new ArrayList<>();
+
+        if (exceptionType != null && !exceptionType.isBlank()) {
+            parts.add(exceptionType.toLowerCase());
+        }
+
+        if (message != null && !message.isBlank()) {
+            parts.addAll(cleanKeywords(Set.of(message.split(" "))));
+        }
+
+        if (keywords != null && !keywords.isEmpty()) {
+            parts.addAll(cleanKeywords(keywords));
+        }
+
+        List<String> cleaned = parts.stream()
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .distinct()
+                .toList();
+
+        String core = String.join(" ", cleaned);
+
+        return (core + " in:title,body").trim();
+    }
+
+    /**
+     * Normalize and filter keywords
+     */
     private List<String> cleanKeywords(Set<String> keywords) {
         if (keywords == null || keywords.isEmpty()) {
             return List.of();
@@ -42,7 +86,6 @@ public class QueryBuilder {
     }
 
     private String cleanWord(String word) {
-        // Entfernt Sonderzeichen, Zahlen, Quotes etc.
         return word
                 .replaceAll("[^a-zA-Z]", "")
                 .trim();
@@ -53,4 +96,5 @@ public class QueryBuilder {
             "line", "null", "error", "exception",
             "of", "on", "at", "for", "in", "to", "from"
     );
+
 }

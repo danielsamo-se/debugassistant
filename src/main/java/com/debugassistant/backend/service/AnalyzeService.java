@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Connects the parser, GitHub client and ranking service to find solutions
@@ -28,22 +29,16 @@ public class AnalyzeService {
     private final QueryBuilder queryBuilder; // <-- NEU
 
     public AnalyzeResponse analyze(AnalyzeRequest request) {
-        log.info("Analyzing stack trace");
-
-        // parse the error
+        // parse
         ParsedError parsed = parserRegistry.parse(request.getStackTrace());
-        log.debug("Parsed: type={}, message={}", parsed.exceptionType(), parsed.message());
 
-        // build a smart GitHub query
-        String query = queryBuilder.buildSmartQuery(parsed);
-        log.info("Generated GitHub query: {}", query);
-
-        // search on GitHub
+        // build query & search GitHub
+        String query = queryBuilder.build(parsed.exceptionType(), parsed.message(), parsed.keywords());
         List<GitHubIssue> issues = gitHubClient.searchIssues(query);
 
-        // convert and rank results
+        // map results + ranking
         List<SearchResult> results = issues.stream()
-                .map(this::mapToSearchResult)
+                .map(issue -> mapToSearchResult(issue, parsed.keywords()))
                 .sorted(Comparator.comparingDouble(SearchResult::getScore).reversed())
                 .toList();
 
@@ -53,14 +48,15 @@ public class AnalyzeService {
                 .message(parsed.message())
                 .keywords(parsed.keywords())
                 .rootCause(parsed.rootCause())
-                .score(results.isEmpty() ? 0 : results.getFirst().getScore().intValue())
+                .score(results.isEmpty() ? 0 : results.get(0).getScore().intValue())
                 .results(results)
                 .timestamp(Instant.now())
                 .build();
     }
 
-    private SearchResult mapToSearchResult(GitHubIssue issue) {
-        double score = rankingService.calculateScore(issue);
+    private SearchResult mapToSearchResult(GitHubIssue issue, Set<String> keywords) {
+        double score = rankingService.calculateScore(issue, keywords);
+
         int reactions = (issue.reactions() != null && issue.reactions().totalCount() != null)
                 ? issue.reactions().totalCount()
                 : 0;
