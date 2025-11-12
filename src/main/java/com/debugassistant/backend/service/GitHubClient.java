@@ -3,12 +3,10 @@ package com.debugassistant.backend.service;
 import com.debugassistant.backend.dto.github.GitHubIssue;
 import com.debugassistant.backend.dto.github.GitHubSearchResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,6 +36,17 @@ public class GitHubClient {
                             .queryParam("per_page", 5)
                             .build())
                     .retrieve()
+
+                    .onStatus(
+                            status -> status.value() == 429,
+                            (req, res) -> log.warn("GitHub rate limit reached")
+                    )
+
+                    .onStatus(
+                            status -> status.value() == 404,
+                            (req, res) -> log.warn("GitHub returned 404 for query")
+                    )
+
                     .body(GitHubSearchResponse.class);
 
             // empty list to not crash
@@ -48,7 +57,7 @@ public class GitHubClient {
             return response.items();
 
         } catch (Exception e) {
-            //fallback if GitHub is down or rate limit is hiz
+            // fallback if GitHub is down or rate limit is hit
             log.error("GitHub request failed: {}", e.getMessage());
             return List.of();
         }
