@@ -6,9 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Locale;
+
 /**
- * Decides which parser to use based on the stack trace content.
- * Currently supports Java and Python.
+ * Picks the right parser based on stack trace using a scoring system
  */
 @Component
 @RequiredArgsConstructor
@@ -23,30 +24,65 @@ public class ParserRegistry {
             throw new InvalidStackTraceException("Stack trace cannot be empty");
         }
 
-        String detectedLanguage = detectLanguage(stackTrace);
-        log.debug("Detected language: {}", detectedLanguage);
+        String normalized = stackTrace.toLowerCase(Locale.ROOT);
 
-        return switch (detectedLanguage) {
-            case "java" -> javaErrorParser.parse(stackTrace);
-            case "python" -> pythonErrorParser.parse(stackTrace);
-            default -> throw new UnsupportedLanguageException(
-                    "Language '" + detectedLanguage + "' is not supported yet."
-            );
-        };
+        int javaScore = scoreJava(normalized);
+        int pythonScore = scorePython(normalized);
+
+        log.debug("Language scores - Java: {}, Python: {}", javaScore, pythonScore);
+
+        if (javaScore == 0 && pythonScore == 0) {
+            throw new UnsupportedLanguageException("Could not detect language from stack trace");
+        }
+
+        // Java wins ties
+        if (javaScore >= pythonScore) {
+            log.debug("Selected parser: Java");
+            return javaErrorParser.parse(stackTrace);
+        } else {
+            log.debug("Selected parser: Python");
+            return pythonErrorParser.parse(stackTrace);
+        }
     }
 
-    private String detectLanguage(String stackTrace) {
-        // typical stack trace elements like "com.example.class" or ".java:LineNumber"
-        if (stackTrace.contains("at ") &&
-                (stackTrace.contains(".java:") || stackTrace.contains("Exception"))) {
-            return "java";
-        }
-        // usually starts with "Traceback" or patterns
-        if (stackTrace.contains("Traceback") ||
-                (stackTrace.contains("File \"") && stackTrace.contains(", line "))) {
-            return "python";
-        }
+    private int scoreJava(String s) {
+        int score = 0;
 
-        return "unknown";
+        // Strong indicators
+        if (s.contains("exception in thread")) score += 3;
+        if (s.contains("java.lang.")) score += 3;
+
+        // Common exceptions
+        if (s.contains("nullpointerexception")) score += 2;
+        if (s.contains("classnotfoundexception")) score += 2;
+
+        // Stack frame patterns
+        if (s.contains(".java:")) score += 2;
+        if (s.contains("at ") && s.contains("(")) score += 1;
+
+        // Modern Java
+        if (s.contains("java.base/")) score += 1;
+        if (s.contains("virtualthread")) score += 1;
+
+        return score;
+    }
+
+    private int scorePython(String s) {
+        int score = 0;
+
+        // Strong indicators
+        if (s.contains("traceback")) score += 3;
+
+        // Stack frame patterns
+        if (s.contains("file \"") && s.contains(", line ")) score += 2;
+
+        // Common exceptions
+        if (s.contains("valueerror")) score += 2;
+        if (s.contains("keyerror")) score += 2;
+        if (s.contains("typeerror")) score += 2;
+
+        if (s.contains("most recent call last")) score += 1;
+
+        return score;
     }
 }

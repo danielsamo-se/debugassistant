@@ -1,48 +1,98 @@
 package com.debugassistant.backend.parser;
 
-import com.debugassistant.backend.exception.InvalidStackTraceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+/**
+ * Parses Java stack traces and extracts exception info.
+ */
 @Component
 @Slf4j
 public class JavaErrorParser implements ErrorParser {
 
-    // ExceptionType: Message
-    private static final Pattern EXCEPTION_PATTERN =
-            Pattern.compile("^([a-zA-Z0-9.$_]+)(?::\\s*(.*))?$");
+    private final KeywordExtractor keywordExtractor;
+    private final RootCauseExtractor rootCauseExtractor;
+
+    public JavaErrorParser(KeywordExtractor keywordExtractor, RootCauseExtractor rootCauseExtractor) {
+        this.keywordExtractor = keywordExtractor;
+        this.rootCauseExtractor = rootCauseExtractor;
+    }
+
+    private static final Pattern EXCEPTION_LINE_PATTERN =
+            Pattern.compile("(?:Exception in thread \"[^\"]+\"\\s+)?([a-zA-Z0-9.$_]+(?:Exception|Error))(?::\\s*(.*))?");
 
     @Override
     public ParsedError parse(String stackTrace) {
-        if (stackTrace == null || stackTrace.isBlank()) {
-            throw new InvalidStackTraceException("Stack trace cannot be empty");
+        log.debug("Parsing Java stack trace ({} chars)", stackTrace.length());
+
+        List<String> lines = stackTrace.lines().toList();
+
+        String exceptionType = null;
+        String message = "";
+
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (trimmed.isEmpty()) continue;
+
+            Matcher matcher = EXCEPTION_LINE_PATTERN.matcher(trimmed);
+            if (matcher.matches()) {
+                exceptionType = extractSimpleName(matcher.group(1));
+                message = matcher.group(2) != null ? matcher.group(2).trim() : "";
+                log.debug("Found exception: {} - {}", exceptionType, message);
+                break;
+            }
         }
 
-        log.debug("Parsing Java stack trace");
+        if (exceptionType == null) {
+            exceptionType = extractFallback(lines);
+            log.warn("Used fallback parsing: {}", exceptionType);
+        }
 
-        // first line
-        String firstLine = stackTrace.lines()
+        // build basic error first for keyword extraction
+        ParsedError basicError = ParsedError.builder()
+                .language("java")
+                .exceptionType(exceptionType)
+                .message(message)
+                .stackTraceLines(lines.size())
+                .build();
+
+        String rootCauseLine = rootCauseExtractor.extractRootCauseLine(stackTrace);
+        String rootCause = rootCauseLine != null ? extractRootCauseType(rootCauseLine) : null;
+        List<String> keywords = keywordExtractor.extract(basicError);
+
+        return ParsedError.builder()
+                .language("java")
+                .exceptionType(exceptionType)
+                .message(message)
+                .rootCause(rootCause)
+                .keywords(Set.copyOf(keywords))
+                .stackTraceLines(lines.size())
+                .build();
+    }
+
+    // convert java.lang.NullPointerException to NullPointerException
+    private String extractSimpleName(String fullName) {
+        int lastDot = fullName.lastIndexOf('.');
+        return lastDot >= 0 ? fullName.substring(lastDot + 1) : fullName;
+    }
+
+    // convert java.lang.IllegalStateException: something to "IllegalStateException"
+    private String extractRootCauseType(String rootCauseLine) {
+        String[] parts = rootCauseLine.split(":");
+        return extractSimpleName(parts[0].trim());
+    }
+
+    private String extractFallback(List<String> lines) {
+        return lines.stream()
+                .map(String::trim)
+                .filter(l -> !l.isEmpty())
                 .findFirst()
-                .orElseThrow(() -> new InvalidStackTraceException("Empty stack trace"));
-        // extraction with regex
-        Matcher matcher = EXCEPTION_PATTERN.matcher(firstLine.trim());
-
-        String exceptionType;
-        String message;
-
-        if (matcher.matches()) {
-            exceptionType = matcher.group(1);
-            message = matcher.group(2) != null ? matcher.group(2).trim() : "";
-        } else {
-            exceptionType = firstLine.trim();
-            message = "";
-        }
-
-        log.debug("Parsed: exception={}, message={}", exceptionType, message);
-
-        return new ParsedError("java", exceptionType, message);
+                .orElse("UnknownException");
     }
 }

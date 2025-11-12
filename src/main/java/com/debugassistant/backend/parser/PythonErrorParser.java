@@ -5,30 +5,33 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * Parser implementation for Python stack traces.
+ * Parses Python stack traces and extracts exception info
  */
 @Component
 @Slf4j
 public class PythonErrorParser implements ErrorParser {
+
+    private final KeywordExtractor keywordExtractor;
+    private final RootCauseExtractor rootCauseExtractor;
+
+    public PythonErrorParser(KeywordExtractor keywordExtractor, RootCauseExtractor rootCauseExtractor) {
+        this.keywordExtractor = keywordExtractor;
+        this.rootCauseExtractor = rootCauseExtractor;
+    }
 
     private static final Pattern PYTHON_ERROR_PATTERN =
             Pattern.compile("^([a-zA-Z0-9_.]+):\\s*(.*)$");
 
     @Override
     public ParsedError parse(String stackTrace) {
-        // Defensive check to ensure stability even if called directly
-        if (stackTrace == null || stackTrace.isBlank()) {
-            throw new InvalidStackTraceException("Stack trace cannot be empty");
-        }
+        log.debug("Parsing Python stack trace ({} chars)", stackTrace.length());
 
-        log.debug("Parsing Python stack trace");
-
-        // Split trace into lines and filter out empty ones
         List<String> lines = stackTrace.lines()
                 .filter(line -> !line.isBlank())
                 .toList();
@@ -37,26 +40,42 @@ public class PythonErrorParser implements ErrorParser {
             throw new InvalidStackTraceException("No readable lines found in stack trace");
         }
 
-        // error is in the last line
+        // Python error is in the last line
         String lastLine = lines.getLast().trim();
-
         Matcher matcher = PYTHON_ERROR_PATTERN.matcher(lastLine);
 
         String exceptionType;
         String message;
 
         if (matcher.matches()) {
-            exceptionType = matcher.group(1); // e.g. "ZeroDivisionError"
-            message = matcher.group(2);      // e.g. "division by zero"
+            exceptionType = matcher.group(1);
+            message = matcher.group(2);
         } else {
-            // Fallback
-            log.warn("Could not match standard Python error pattern in line: {}", lastLine);
+            log.warn("Could not match Python error pattern: {}", lastLine);
             exceptionType = "UnknownPythonError";
             message = lastLine;
         }
 
-        log.debug("Parsed Python result: type={}, message={}", exceptionType, message);
+        log.debug("Parsed: exception={}, message={}", exceptionType, message);
 
-        return new ParsedError("python", exceptionType, message);
+        // build basic error first for keyword extraction
+        ParsedError basicError = ParsedError.builder()
+                .language("python")
+                .exceptionType(exceptionType)
+                .message(message)
+                .stackTraceLines(lines.size())
+                .build();
+
+        String rootCause = rootCauseExtractor.extractRootCauseLine(stackTrace);
+        List<String> keywords = keywordExtractor.extract(basicError);
+
+        return ParsedError.builder()
+                .language("python")
+                .exceptionType(exceptionType)
+                .message(message)
+                .rootCause(rootCause)
+                .keywords(Set.copyOf(keywords))
+                .stackTraceLines(lines.size())
+                .build();
     }
 }
