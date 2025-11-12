@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Connects the parser, GitHub client and ranking service to find solutions
+ * Connects the parser, GitHub client and ranking service
  */
 @Service
 @RequiredArgsConstructor
@@ -29,14 +29,15 @@ public class AnalyzeService {
     private final QueryBuilder queryBuilder; // <-- NEU
 
     public AnalyzeResponse analyze(AnalyzeRequest request) {
-        // parse
         ParsedError parsed = parserRegistry.parse(request.getStackTrace());
 
         // build query & search GitHub
         String query = queryBuilder.build(parsed.exceptionType(), parsed.message(), parsed.keywords());
+
+        log.info("Searching GitHub for exception: {}", parsed.exceptionType());
         List<GitHubIssue> issues = gitHubClient.searchIssues(query);
 
-        // map results + ranking
+        // map issues and rank
         List<SearchResult> results = issues.stream()
                 .map(issue -> mapToSearchResult(issue, parsed.keywords()))
                 .sorted(Comparator.comparingDouble(SearchResult::getScore).reversed())
@@ -54,6 +55,7 @@ public class AnalyzeService {
                 .build();
     }
 
+    // transform issue into result
     private SearchResult mapToSearchResult(GitHubIssue issue, Set<String> keywords) {
         double score = rankingService.calculateScore(issue, keywords);
 

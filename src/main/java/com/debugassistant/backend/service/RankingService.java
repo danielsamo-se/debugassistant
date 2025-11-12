@@ -16,7 +16,6 @@ import java.util.Set;
 @Slf4j
 public class RankingService {
 
-    // weights explainable for interviews
     private static final double REACTIONS_WEIGHT = 0.5;
     private static final double KEYWORD_WEIGHT = 0.3;
     private static final double RECENCY_WEIGHT = 0.2;
@@ -58,7 +57,7 @@ public class RankingService {
     }
 
     /**
-     * Measures how many of the extracted user keywords appear in title/body.
+     * Measures engagement through reactions and comments.
      */
     private double calcKeywordOverlap(GitHubIssue issue, Set<String> keywords) {
         if (keywords == null || keywords.isEmpty()) return 0;
@@ -84,6 +83,7 @@ public class RankingService {
         if (daysOld <= 0) return 1.0;
         if (daysOld > 365) return 0.0;
 
+        // yearly decay
         return 1.0 - (daysOld / 365.0);
     }
 }
