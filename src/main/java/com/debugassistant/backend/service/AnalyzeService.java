@@ -28,21 +28,14 @@ public class AnalyzeService {
     private final RankingService rankingService;
 
     public AnalyzeResponse analyze(AnalyzeRequest request) {
-        // parse stacktrace
         ParsedError parsed = parserRegistry.parse(request.stackTrace());
         log.info("Parsed {} error: {}", parsed.language(), parsed.exceptionType());
 
-        // build query and search
-        String query = queryBuilder.build(
-                parsed.exceptionType(),
-                parsed.message(),
-                parsed.keywords()
-        );
+        String query = queryBuilder.buildSmartQuery(parsed);
 
         List<GitHubIssue> issues = gitHubClient.searchIssues(query);
         log.debug("Found {} GitHub issues", issues.size());
 
-        // rank results
         List<SearchResult> results = issues.stream()
                 .map(issue -> toSearchResult(issue, parsed.keywords()))
                 .sorted(Comparator.comparingDouble(SearchResult::getScore).reversed())

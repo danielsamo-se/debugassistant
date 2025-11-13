@@ -36,8 +36,6 @@ class AnalyzeControllerIntegrationTest {
 
     @Test
     void analyzeReturnsStructuredResponse() throws Exception {
-
-        // correct constructor order
         GitHubIssue issue = new GitHubIssue(
                 "Fix NPE",
                 "http://example.com/1",
@@ -52,16 +50,16 @@ class AnalyzeControllerIntegrationTest {
                 .thenReturn(List.of(issue));
 
         AnalyzeRequest request = new AnalyzeRequest("""
-             java.lang.NullPointerException: boom
-             at com.example.Test.main(Test.java:10)
-             """);
+                java.lang.NullPointerException: boom
+                    at com.example.Test.main(Test.java:10)
+                """);
 
         mockMvc.perform(post("/api/analyze")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.language").value("java"))
-                .andExpect(jsonPath("$.exceptionType").value("java.lang.NullPointerException"))
+                .andExpect(jsonPath("$.exceptionType").value("NullPointerException"))
                 .andExpect(jsonPath("$.results").isArray())
                 .andExpect(jsonPath("$.results[0].title").value("Fix NPE"));
     }

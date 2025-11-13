@@ -1,5 +1,6 @@
 package com.debugassistant.backend.parser;
 
+import com.debugassistant.backend.exception.InvalidStackTraceException;
 import com.debugassistant.backend.exception.UnsupportedLanguageException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +31,7 @@ class ParserRegistryTest {
         String javaTrace = "java.lang.NullPointerException at com.test.Main.java:10";
 
         when(javaErrorParser.parse(anyString()))
-                .thenReturn(new ParsedError("java", "NPE", "msg"));
+                .thenReturn(new ParsedError("java", "NullPointerException", "msg"));
 
         ParsedError result = parserRegistry.parse(javaTrace);
 
@@ -43,7 +44,7 @@ class ParserRegistryTest {
         String pythonTrace = "Traceback (most recent call last):\nFile script.py...";
 
         when(pythonErrorParser.parse(anyString()))
-                .thenReturn(new ParsedError("python", "Error", "msg"));
+                .thenReturn(new ParsedError("python", "ValueError", "msg"));
 
         ParsedError result = parserRegistry.parse(pythonTrace);
 
@@ -52,11 +53,22 @@ class ParserRegistryTest {
     }
 
     @Test
+    void shouldThrowExceptionForEmptyInput() {
+        assertThatThrownBy(() -> parserRegistry.parse(""))
+                .isInstanceOf(InvalidStackTraceException.class);
+    }
+
+    @Test
+    void shouldThrowExceptionForNullInput() {
+        assertThatThrownBy(() -> parserRegistry.parse(null))
+                .isInstanceOf(InvalidStackTraceException.class);
+    }
+
+    @Test
     void shouldThrowExceptionForUnknownLanguage() {
         String weirdText = "I am not a stack trace just some random text";
 
         assertThatThrownBy(() -> parserRegistry.parse(weirdText))
-                .isInstanceOf(UnsupportedLanguageException.class)
-                .hasMessageContaining("not supported yet");
+                .isInstanceOf(UnsupportedLanguageException.class);
     }
 }

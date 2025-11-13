@@ -1,9 +1,10 @@
 package com.debugassistant.backend.parser;
 
 import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RootCauseExtractorTest {
+class RootCauseExtractorTest {
 
     private final RootCauseExtractor extractor = new RootCauseExtractor();
 
@@ -55,9 +56,13 @@ public class RootCauseExtractorTest {
                 TypeError: unsupported operand type(s)
                 """;
 
-        // Python teilweise braucht etwas smartere Logik,
-        // aber wir können die letzte Exception erkennen:
         assertThat(extractor.extractRootCauseLine(trace))
                 .isEqualTo("TypeError: unsupported operand type(s)");
+    }
+
+    @Test
+    void returnsNullForEmptyInput() {
+        assertThat(extractor.extractRootCauseLine("")).isNull();
+        assertThat(extractor.extractRootCauseLine(null)).isNull();
     }
 }

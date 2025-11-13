@@ -1,13 +1,20 @@
 package com.debugassistant.backend.parser;
 
-import com.debugassistant.backend.exception.InvalidStackTraceException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PythonErrorParserTest {
 
-    private final PythonErrorParser parser = new PythonErrorParser();
+    private PythonErrorParser parser;
+
+    @BeforeEach
+    void setUp() {
+        KeywordExtractor keywordExtractor = new KeywordExtractor();
+        RootCauseExtractor rootCauseExtractor = new RootCauseExtractor();
+        parser = new PythonErrorParser(keywordExtractor, rootCauseExtractor);
+    }
 
     @Test
     void shouldParseStandardPythonError() {
@@ -27,7 +34,6 @@ class PythonErrorParserTest {
 
     @Test
     void shouldHandleUnconventionalFormat() {
-        // test fallback
         String stackTrace = """
                 File "script.py", line 1
                 SyntaxError invalid syntax
@@ -41,9 +47,15 @@ class PythonErrorParserTest {
     }
 
     @Test
-    void shouldRejectEmptyInput() {
-        assertThatThrownBy(() -> parser.parse(""))
-                .isInstanceOf(InvalidStackTraceException.class)
-                .hasMessageContaining("cannot be empty");
+    void shouldExtractKeywords() {
+        String stackTrace = """
+                Traceback (most recent call last):
+                  File "app.py", line 5, in main
+                ValueError: invalid literal for int
+                """;
+
+        ParsedError result = parser.parse(stackTrace);
+
+        assertThat(result.keywords()).isNotEmpty();
     }
 }

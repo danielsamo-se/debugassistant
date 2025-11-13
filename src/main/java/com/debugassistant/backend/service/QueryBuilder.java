@@ -1,5 +1,6 @@
 package com.debugassistant.backend.service;
 
+import com.debugassistant.backend.parser.ParsedError;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -59,6 +60,32 @@ public class QueryBuilder {
         return String.join(" ", cleaned) + " in:title,body";
     }
 
+    private static final int MAX_KEYWORDS = 3;
+
+    public String buildSmartQuery(ParsedError error) {
+        List<String> parts = new ArrayList<>();
+
+        if (error.exceptionType() != null && !error.exceptionType().isBlank()) {
+            parts.add(error.exceptionType());
+        }
+
+        if (error.keywords() != null && !error.keywords().isEmpty()) {
+            parts.addAll(
+                    cleanKeywords(error.keywords())
+                            .stream()
+                            .limit(MAX_KEYWORDS)
+                            .toList()
+            );
+        }
+
+        if (parts.isEmpty()) {
+            return "exception in:title,body";
+        }
+
+        return String.join(" ", parts) + " in:title,body";
+    }
+
+
     private List<String> tokenize(String text) {
         String[] words = text.split("[\\s:,()\\[\\]{}]+");
         List<String> tokens = new ArrayList<>();
@@ -78,5 +105,9 @@ public class QueryBuilder {
                 .filter(w -> w.length() > 2)
                 .filter(w -> !STOP_WORDS.contains(w))
                 .toList();
+    }
+
+    private String cleanWord(String word) {
+        return word.replaceAll("[^a-zA-Z]", "").trim();
     }
 }

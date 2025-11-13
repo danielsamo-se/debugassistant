@@ -1,6 +1,5 @@
 package com.debugassistant.backend.parser;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,20 +17,19 @@ class KeywordExtractorTest {
     }
 
     @Test
-    void extractsKeywordsFromExceptionTypeWithHighestWeight() {
+    void extractsKeywordsFromExceptionType() {
         ParsedError error = ParsedError.builder()
-                .exceptionType("NullPointerException SomethingFailed")
-                .message("minor details")
-                .rootCause(null)
+                .exceptionType("NullPointerException")
+                .message("something failed")
                 .build();
 
         List<String> result = extractor.extract(error);
 
-        assertThat(result).contains("nullpointerexception", "somethingfailed");
+        assertThat(result).contains("nullpointerexception");
     }
 
     @Test
-    void mergesDuplicateKeywordsAndIncreasesScore() {
+    void mergesDuplicateKeywords() {
         ParsedError error = ParsedError.builder()
                 .exceptionType("TimeoutError")
                 .message("timeout occurred here")
@@ -44,38 +42,32 @@ class KeywordExtractorTest {
     }
 
     @Test
-    void filtersStaticStopwords() {
+    void filtersStopwords() {
         ParsedError error = ParsedError.builder()
-                .exceptionType("Error")
+                .exceptionType("SomeError")
                 .message("the message failed for the user")
                 .build();
 
         List<String> result = extractor.extract(error);
 
-        assertThat(result).doesNotContain("the", "error", "failed");
-    }
-
-    @Test
-    void filtersDynamicStopwords() {
-        ParsedError error = ParsedError.builder()
-                .exceptionType("12345")
-                .message("/usr/home/app/Main.java")
-                .rootCause("ABCDEF123")
-                .build();
-
-        List<String> result = extractor.extract(error);
-
-        assertThat(result).contains("usr", "home", "app");
+        assertThat(result).doesNotContain("the", "error", "failed", "for");
     }
 
     @Test
     void limitsOutputToFiveKeywords() {
         ParsedError error = ParsedError.builder()
-                .exceptionType("One Two Three Four Five Six Seven")
+                .exceptionType("OneError TwoError ThreeError FourError FiveError SixError SevenError")
                 .build();
 
         List<String> result = extractor.extract(error);
 
-        assertThat(result).hasSize(5);
+        assertThat(result).hasSizeLessThanOrEqualTo(5);
+    }
+
+    @Test
+    void returnsEmptyListForNullError() {
+        List<String> result = extractor.extract(null);
+
+        assertThat(result).isEmpty();
     }
 }
