@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST endpoint for stack trace analysis
+ */
 @RestController
 @RequestMapping("/api/analyze")
 @RequiredArgsConstructor
@@ -22,11 +25,9 @@ public class AnalyzeController {
 
     @PostMapping
     @Operation(summary = "Analyze stack trace",
-            description = "Parses a Java stack trace and returns exception details")
-    public ResponseEntity<AnalyzeResponse> analyze(
-            @Valid @RequestBody AnalyzeRequest request) {
-
-        log.info("Received analyze request");
+            description = "Parses a stack trace and returns exception details with search results")
+    public ResponseEntity<AnalyzeResponse> analyze(@Valid @RequestBody AnalyzeRequest request) {
+        log.info("Received analyze request ({} chars)", request.stackTrace().length());
         AnalyzeResponse response = analyzeService.analyze(request);
         return ResponseEntity.ok(response);
     }

@@ -6,21 +6,23 @@ import com.debugassistant.backend.exception.UnsupportedLanguageException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
 import java.util.stream.Collectors;
 
-@ControllerAdvice
+/**
+ * Handles exceptions globally and returns error responses
+ */
+@RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidStackTraceException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidStackTrace(
-            InvalidStackTraceException ex) {
+    public ResponseEntity<ErrorResponse> handleInvalidStackTrace(InvalidStackTraceException ex) {
         log.warn("Invalid stack trace: {}", ex.getMessage());
         return ResponseEntity
                 .badRequest()
@@ -28,8 +30,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnsupportedLanguageException.class)
-    public ResponseEntity<ErrorResponse> handleUnsupportedLanguage(
-            UnsupportedLanguageException ex) {
+    public ResponseEntity<ErrorResponse> handleUnsupportedLanguage(UnsupportedLanguageException ex) {
         log.warn("Unsupported language: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.UNPROCESSABLE_ENTITY)
@@ -37,8 +38,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationErrors(
-            MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining(", "));
@@ -49,5 +49,3 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(message, Instant.now()));
     }
 }
-
-
