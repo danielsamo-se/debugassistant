@@ -1,100 +1,82 @@
 package com.debugassistant.backend.service;
 
-import com.debugassistant.backend.parser.ParsedError;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-
 /**
- * Builds search queries for GitHub Issue Search
- * Combines exception, message tokens and extracted keywords
+ * Builds search queries for GitHub Issue Search.
  */
-
 @Component
 public class QueryBuilder {
 
+    private static final Set<String> STOP_WORDS = Set.of(
+            "the", "a", "an", "is", "are", "was", "were",
+            "be", "been", "being", "have", "has", "had",
+            "do", "does", "did", "will", "would", "could",
+            "should", "may", "might", "must", "shall",
+            "of", "on", "at", "for", "in", "to", "from",
+            "with", "by", "about", "into", "through",
+            "because", "cannot", "cant", "this", "that",
+            "null", "error", "exception", "failed", "line"
+    );
 
-    /**
-     * Builds a simple query from a ParsedError
-     */
-    public String buildSmartQuery(ParsedError error) {
+    private static final int MAX_QUERY_KEYWORDS = 4;
 
-        String base = error.exceptionType() != null
-                ? error.exceptionType().trim()
-                : "";
-
-        List<String> cleanedKeywords = cleanKeywords(error.keywords());
-        String keywordPart = String.join(" ", cleanedKeywords);
-
-        String core = base;
-        if (!keywordPart.isBlank()) {
-            core = (core + " " + keywordPart).trim();
-        }
-
-        return (core + " in:title,body").trim();
-    }
-
-    /**
-     * Creates a normalized search query and produces tokens to improve the search
-     */
     public String build(String exceptionType, String message, Set<String> keywords) {
-
         List<String> parts = new ArrayList<>();
 
+        // exception type is most important
         if (exceptionType != null && !exceptionType.isBlank()) {
-            parts.add(exceptionType.toLowerCase());
+            parts.add(exceptionType);
         }
 
+        // add message tokens
         if (message != null && !message.isBlank()) {
-            parts.addAll(cleanKeywords(Set.of(message.split(" "))));
+            parts.addAll(tokenize(message));
         }
 
+        // add extracted keywords
         if (keywords != null && !keywords.isEmpty()) {
             parts.addAll(cleanKeywords(keywords));
         }
 
         List<String> cleaned = parts.stream()
                 .map(String::trim)
-                .filter(s -> !s.isBlank())
+                .map(String::toLowerCase)
+                .filter(s -> s.length() > 2)
+                .filter(s -> !STOP_WORDS.contains(s))
                 .distinct()
+                .limit(MAX_QUERY_KEYWORDS)
                 .toList();
 
-        String core = String.join(" ", cleaned);
-
-        return (core + " in:title,body").trim();
-    }
-
-    /**
-     * Normalize and filter keywords
-     */
-    private List<String> cleanKeywords(Set<String> keywords) {
-        if (keywords == null || keywords.isEmpty()) {
-            return List.of();
+        if (cleaned.isEmpty()) {
+            return "exception in:title,body";
         }
 
+        return String.join(" ", cleaned) + " in:title,body";
+    }
+
+    private List<String> tokenize(String text) {
+        String[] words = text.split("[\\s:,()\\[\\]{}]+");
+        List<String> tokens = new ArrayList<>();
+        for (String word : words) {
+            String clean = word.replaceAll("[^a-zA-Z0-9]", "").trim();
+            if (!clean.isEmpty()) {
+                tokens.add(clean);
+            }
+        }
+        return tokens;
+    }
+
+    private List<String> cleanKeywords(Set<String> keywords) {
         return keywords.stream()
                 .map(String::toLowerCase)
-                .map(this::cleanWord)
+                .map(w -> w.replaceAll("[^a-zA-Z0-9]", ""))
                 .filter(w -> w.length() > 2)
                 .filter(w -> !STOP_WORDS.contains(w))
-                .sorted()
-                .limit(3)
                 .toList();
     }
-
-    private String cleanWord(String word) {
-        return word
-                .replaceAll("[^a-zA-Z]", "")
-                .trim();
-    }
-
-    private static final Set<String> STOP_WORDS = Set.of(
-            "the", "a", "an", "because", "cannot", "cant",
-            "line", "null", "error", "exception",
-            "of", "on", "at", "for", "in", "to", "from"
-    );
-
 }
