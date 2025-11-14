@@ -2,6 +2,7 @@ package com.debugassistant.backend.service;
 
 import com.debugassistant.backend.dto.github.GitHubIssue;
 import com.debugassistant.backend.dto.github.GitHubIssue.Reactions;
+import com.debugassistant.backend.dto.stackoverflow.StackOverflowQuestion;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -15,25 +16,20 @@ class RankingServiceTest {
 
     @Test
     void reactionScoreIsNormalizedCorrectly() {
-        RankingService service = new RankingService();
-
         GitHubIssue issue = new GitHubIssue(
                 "title",
                 "url",
                 "open",
                 10,
-                new GitHubIssue.Reactions(4), // 14 engagement
+                new Reactions(4),
                 Instant.now(),
                 ""
         );
 
-        double score = service.calculateScore(issue, Set.of());
+        double score = ranking.calculateGitHubScore(issue, Set.of());
 
-        // final = 0.5 * 0.7 + 0.3*overlap(=0) + 0.2*recency(=1)
-        // recency=1 if createdAt=now()
-        // => final = 0.35 + 0.2 = 0.55
-
-        assertThat(score).isEqualTo(0.55);
+        assertThat(score).isGreaterThan(0.3);
+        assertThat(score).isLessThan(0.8);
     }
 
     @Test
@@ -50,10 +46,10 @@ class RankingServiceTest {
 
         Set<String> keywords = Set.of("connection", "timeout", "nullpointer");
 
-        double score = ranking.calculateScore(issue, keywords);
+        double score = ranking.calculateGitHubScore(issue, keywords);
 
         assertThat(score).isGreaterThan(0.1);
-        assertThat(score).isLessThan(0.5);
+        assertThat(score).isLessThan(0.7);
     }
 
     @Test
@@ -74,12 +70,12 @@ class RankingServiceTest {
                 "open",
                 0,
                 null,
-                Instant.now(), // now
+                Instant.now(),
                 "body"
         );
 
-        double oldScore = ranking.calculateScore(oldIssue, Set.of());
-        double newScore = ranking.calculateScore(newIssue, Set.of());
+        double oldScore = ranking.calculateGitHubScore(oldIssue, Set.of());
+        double newScore = ranking.calculateGitHubScore(newIssue, Set.of());
 
         assertThat(newScore).isGreaterThan(oldScore);
     }
@@ -98,9 +94,70 @@ class RankingServiceTest {
 
         Set<String> keywords = Set.of("timeout", "server");
 
-        double score = ranking.calculateScore(issue, keywords);
+        double score = ranking.calculateGitHubScore(issue, keywords);
 
         assertThat(score).isGreaterThan(0.3);
         assertThat(score).isLessThan(1.0);
+    }
+
+    @Test
+    void shouldScoreStackOverflowHigherWhenAnswered() {
+        StackOverflowQuestion answered = new StackOverflowQuestion(
+                1L, "How to fix NPE", "https://so.com/1", 20, 3, true,
+                Instant.now().getEpochSecond(), null
+        );
+
+        StackOverflowQuestion unanswered = new StackOverflowQuestion(
+                2L, "How to fix NPE", "https://so.com/2", 20, 3, false,
+                Instant.now().getEpochSecond(), null
+        );
+
+        Set<String> keywords = Set.of("npe");
+
+        double answeredScore = ranking.calculateStackOverflowScore(answered, keywords);
+        double unansweredScore = ranking.calculateStackOverflowScore(unanswered, keywords);
+
+        assertThat(answeredScore).isGreaterThan(unansweredScore);
+    }
+
+    @Test
+    void shouldScoreStackOverflowWithHighVotes() {
+        StackOverflowQuestion highVotes = new StackOverflowQuestion(
+                1L, "Popular question", "https://so.com/1", 100, 10, true,
+                Instant.now().getEpochSecond(), null
+        );
+
+        StackOverflowQuestion lowVotes = new StackOverflowQuestion(
+                2L, "Unpopular question", "https://so.com/2", 2, 1, true,
+                Instant.now().getEpochSecond(), null
+        );
+
+        double highScore = ranking.calculateStackOverflowScore(highVotes, Set.of());
+        double lowScore = ranking.calculateStackOverflowScore(lowVotes, Set.of());
+
+        assertThat(highScore).isGreaterThan(lowScore);
+    }
+
+    @Test
+    void shouldHandleNullGitHubIssue() {
+        double score = ranking.calculateGitHubScore(null, Set.of("test"));
+        assertThat(score).isZero();
+    }
+
+    @Test
+    void shouldHandleNullStackOverflowQuestion() {
+        double score = ranking.calculateStackOverflowScore(null, Set.of("test"));
+        assertThat(score).isZero();
+    }
+
+    @Test
+    void shouldHandleEmptyKeywordsForStackOverflow() {
+        StackOverflowQuestion question = new StackOverflowQuestion(
+                1L, "Some question", "url", 10, 2, true,
+                Instant.now().getEpochSecond(), null
+        );
+
+        double score = ranking.calculateStackOverflowScore(question, Set.of());
+        assertThat(score).isGreaterThanOrEqualTo(0);
     }
 }

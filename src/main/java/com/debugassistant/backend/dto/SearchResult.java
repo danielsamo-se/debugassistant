@@ -1,7 +1,7 @@
 package com.debugassistant.backend.dto;
 
 /**
- * A single search result from GitHub
+ * A single search result from GitHub or Stack Overflow
  */
 public record SearchResult(
         String source,
@@ -9,10 +9,16 @@ public record SearchResult(
         String url,
         Integer reactions,
         String snippet,
-        Double score
+        Double score,
+        Integer answerCount,
+        Boolean isAnswered
 ) {
-    // for sorting compatibility
     public Double getScore() {
         return score != null ? score : 0.0;
+    }
+
+    // backward compatible constructor
+    public SearchResult(String source, String title, String url, Integer reactions, String snippet, Double score) {
+        this(source, title, url, reactions, snippet, score, null, null);
     }
 }
