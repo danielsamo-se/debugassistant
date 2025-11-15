@@ -109,8 +109,4 @@ public class RankingService {
         if (text == null) return "";
         return text.length() > maxLength ? text.substring(0, maxLength) + "..." : text; // shorten text for logging
     }
-
-    public double calculateScore(GitHubIssue issue, Set<String> keywords) {
-        return calculateGitHubScore(issue, keywords);
-    }
 }

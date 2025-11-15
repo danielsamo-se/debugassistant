@@ -4,12 +4,14 @@ import com.debugassistant.backend.dto.AnalyzeRequest;
 import com.debugassistant.backend.dto.AnalyzeResponse;
 import com.debugassistant.backend.dto.SearchResult;
 import com.debugassistant.backend.dto.github.GitHubIssue;
+import com.debugassistant.backend.dto.stackoverflow.StackOverflowQuestion;
 import com.debugassistant.backend.parser.ParsedError;
 import com.debugassistant.backend.parser.ParserRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +27,7 @@ public class AnalyzeService {
     private final ParserRegistry parserRegistry;
     private final QueryBuilder queryBuilder;
     private final GitHubClient gitHubClient;
+    private final StackOverflowClient stackOverflowClient;
     private final RankingService rankingService;
 
     public AnalyzeResponse analyze(AnalyzeRequest request) {
@@ -33,13 +36,30 @@ public class AnalyzeService {
 
         String query = queryBuilder.buildSmartQuery(parsed);
 
-        List<GitHubIssue> issues = gitHubClient.searchIssues(query);
-        log.debug("Found {} GitHub issues", issues.size());
+        // search both sources in parallel (could be async later)
+        List<GitHubIssue> githubIssues = gitHubClient.searchIssues(query);
+        List<StackOverflowQuestion> soQuestions = stackOverflowClient.search(query, parsed.language());
 
-        List<SearchResult> results = issues.stream()
-                .map(issue -> toSearchResult(issue, parsed.keywords()))
-                .sorted(Comparator.comparingDouble(SearchResult::getScore).reversed())
-                .toList();
+        log.debug("Found {} GitHub issues, {} Stack Overflow questions",
+                githubIssues.size(), soQuestions.size());
+
+        // merge and rank results
+        List<SearchResult> results = new ArrayList<>();
+
+        for (GitHubIssue issue : githubIssues) {
+            results.add(toSearchResult(issue, parsed.keywords()));
+        }
+
+        for (StackOverflowQuestion question : soQuestions) {
+            results.add(toSearchResult(question, parsed.keywords()));
+        }
+
+        // sort descending by score
+        results.sort(Comparator.comparingDouble(SearchResult::getScore).reversed());
+
+        if (results.size() > 15) {
+            results = results.subList(0, 15);
+        }
 
         return AnalyzeResponse.builder()
                 .language(parsed.language())
@@ -52,7 +72,7 @@ public class AnalyzeService {
     }
 
     private SearchResult toSearchResult(GitHubIssue issue, Set<String> keywords) {
-        double score = rankingService.calculateScore(issue, keywords);
+        double score = rankingService.calculateGitHubScore(issue, keywords);
 
         int reactions = 0;
         if (issue.reactions() != null && issue.reactions().totalCount() != null) {
@@ -65,7 +85,24 @@ public class AnalyzeService {
                 issue.htmlUrl(),
                 reactions,
                 null,
-                score
+                score,
+                null,
+                null
+        );
+    }
+
+    private SearchResult toSearchResult(StackOverflowQuestion question, Set<String> keywords) {
+        double score = rankingService.calculateStackOverflowScore(question, keywords);
+
+        return new SearchResult(
+                "stackoverflow",
+                question.title(),
+                question.link(),
+                question.score(),
+                null,
+                score,
+                question.answerCount(),
+                question.isAnswered()
         );
     }
 }
