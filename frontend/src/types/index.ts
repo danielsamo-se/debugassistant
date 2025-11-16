@@ -1,19 +1,19 @@
 export interface SearchResult {
-    source: string;
+    source: "github" | "stackoverflow";
     title: string;
     url: string;
     reactions: number;
     score: number;
-    comments?: number;
+    snippet?: string;
+    answerCount?: number;
+    isAnswered?: boolean;
 }
 
 export interface AnalyzeResponse {
     language: string;
     exceptionType: string;
     message: string;
-    score: number;
     keywords: string[];
     rootCause: string | null;
-    timestamp: string;
     results: SearchResult[];
 }

@@ -1,55 +1,58 @@
 import type { AnalyzeResponse } from "../types";
+import ResultCard from "./ResultCard";
 
 interface Props {
     result: AnalyzeResponse;
 }
 
 export default function ResultDisplay({ result }: Props) {
+    const githubCount = result.results.filter(r => r.source === "github").length;
+    const soCount = result.results.filter(r => r.source === "stackoverflow").length;
+
     return (
         <div className="result-section">
             <div className="summary">
-                <div className="badge">Language: <strong>{result.language.toUpperCase()}</strong></div>
-                <div className="badge">Type: <strong>{result.exceptionType}</strong></div>
-                <div className="badge" style={{ color: result.score > 0 ? 'green' : 'gray' }}>
-                    Score: <strong>{result.score}</strong>
+                <div className="badge">
+                    Language: <strong>{result.language.toUpperCase()}</strong>
                 </div>
+                <div className="badge">
+                    Type: <strong>{result.exceptionType}</strong>
+                </div>
+                {result.rootCause && (
+                    <div className="badge">
+                        Root Cause: <strong>{result.rootCause}</strong>
+                    </div>
+                )}
             </div>
 
-            <h3 style={{ marginBottom: '1rem', color: '#334155' }}>
+            {result.keywords.length > 0 && (
+                <div className="keywords">
+                    {result.keywords.map((kw, i) => (
+                        <span key={i} className="keyword-tag">{kw}</span>
+                    ))}
+                </div>
+            )}
+
+            <h3 className="results-header">
                 Found {result.results.length} Solutions
+                <span className="source-counts">
+                    ({soCount} Stack Overflow, {githubCount} GitHub)
+                </span>
             </h3>
 
             <div className="results-list">
                 {result.results.length === 0 ? (
-                    <p style={{ textAlign: 'center', color: '#64748b' }}>
-                        No matches found on GitHub.
+                    <p className="no-results">
+                        No matches found. Try a different stack trace.
                     </p>
                 ) : (
-                    result.results.map((item, index) => {
-                        const isTopMatch = index === 0 && item.score > 2;
-
-                        return (
-                            <div
-                                key={index}
-                                className={`result-card ${isTopMatch ? 'top-match' : ''}`}
-                            >
-                                <a
-                                    href={item.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="result-title"
-                                >
-                                    {isTopMatch && "★ "} {item.title}
-                                </a>
-
-                                <div className="result-meta">
-                                    <span> {item.comments ?? 0} Comments</span>
-                                    <span> {item.reactions} Reactions</span>
-                                    <span>Score: {item.score.toFixed(1)}</span>
-                                </div>
-                            </div>
-                        );
-                    })
+                    result.results.map((item, index) => (
+                        <ResultCard
+                            key={index}
+                            result={item}
+                            isTopMatch={index === 0 && item.score > 0.5}
+                        />
+                    ))
                 )}
             </div>
         </div>

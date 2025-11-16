@@ -27,7 +27,10 @@ export default function App() {
 
     return (
         <div className="container">
-            <h1> Debug Assistant</h1>
+            <h1>🔍 Debug Assistant</h1>
+            <p className="subtitle">
+                Paste your stack trace and find solutions from Stack Overflow and GitHub
+            </p>
 
             <StackTraceInput
                 onAnalyze={handleAnalyze}
