@@ -18,7 +18,7 @@ class QueryBuilderTest {
                 .keywords(Set.of("invoke", "object"))
                 .build();
 
-        String query = queryBuilder.buildSmartQuery(error);
+        String query = queryBuilder.buildSmartQuery(error, null);
 
         assertThat(query).contains("NullPointerException");
         assertThat(query).contains("invoke");
@@ -33,9 +33,8 @@ class QueryBuilderTest {
                 .keywords(Set.of("alpha", "beta", "gamma", "delta", "epsilon"))
                 .build();
 
-        String query = queryBuilder.buildSmartQuery(error);
+        String query = queryBuilder.buildSmartQuery(error, null);
 
-        // exceptionType + max 3 keywords + in:title,body
         String[] parts = query.replace(" in:title,body", "").split(" ");
         assertThat(parts.length).isLessThanOrEqualTo(4);
     }
@@ -47,7 +46,7 @@ class QueryBuilderTest {
                 .keywords(Set.of("!!!inv@oke", "123read"))
                 .build();
 
-        String query = queryBuilder.buildSmartQuery(error);
+        String query = queryBuilder.buildSmartQuery(error, null);
 
         assertThat(query).contains("invoke");
         assertThat(query).contains("read");
@@ -62,7 +61,7 @@ class QueryBuilderTest {
                 .keywords(Set.of("cannot", "the", "validword"))
                 .build();
 
-        String query = queryBuilder.buildSmartQuery(error);
+        String query = queryBuilder.buildSmartQuery(error, null);
 
         assertThat(query).contains("validword");
         assertThat(query).doesNotContain("cannot");
@@ -76,7 +75,7 @@ class QueryBuilderTest {
                 .keywords(Set.of())
                 .build();
 
-        String query = queryBuilder.buildSmartQuery(error);
+        String query = queryBuilder.buildSmartQuery(error, null);
 
         assertThat(query).isEqualTo("IndexOutOfBoundsException in:title,body");
     }
@@ -87,7 +86,7 @@ class QueryBuilderTest {
                 .keywords(Set.of("timeout", "connection"))
                 .build();
 
-        String query = queryBuilder.buildSmartQuery(error);
+        String query = queryBuilder.buildSmartQuery(error, null);
 
         assertThat(query).contains("timeout");
         assertThat(query).endsWith("in:title,body");
@@ -97,7 +96,7 @@ class QueryBuilderTest {
     void returnsDefaultForEmptyError() {
         ParsedError error = ParsedError.builder().build();
 
-        String query = queryBuilder.buildSmartQuery(error);
+        String query = queryBuilder.buildSmartQuery(error, null);
 
         assertThat(query).isEqualTo("exception in:title,body");
     }

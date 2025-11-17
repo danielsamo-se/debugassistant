@@ -34,7 +34,7 @@ public class AnalyzeService {
         ParsedError parsed = parserRegistry.parse(request.stackTrace());
         log.info("Parsed {} error: {}", parsed.language(), parsed.exceptionType());
 
-        String query = queryBuilder.buildSmartQuery(parsed);
+        String query = queryBuilder.buildSmartQuery(parsed, request.stackTrace());
 
         // search both sources in parallel (could be async later)
         List<GitHubIssue> githubIssues = gitHubClient.searchIssues(query);

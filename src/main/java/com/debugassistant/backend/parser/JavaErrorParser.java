@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 
 /**
- * Parses Java stack traces and extracts exception info.
+ * Parses Java stack traces and extracts exception info
  */
 @Component
 @Slf4j

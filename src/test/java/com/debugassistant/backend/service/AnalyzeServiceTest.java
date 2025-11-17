@@ -42,7 +42,6 @@ class AnalyzeServiceTest {
     @InjectMocks
     private AnalyzeService analyzeService;
 
-    // === Existing Tests (updated for new structure) ===
 
     @Test
     void shouldAnalyzeAndReturnResults() {
@@ -66,7 +65,7 @@ class AnalyzeServiceTest {
         );
 
         when(parserRegistry.parse(trace)).thenReturn(parsedError);
-        when(queryBuilder.buildSmartQuery(parsedError)).thenReturn("built-query");
+        when(queryBuilder.buildSmartQuery(parsedError, trace)).thenReturn("built-query");
         when(gitHubClient.searchIssues("built-query")).thenReturn(List.of(issue));
         when(stackOverflowClient.search("built-query", "java")).thenReturn(List.of());
         when(rankingService.calculateGitHubScore(eq(issue), anySet())).thenReturn(5.0);
@@ -78,7 +77,7 @@ class AnalyzeServiceTest {
         assertThat(response.results().getFirst().title()).isEqualTo("Fix NPE");
 
         verify(parserRegistry).parse(trace);
-        verify(queryBuilder).buildSmartQuery(parsedError);
+        verify(queryBuilder).buildSmartQuery(parsedError, trace);
         verify(gitHubClient).searchIssues("built-query");
         verify(rankingService).calculateGitHubScore(eq(issue), anySet());
     }
@@ -94,7 +93,7 @@ class AnalyzeServiceTest {
                 .build();
 
         when(parserRegistry.parse(trace)).thenReturn(parsedError);
-        when(queryBuilder.buildSmartQuery(parsedError)).thenReturn("built-query");
+        when(queryBuilder.buildSmartQuery(parsedError, trace)).thenReturn("built-query");
         when(gitHubClient.searchIssues("built-query")).thenReturn(Collections.emptyList());
         when(stackOverflowClient.search("built-query", "python")).thenReturn(Collections.emptyList());
 
@@ -136,7 +135,7 @@ class AnalyzeServiceTest {
         );
 
         when(parserRegistry.parse(anyString())).thenReturn(parsed);
-        when(queryBuilder.buildSmartQuery(parsed)).thenReturn("built-query");
+        when(queryBuilder.buildSmartQuery(eq(parsed), anyString())).thenReturn("built-query");
         when(gitHubClient.searchIssues("built-query")).thenReturn(List.of(lowIssue, highIssue));
         when(stackOverflowClient.search("built-query", "java")).thenReturn(List.of());
         when(rankingService.calculateGitHubScore(eq(lowIssue), anySet())).thenReturn(2.0);
@@ -149,7 +148,6 @@ class AnalyzeServiceTest {
         assertThat(response.results().get(1).title()).isEqualTo("Low");
     }
 
-    // === New Stack Overflow Tests ===
 
     @Test
     void shouldMergeResultsFromBothSources() {
@@ -171,7 +169,7 @@ class AnalyzeServiceTest {
         );
 
         when(parserRegistry.parse(trace)).thenReturn(parsedError);
-        when(queryBuilder.buildSmartQuery(parsedError)).thenReturn("query");
+        when(queryBuilder.buildSmartQuery(parsedError, trace)).thenReturn("query");
         when(gitHubClient.searchIssues("query")).thenReturn(List.of(githubIssue));
         when(stackOverflowClient.search("query", "java")).thenReturn(List.of(soQuestion));
         when(rankingService.calculateGitHubScore(any(), anySet())).thenReturn(5.0);
@@ -200,7 +198,7 @@ class AnalyzeServiceTest {
         );
 
         when(parserRegistry.parse(trace)).thenReturn(parsed);
-        when(queryBuilder.buildSmartQuery(parsed)).thenReturn("query");
+        when(queryBuilder.buildSmartQuery(eq(parsed), anyString())).thenReturn("query");
         when(gitHubClient.searchIssues("query")).thenReturn(List.of());
         when(stackOverflowClient.search("query", "python")).thenReturn(List.of(question));
         when(rankingService.calculateStackOverflowScore(any(), anySet())).thenReturn(7.0);
@@ -230,7 +228,7 @@ class AnalyzeServiceTest {
         }
 
         when(parserRegistry.parse(trace)).thenReturn(parsed);
-        when(queryBuilder.buildSmartQuery(parsed)).thenReturn("query");
+        when(queryBuilder.buildSmartQuery(eq(parsed), anyString())).thenReturn("query");
         when(gitHubClient.searchIssues("query")).thenReturn(manyIssues);
         when(stackOverflowClient.search("query", "java")).thenReturn(List.of());
         when(rankingService.calculateGitHubScore(any(), anySet())).thenReturn(5.0);

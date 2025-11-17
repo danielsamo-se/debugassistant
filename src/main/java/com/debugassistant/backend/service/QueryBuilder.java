@@ -21,7 +21,8 @@ public class QueryBuilder {
             "of", "on", "at", "for", "in", "to", "from",
             "with", "by", "about", "into", "through",
             "because", "cannot", "cant", "this", "that",
-            "null", "error", "exception", "failed", "line"
+            "null", "error", "exception", "failed", "line",
+            "caused", "java", "lang", "class"
     );
 
     private static final int MAX_QUERY_KEYWORDS = 4;
@@ -62,11 +63,25 @@ public class QueryBuilder {
 
     private static final int MAX_KEYWORDS = 3;
 
-    public String buildSmartQuery(ParsedError error) {
+    public String buildSmartQuery(ParsedError error, String rawStackTrace) {
         List<String> parts = new ArrayList<>();
 
-        if (error.exceptionType() != null && !error.exceptionType().isBlank()) {
-            parts.add(error.exceptionType());
+        String searchException = error.exceptionType();
+        if (error.rootCause() != null && !error.rootCause().isBlank()) {
+            String rootCauseType = error.rootCause().split(":")[0];
+            searchException = getSimpleName(rootCauseType);
+        }
+
+        if (searchException != null && !searchException.isBlank()) {
+            parts.add(searchException);
+        }
+
+        if (rawStackTrace != null) {
+            String lowerStack = rawStackTrace.toLowerCase();
+            if (lowerStack.contains("org.springframework")) parts.add("Spring Boot");
+            else if (lowerStack.contains("org.hibernate")) parts.add("Hibernate");
+            else if (lowerStack.contains("jakarta.persistence") || lowerStack.contains("javax.persistence")) parts.add("JPA");
+            else if (lowerStack.contains("org.apache.catalina")) parts.add("Tomcat");
         }
 
         if (error.keywords() != null && !error.keywords().isEmpty()) {
@@ -78,13 +93,16 @@ public class QueryBuilder {
             );
         }
 
-        if (parts.isEmpty()) {
+        List<String> finalParts = parts.stream()
+                .distinct()
+                .toList();
+
+        if (finalParts.isEmpty()) {
             return "exception in:title,body";
         }
 
-        return String.join(" ", parts) + " in:title,body";
+        return String.join(" ", finalParts) + " in:title,body";
     }
-
 
     private List<String> tokenize(String text) {
         String[] words = text.split("[\\s:,()\\[\\]{}]+");
@@ -109,5 +127,13 @@ public class QueryBuilder {
 
     private String cleanWord(String word) {
         return word.replaceAll("[^a-zA-Z]", "").trim();
+    }
+
+    private String getSimpleName(String fullClassName) {
+        if (fullClassName == null) return "";
+        if (fullClassName.contains(".")) {
+            return fullClassName.substring(fullClassName.lastIndexOf('.') + 1).trim();
+        }
+        return fullClassName.trim();
     }
 }

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 /**
- * Extracts a small set of relevant keywords to improve GitHub search queries.
+ * Extracts a small set of relevant keywords to improve GitHub search queries
  */
 @Component
 public class KeywordExtractor {
