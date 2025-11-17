@@ -9,6 +9,7 @@ import com.debugassistant.backend.parser.ParsedError;
 import com.debugassistant.backend.parser.ParserRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,7 +31,9 @@ public class AnalyzeService {
     private final StackOverflowClient stackOverflowClient;
     private final RankingService rankingService;
 
+    @Cacheable(value="analyses", key ="#request.stackTrace().hashCode()")
     public AnalyzeResponse analyze(AnalyzeRequest request) {
+        log.info("Nothing found in cache, analyzing stack trace");
         ParsedError parsed = parserRegistry.parse(request.stackTrace());
         log.info("Parsed {} error: {}", parsed.language(), parsed.exceptionType());
 
