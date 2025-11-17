@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Main service that connects parsing, searching and ranking.
+ * Main service that connects parsing, searching and ranking
  */
 @Service
 @RequiredArgsConstructor

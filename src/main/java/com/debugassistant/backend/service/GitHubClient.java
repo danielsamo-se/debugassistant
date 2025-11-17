@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClient;
 import java.util.List;
 
 /**
- * Searches GitHub Issues for possible solutions.
+ * Searches GitHub Issues for possible solutions
  */
 @Service
 @Slf4j

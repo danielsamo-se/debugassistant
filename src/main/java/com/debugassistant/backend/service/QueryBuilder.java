@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Builds search queries for GitHub Issue Search.
+ * Builds search queries for GitHub Issue Search
  */
 @Component
 public class QueryBuilder {

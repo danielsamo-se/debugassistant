@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.util.regex.Pattern;
 
 /**
- * Finds the deepest cause inside a stack trace.
+ * Finds the deepest cause inside a stack trace
  */
 @Component
 @Slf4j
