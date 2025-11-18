@@ -31,7 +31,7 @@ public class AnalyzeService {
     private final StackOverflowClient stackOverflowClient;
     private final RankingService rankingService;
 
-    @Cacheable(value="analyses", key ="#request.stackTrace().hashCode()")
+    @Cacheable(value = "analyses", key = "T(org.springframework.util.DigestUtils).md5DigestAsHex(#request.stackTrace().getBytes())")
     public AnalyzeResponse analyze(AnalyzeRequest request) {
         log.info("Nothing found in cache, analyzing stack trace");
         ParsedError parsed = parserRegistry.parse(request.stackTrace());

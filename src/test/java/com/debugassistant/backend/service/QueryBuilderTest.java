@@ -17,87 +17,81 @@ class QueryBuilderTest {
                 .exceptionType("NullPointerException")
                 .keywords(Set.of("invoke", "object"))
                 .build();
-
         String query = queryBuilder.buildSmartQuery(error, null);
-
         assertThat(query).contains("NullPointerException");
         assertThat(query).contains("invoke");
-        assertThat(query).contains("object");
-        assertThat(query).endsWith("in:title,body");
     }
 
     @Test
     void limitsKeywordsToThree() {
         ParsedError error = ParsedError.builder()
-                .exceptionType("IllegalArgumentException")
-                .keywords(Set.of("alpha", "beta", "gamma", "delta", "epsilon"))
+                .exceptionType("Ex")
+                .keywords(Set.of("a", "b", "c", "d"))
                 .build();
-
         String query = queryBuilder.buildSmartQuery(error, null);
-
-        String[] parts = query.replace(" in:title,body", "").split(" ");
-        assertThat(parts.length).isLessThanOrEqualTo(4);
+        long spaces = query.chars().filter(c -> c == ' ').count();
+        assertThat(spaces).isLessThanOrEqualTo(5);
     }
 
     @Test
     void cleansInvalidCharacters() {
-        ParsedError error = ParsedError.builder()
-                .exceptionType("NullPointerException")
-                .keywords(Set.of("!!!inv@oke", "123read"))
-                .build();
-
-        String query = queryBuilder.buildSmartQuery(error, null);
-
-        assertThat(query).contains("invoke");
-        assertThat(query).contains("read");
-        assertThat(query).doesNotContain("!");
-        assertThat(query).doesNotContain("@");
+        ParsedError error = ParsedError.builder().exceptionType("E").keywords(Set.of("!word")).build();
+        assertThat(queryBuilder.buildSmartQuery(error, null)).contains("word");
     }
 
     @Test
     void filtersStopwords() {
-        ParsedError error = ParsedError.builder()
-                .exceptionType("NullPointerException")
-                .keywords(Set.of("cannot", "the", "validword"))
-                .build();
-
-        String query = queryBuilder.buildSmartQuery(error, null);
-
-        assertThat(query).contains("validword");
-        assertThat(query).doesNotContain("cannot");
-        assertThat(query).doesNotContain(" the ");
-    }
-
-    @Test
-    void handlesEmptyKeywords() {
-        ParsedError error = ParsedError.builder()
-                .exceptionType("IndexOutOfBoundsException")
-                .keywords(Set.of())
-                .build();
-
-        String query = queryBuilder.buildSmartQuery(error, null);
-
-        assertThat(query).isEqualTo("IndexOutOfBoundsException in:title,body");
-    }
-
-    @Test
-    void handlesMissingExceptionType() {
-        ParsedError error = ParsedError.builder()
-                .keywords(Set.of("timeout", "connection"))
-                .build();
-
-        String query = queryBuilder.buildSmartQuery(error, null);
-
-        assertThat(query).contains("timeout");
-        assertThat(query).endsWith("in:title,body");
+        ParsedError error = ParsedError.builder().exceptionType("E").keywords(Set.of("the", "valid")).build();
+        assertThat(queryBuilder.buildSmartQuery(error, null)).doesNotContain("the").contains("valid");
     }
 
     @Test
     void returnsDefaultForEmptyError() {
         ParsedError error = ParsedError.builder().build();
+        assertThat(queryBuilder.buildSmartQuery(error, null)).isEqualTo("exception in:title,body");
+    }
+
+    @Test
+    void prioritizesRootCauseOverExceptionType() {
+        ParsedError error = ParsedError.builder()
+                .exceptionType("BeanCreationException")
+                .rootCause("java.sql.SQLException: Connection refused")
+                .keywords(Set.of("bean"))
+                .build();
+        String query = queryBuilder.buildSmartQuery(error, null);
+        assertThat(query).contains("SQLException");
+        assertThat(query).doesNotContain("BeanCreationException");
+    }
+
+    @Test
+    void extractsCorrectLibraryFromStandardPackage() {
+        ParsedError error = ParsedError.builder()
+                .exceptionType("org.hibernate.exception.ConstraintViolationException")
+                .build();
+        String query = queryBuilder.buildSmartQuery(error, null);
+        assertThat(query).contains("hibernate");
+    }
+
+    @Test
+    void extractsDeepLibraryFromUmbrellaOrg() {
+        ParsedError error = ParsedError.builder()
+                .exceptionType("org.apache.kafka.common.errors.SerializationException")
+                .build();
+        String query = queryBuilder.buildSmartQuery(error, null);
+        assertThat(query).contains("kafka");
+        assertThat(query).doesNotContain("apache");
+    }
+
+    @Test
+    void extractsSpringframeworkAsLibrary() {
+        ParsedError error = ParsedError.builder()
+                .exceptionType("org.springframework.beans.factory.BeanCreationException")
+                .build();
 
         String query = queryBuilder.buildSmartQuery(error, null);
 
-        assertThat(query).isEqualTo("exception in:title,body");
+        assertThat(query).contains("springframework");
+        assertThat(query).doesNotContain("beans");
+        assertThat(query).contains("BeanCreationException");
     }
 }

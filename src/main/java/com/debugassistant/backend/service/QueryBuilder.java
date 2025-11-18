@@ -14,74 +14,43 @@ import java.util.Set;
 public class QueryBuilder {
 
     private static final Set<String> STOP_WORDS = Set.of(
-            "the", "a", "an", "is", "are", "was", "were",
-            "be", "been", "being", "have", "has", "had",
-            "do", "does", "did", "will", "would", "could",
-            "should", "may", "might", "must", "shall",
-            "of", "on", "at", "for", "in", "to", "from",
-            "with", "by", "about", "into", "through",
+            "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
+            "have", "has", "had", "do", "does", "did", "will", "would", "could",
+            "should", "may", "might", "must", "shall", "of", "on", "at", "for",
+            "in", "to", "from", "with", "by", "about", "into", "through",
             "because", "cannot", "cant", "this", "that",
             "null", "error", "exception", "failed", "line",
-            "caused", "java", "lang", "class"
+            "caused", "java", "lang", "class", "org", "com", "net", "io"
     );
 
-    private static final int MAX_QUERY_KEYWORDS = 4;
+    private static final Set<String> UMBRELLA_ORGS = Set.of(
+            "apache", "google", "amazon", "aws", "azure", "eclipse",
+            "jakarta", "github", "software"
+    );
 
-    public String build(String exceptionType, String message, Set<String> keywords) {
-        List<String> parts = new ArrayList<>();
-
-        // exception type is most important
-        if (exceptionType != null && !exceptionType.isBlank()) {
-            parts.add(exceptionType);
-        }
-
-        // add message tokens
-        if (message != null && !message.isBlank()) {
-            parts.addAll(tokenize(message));
-        }
-
-        // add extracted keywords
-        if (keywords != null && !keywords.isEmpty()) {
-            parts.addAll(cleanKeywords(keywords));
-        }
-
-        List<String> cleaned = parts.stream()
-                .map(String::trim)
-                .map(String::toLowerCase)
-                .filter(s -> s.length() > 2)
-                .filter(s -> !STOP_WORDS.contains(s))
-                .distinct()
-                .limit(MAX_QUERY_KEYWORDS)
-                .toList();
-
-        if (cleaned.isEmpty()) {
-            return "exception in:title,body";
-        }
-
-        return String.join(" ", cleaned) + " in:title,body";
-    }
+    private static final Set<String> GENERIC_PACKAGE_PARTS = Set.of(
+            "internal", "util", "utils", "common", "core", "impl",
+            "exception", "error", "api", "spi"
+    );
 
     private static final int MAX_KEYWORDS = 3;
 
     public String buildSmartQuery(ParsedError error, String rawStackTrace) {
         List<String> parts = new ArrayList<>();
 
-        String searchException = error.exceptionType();
+        String rawExceptionString = error.exceptionType();
         if (error.rootCause() != null && !error.rootCause().isBlank()) {
-            String rootCauseType = error.rootCause().split(":")[0];
-            searchException = getSimpleName(rootCauseType);
+            rawExceptionString = error.rootCause().split(":")[0];
         }
 
-        if (searchException != null && !searchException.isBlank()) {
-            parts.add(searchException);
+        String library = extractLibraryName(rawExceptionString);
+        if (library != null) {
+            parts.add(library);
         }
 
-        if (rawStackTrace != null) {
-            String lowerStack = rawStackTrace.toLowerCase();
-            if (lowerStack.contains("org.springframework")) parts.add("Spring Boot");
-            else if (lowerStack.contains("org.hibernate")) parts.add("Hibernate");
-            else if (lowerStack.contains("jakarta.persistence") || lowerStack.contains("javax.persistence")) parts.add("JPA");
-            else if (lowerStack.contains("org.apache.catalina")) parts.add("Tomcat");
+        String simpleException = getSimpleName(rawExceptionString);
+        if (simpleException != null && !simpleException.isBlank()) {
+            parts.add(simpleException);
         }
 
         if (error.keywords() != null && !error.keywords().isEmpty()) {
@@ -93,10 +62,10 @@ public class QueryBuilder {
             );
         }
 
-        List<String> finalParts = parts.stream()
-                .distinct()
-                .toList();
+        // remove duplicates
+        List<String> finalParts = parts.stream().distinct().toList();
 
+        // fallback
         if (finalParts.isEmpty()) {
             return "exception in:title,body";
         }
@@ -104,16 +73,31 @@ public class QueryBuilder {
         return String.join(" ", finalParts) + " in:title,body";
     }
 
-    private List<String> tokenize(String text) {
-        String[] words = text.split("[\\s:,()\\[\\]{}]+");
-        List<String> tokens = new ArrayList<>();
-        for (String word : words) {
-            String clean = word.replaceAll("[^a-zA-Z0-9]", "").trim();
-            if (!clean.isEmpty()) {
-                tokens.add(clean);
-            }
+    private String extractLibraryName(String fullClassName) {
+        // requires package structure
+        if (fullClassName == null || !fullClassName.contains(".")) return null;
+
+        String[] parts = fullClassName.split("\\.");
+
+        // not enough segments
+        if (parts.length < 3) return null;
+
+        //typical position
+        int targetIndex = 1;
+        String candidate = parts[targetIndex].toLowerCase();
+
+        // skip umbrella logs
+        if (UMBRELLA_ORGS.contains(candidate) && parts.length > 3) {
+            targetIndex++;
+            candidate = parts[targetIndex].toLowerCase();
         }
-        return tokens;
+
+        // skip generic names
+        if (candidate.length() <= 2 || GENERIC_PACKAGE_PARTS.contains(candidate)) {
+            return null;
+        }
+
+        return candidate;
     }
 
     private List<String> cleanKeywords(Set<String> keywords) {
@@ -123,10 +107,6 @@ public class QueryBuilder {
                 .filter(w -> w.length() > 2)
                 .filter(w -> !STOP_WORDS.contains(w))
                 .toList();
-    }
-
-    private String cleanWord(String word) {
-        return word.replaceAll("[^a-zA-Z]", "").trim();
     }
 
     private String getSimpleName(String fullClassName) {
