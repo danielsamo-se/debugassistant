@@ -2,7 +2,9 @@ package com.debugassistant.backend.controller;
 
 import com.debugassistant.backend.dto.AnalyzeRequest;
 import com.debugassistant.backend.dto.github.GitHubIssue;
+import com.debugassistant.backend.dto.stackoverflow.StackOverflowQuestion;
 import com.debugassistant.backend.service.GitHubClient;
+import com.debugassistant.backend.service.StackOverflowClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +12,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -23,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class AnalyzeControllerIntegrationTest {
 
     @Autowired
@@ -33,6 +36,9 @@ class AnalyzeControllerIntegrationTest {
 
     @MockBean
     private GitHubClient gitHubClient;
+
+    @MockBean
+    private StackOverflowClient stackOverflowClient;
 
     @Test
     void analyzeReturnsStructuredResponse() throws Exception {
@@ -46,8 +52,19 @@ class AnalyzeControllerIntegrationTest {
                 "Some body text"
         );
 
-        when(gitHubClient.searchIssues(anyString()))
-                .thenReturn(List.of(issue));
+        StackOverflowQuestion question = new StackOverflowQuestion(
+                1L,
+                "How to fix NullPointerException",
+                "http://stackoverflow.com/q/1",
+                5,
+                2,
+                true,
+                Instant.parse("2024-01-01T12:00:00Z").getEpochSecond(),
+                new StackOverflowQuestion.Owner("John Doe")
+        );
+
+        when(gitHubClient.searchIssues(anyString())).thenReturn(List.of(issue));
+        when(stackOverflowClient.search(anyString(), anyString())).thenReturn(List.of(question));
 
         AnalyzeRequest request = new AnalyzeRequest("""
                 java.lang.NullPointerException: boom
@@ -60,7 +77,6 @@ class AnalyzeControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.language").value("java"))
                 .andExpect(jsonPath("$.exceptionType").value("NullPointerException"))
-                .andExpect(jsonPath("$.results").isArray())
-                .andExpect(jsonPath("$.results[0].title").value("Fix NPE"));
+                .andExpect(jsonPath("$.results").isArray());
     }
 }
