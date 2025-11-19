@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 
 /**
- * Represents a GitHub issue from the Search API.
+ * Represents a GitHub issue from the Search API
  */
 public record GitHubIssue(
         String title,
