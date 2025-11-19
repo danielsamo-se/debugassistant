@@ -1,0 +1,39 @@
+689bde7 | feat(auth): add JWT authentication with register/login endpoints | authored: Tue Nov 18 22:55:18 2025 +0100 | committed: Tue Nov 18 22:55:18 2025 +0100
+908dad8 | feat(auth): add JWT service and security configuration | authored: Tue Nov 18 15:10:42 2025 +0100 | committed: Tue Nov 18 15:10:42 2025 +0100
+c58b999 | feat(db,cache): add JPA entities/repositories and enable Redis caching for analysis results | authored: Mon Nov 17 19:12:45 2025 +0100 | committed: Mon Nov 17 19:12:45 2025 +0100
+5c6f4bd | feat(db): add User and SearchHistory entities and repositories | authored: Mon Nov 17 16:58:30 2025 +0100 | committed: Mon Nov 17 16:58:30 2025 +0100
+b7817f7 | feat(search): improve query generation with root cause priority and framework detection | authored: Mon Nov 17 16:42:15 2025 +0100 | committed: Mon Nov 17 16:42:15 2025 +0100
+6be62ec | build(infra): setup postgres and redis dependencies and configuration | authored: Mon Nov 17 16:12:44 2025 +0100 | committed: Mon Nov 17 16:12:44 2025 +0100
+a4be045 | feat(ui): add Stack Overflow support with badges, answer indicator, updated types and improved styling | authored: Sun Nov 16 22:50:15 2025 +0100 | committed: Sun Nov 16 22:50:15 2025 +0100
+384ad55 | feat(analyze): integrate Stack Overflow client and merge with GitHub results | authored: Sat Nov 15 12:18:05 2025 +0100 | committed: Sat Nov 15 12:18:05 2025 +0100
+e5d65c9 | feat(stackoverflow): add SO client, extend SearchResult, and update RankingService scoring | authored: Fri Nov 14 16:25:48 2025 +0100 | committed: Fri Nov 14 16:25:48 2025 +0100
+db65cc2 | feat(dto): add Stack Overflow API response DTOs | authored: Fri Nov 14 14:10:33 2025 +0100 | committed: Fri Nov 14 14:10:33 2025 +0100
+a6f049e | test: Adjust and update test cases to match new behavior and fix failing assertions | authored: Thu Nov 13 22:03:45 2025 +0100 | committed: Thu Nov 13 22:03:45 2025 +0100
+8b92f68 | refactor: clean up DTOs, config and exceptions | authored: Thu Nov 13 19:58:15 2025 +0100 | committed: Thu Nov 13 19:58:15 2025 +0100
+ee47ad3 | refactor(dto): convert to records and remove unused fields | authored: Thu Nov 13 19:28:45 2025 +0100 | committed: Thu Nov 13 19:28:45 2025 +0100
+5bdd8d9 | refactor(service): clean up analyze flow and query building | authored: Thu Nov 13 19:15:30 2025 +0100 | committed: Thu Nov 13 19:15:30 2025 +0100
+b05fa51 | refactor(parser): integrate extractors and improve parsing logic | authored: Wed Nov 12 22:55:25 2025 +0100 | committed: Wed Nov 12 22:55:25 2025 +0100
+b4d3cac | chore(github-client): improve logging, add comments and refine error handling | authored: Wed Nov 12 18:43:56 2025 +0100 | committed: Wed Nov 12 18:43:56 2025 +0100
+00264cc | style: clean up analysis services and add comments for maintainability | authored: Wed Nov 12 18:21:16 2025 +0100 | committed: Wed Nov 12 18:21:16 2025 +0100
+c38610f | test: add GitHubClient test with MockWebServer and integration test for analyze endpoint | authored: Wed Nov 12 17:58:11 2025 +0100 | committed: Wed Nov 12 17:58:11 2025 +0100
+d447708 | refactor(core): update GitHubIssue model, improve ranking, enhance query building, and adapt tests | authored: Tue Nov 11 17:45:42 2025 +0100 | committed: Tue Nov 11 17:45:42 2025 +0100
+5c2cffb | feat(parser): add KeywordExtractor with scoring and filtering logic, including unit tests | authored: Sun Nov 9 17:09:55 2025 +0100 | committed: Sun Nov 9 17:09:55 2025 +0100
+00ab196 | feat(parser): add RootCauseExtractor with multi-language root cause detection and tests | authored: Fri Nov 7 14:00:18 2025 +0100 | committed: Fri Nov 7 14:00:18 2025 +0100
+6f09019 | feat(search): introduce QueryBuilder and integrate into AnalyzeService with tests | authored: Thu Nov 6 21:33:07 2025 +0100 | committed: Thu Nov 6 21:33:07 2025 +0100
+02b4403 | feat: Improve GitHub search quality and ranking logic | authored: Wed Nov 5 16:34:31 2025 +0100 | committed: Wed Nov 5 16:34:31 2025 +0100
+21ad0c3 | style: Improve UI layout and result card display | authored: Wed Nov 5 14:52:19 2025 +0100 | committed: Wed Nov 5 14:52:19 2025 +0100
+5575b55 | test: Add tests for AnalyzeService logic | authored: Mon Nov 3 23:37:12 2025 +0100 | committed: Mon Nov 3 23:37:12 2025 +0100
+8404baa | feat: Add GitHubClient implementation | authored: Mon Nov 3 20:37:52 2025 +0100 | committed: Mon Nov 3 20:37:52 2025 +0100
+d08f5c2 | feat: Add Python parser and registry logic with unit tests | authored: Mon Nov 3 13:55:55 2025 +0100 | committed: Mon Nov 3 13:55:55 2025 +0100
+4d6fb63 | feat: Add PythonErrorParser with unit tests | authored: Mon Nov 3 12:45:10 2025 +0100 | committed: Mon Nov 3 12:45:10 2025 +0100
+a38c933 | feat: extend AnalyzeService return and add tests | authored: Sun Nov 2 18:51:34 2025 +0100 | committed: Sun Nov 2 18:51:34 2025 +0100
+6fe714f | feat: add webconfig and frontend structure | authored: Sun Nov 2 18:23:52 2025 +0100 | committed: Sun Nov 2 18:23:52 2025 +0100
+e2ac38c | feat: add logging, refactor JavaErrorParser and add new tests | authored: Sat Nov 1 17:34:11 2025 +0100 | committed: Sat Nov 1 17:34:11 2025 +0100
+a9b9e41 | feat: extend scoring and add OpenAPI config | authored: Sat Nov 1 15:00:33 2025 +0100 | committed: Sat Nov 1 15:00:33 2025 +0100
+8a75c7b | feat: add global exception handler | authored: Fri Oct 31 21:08:15 2025 +0100 | committed: Fri Oct 31 21:08:15 2025 +0100
+a6cfbc3 | feat: enhance AnalyzeRequest/Response DTOs with validation, metadata and new fields | authored: Fri Oct 31 14:15:47 2025 +0100 | committed: Fri Oct 31 14:15:47 2025 +0100
+81c2bef | feat: add advanced parser and custom exceptions | authored: Fri Oct 31 13:31:02 2025 +0100 | committed: Fri Oct 31 13:31:02 2025 +0100
+0795a5e | test: add unit tests for JavaErrorParser and update AnalyzeService | authored: Thu Oct 30 20:05:30 2025 +0100 | committed: Thu Oct 30 20:05:30 2025 +0100
+87be30e | add analyze controller and java parser | authored: Thu Oct 30 16:12:28 2025 +0100 | committed: Thu Oct 30 16:12:28 2025 +0100
+c205066 | feat: add analyze DTOs | authored: Wed Oct 29 19:39:49 2025 +0100 | committed: Wed Oct 29 19:39:49 2025 +0100
+cf6f994 | chore: initial project setup, dependencies, and configuration | authored: Wed Oct 29 19:34:25 2025 +0100 | committed: Wed Oct 29 19:34:25 2025 +0100
