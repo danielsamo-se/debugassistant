@@ -1,11 +1,25 @@
 node_modules/
 **/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/coverage/
 
-HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+backend/help.md
+HELP.md
+
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.DS_Store
+*.swp
 
 .apt_generated
 .classpath
@@ -14,11 +28,7 @@ target/
 .settings
 .springBeans
 .sts4-cache
-
-.idea
-*.iws
-*.iml
-*.ipr
+bin/
 
 /nbproject/private/
 /nbbuild/
@@ -29,4 +39,6 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-.vscode/
+*.log
+logs/
+postgres_data/
