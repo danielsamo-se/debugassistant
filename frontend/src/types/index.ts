@@ -18,7 +18,6 @@ export interface AnalyzeResponse {
   results: SearchResult[];
 }
 
-// Auth Types
 export interface User {
   email: string;
   name: string | null;
