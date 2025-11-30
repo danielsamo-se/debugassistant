@@ -5,6 +5,8 @@ import com.debugassistant.backend.dto.stackoverflow.StackOverflowResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
@@ -30,14 +32,13 @@ public class StackOverflowClient {
         try {
             StackOverflowResponse response = restClient.get()
                     .uri(uri -> uri.path("/search/advanced")
-                            // only return questions sorted by relevance (high votes + accepted answers)
                             .queryParam("order", "desc")
                             .queryParam("sort", "votes")
                             .queryParam("accepted", "true")
                             .queryParam("site", "stackoverflow")
                             .queryParam("q", query)
                             .queryParam("tagged", tagged)
-                            .queryParam("pagesize", "10") // keep response lightweight
+                            .queryParam("pagesize", "10")
                             .build())
                     .retrieve()
                     .body(StackOverflowResponse.class);
@@ -52,7 +53,16 @@ public class StackOverflowClient {
 
             return response.items();
 
+        } catch (HttpClientErrorException.Forbidden | HttpClientErrorException.TooManyRequests e) {
+            log.warn("StackOverflow Rate Limit hit");
+            return List.of();
+
+        } catch (HttpServerErrorException e) {
+            log.warn("StackOverflow API error ");
+            return List.of();
+
         } catch (Exception e) {
+            // other failure
             log.error("Stack Overflow request failed: {}", e.getMessage());
             return List.of();
         }

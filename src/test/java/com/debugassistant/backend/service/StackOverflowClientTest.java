@@ -3,6 +3,7 @@ package com.debugassistant.backend.service;
 import com.debugassistant.backend.dto.stackoverflow.StackOverflowQuestion;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,68 +36,130 @@ class StackOverflowClientTest {
     }
 
     @Test
-    void returnsParsedQuestionsOnSuccess() {
+    void javaHappyPath() throws Exception {
         String json = """
+        {
+          "items": [
             {
-              "items": [
-                {
-                  "question_id": 12345,
-                  "title": "How to fix NullPointerException",
-                  "link": "https://stackoverflow.com/questions/12345",
-                  "score": 42,
-                  "answer_count": 5,
-                  "is_answered": true,
-                  "creation_date": 1704067200,
-                  "owner": { "display_name": "user123" }
-                }
-              ],
-              "has_more": false,
-              "quota_remaining": 299
+              "question_id": 123,
+              "title": "How to fix BeanCreationException?",
+              "link": "https://stackoverflow.com/q/123",
+              "score": 100,
+              "answer_count": 3,
+              "is_answered": true,
+              "creation_date": 1700000000,
+              "owner": { "display_name": "JohnDoe" }
             }
+          ],
+          "quota_remaining": 300
+        }
         """;
 
         mockServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody(json)
-                .addHeader("Content-Type", "application/json"));
+                .addHeader("Content-Type", "application/json")
+                .setBody(json));
 
-        List<StackOverflowQuestion> questions = client.search("NullPointerException", "java");
+        List<StackOverflowQuestion> result = client.search("BeanCreationException", "java");
 
-        assertThat(questions).hasSize(1);
-        StackOverflowQuestion q = questions.getFirst();
+        assertThat(result).hasSize(1);
+        StackOverflowQuestion q = result.getFirst();
 
-        assertThat(q.title()).isEqualTo("How to fix NullPointerException");
-        assertThat(q.score()).isEqualTo(42);
-        assertThat(q.answerCount()).isEqualTo(5);
-        assertThat(q.isAnswered()).isTrue();
+        assertThat(q.title()).contains("BeanCreationException");
+        assertThat(q.questionId()).isEqualTo(123);
+        assertThat(q.score()).isEqualTo(100);
+        assertThat(q.answerCount()).isEqualTo(3);
+        assertThat(q.owner().displayName()).isEqualTo("JohnDoe");
+
+        RecordedRequest request = mockServer.takeRequest();
+        assertThat(request.getRequestUrl().queryParameter("tagged")).isEqualTo("java");
     }
 
     @Test
-    void returnsEmptyListOnError() {
+    void pythonHappyPath() throws Exception {
+        String json = """
+        {
+          "items": [
+            {
+              "question_id": 456,
+              "title": "IndexError: list index out of range",
+              "link": "https://stackoverflow.com/q/456",
+              "score": 50,
+              "answer_count": 1,
+              "is_answered": true,
+              "creation_date": 1600000000,
+              "owner": { "display_name": "PyGuru" }
+            }
+          ],
+          "quota_remaining": 250
+        }
+        """;
+
+        mockServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json")
+                .setBody(json));
+
+        List<StackOverflowQuestion> result = client.search("IndexError", "python");
+
+        assertThat(result).hasSize(1);
+        StackOverflowQuestion q = result.getFirst();
+
+        assertThat(q.title()).contains("IndexError");
+        assertThat(q.owner().displayName()).isEqualTo("PyGuru");
+
+        RecordedRequest request = mockServer.takeRequest();
+        assertThat(request.getRequestUrl().queryParameter("tagged")).isEqualTo("python");
+    }
+
+    @Test
+    void emptyTagWhenLanguageUnknown() throws Exception {
+        String json = """
+        {
+          "items": [],
+          "quota_remaining": 100
+        }
+        """;
+
+        mockServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json")
+                .setBody(json));
+
+        List<StackOverflowQuestion> result = client.search("anything", "rust");
+
+        assertThat(result).isEmpty();
+
+        RecordedRequest request = mockServer.takeRequest();
+        assertThat(request.getRequestUrl().queryParameter("tagged")).isEqualTo("");
+    }
+
+    @Test
+    void returnsEmptyListWhenItemsNull() {
+        String json = """
+        {
+          "items": null,
+          "quota_remaining": 200
+        }
+        """;
+
+        mockServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json")
+                .setBody(json));
+
+        assertThat(client.search("test", "java")).isEmpty();
+    }
+
+    @Test
+    void returnsEmptyListOnApiError() {
+        mockServer.enqueue(new MockResponse().setResponseCode(429));
+        assertThat(client.search("test", "java")).isEmpty();
+
+        mockServer.enqueue(new MockResponse().setResponseCode(403));
+        assertThat(client.search("test", "java")).isEmpty();
+
         mockServer.enqueue(new MockResponse().setResponseCode(500));
-
-        List<StackOverflowQuestion> questions = client.search("anything", "java");
-
-        assertThat(questions).isEmpty();
-    }
-
-    @Test
-    void returnsEmptyListWhenNoItems() {
-        String json = """
-            {
-              "items": [],
-              "has_more": false,
-              "quota_remaining": 299
-            }
-        """;
-
-        mockServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody(json)
-                .addHeader("Content-Type", "application/json"));
-
-        List<StackOverflowQuestion> questions = client.search("obscure error", "python");
-
-        assertThat(questions).isEmpty();
+        assertThat(client.search("test", "java")).isEmpty();
     }
 }

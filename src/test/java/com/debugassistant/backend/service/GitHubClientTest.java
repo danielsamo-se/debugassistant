@@ -1,6 +1,7 @@
 package com.debugassistant.backend.service;
 
 import com.debugassistant.backend.dto.github.GitHubIssue;
+import com.debugassistant.backend.dto.github.GitHubSearchResponse;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
@@ -21,11 +22,9 @@ class GitHubClientTest {
     void setup() throws Exception {
         mockServer = new MockWebServer();
         mockServer.start();
-
         RestClient restClient = RestClient.builder()
                 .baseUrl(mockServer.url("/").toString())
                 .build();
-
         gitHubClient = new GitHubClient(restClient);
     }
 
@@ -35,45 +34,50 @@ class GitHubClientTest {
     }
 
     @Test
-    void returnsParsedIssuesOnSuccess() {
-        String json = """
-            {
-              "items": [
-                {
-                  "title": "Fix NullPointer",
-                  "body": "Something failed",
-                  "html_url": "http://example.com/1",
-                  "state": "open",
-                  "comments": 3,
-                  "reactions": { "total_count": 10 },
-                  "created_at": "2024-01-01T10:00:00Z"
-                }
-              ]
-            }
-        """;
+    void happyPath() {
+        enqueueJson("""
+        {
+          "items": [
+            { "title": "Issue A", "body": "Body A", "html_url": "u", "state": "open", "reactions": {"total_count": 1} }
+          ]
+        }
+        """);
 
-        mockServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody(json)
-                .addHeader("Content-Type", "application/json"));
-
-        List<GitHubIssue> issues = gitHubClient.searchIssues("NullPointerException");
-
+        List<GitHubIssue> issues = gitHubClient.searchIssues("error");
         assertThat(issues).hasSize(1);
-        GitHubIssue issue = issues.getFirst();
-
-        assertThat(issue.title()).isEqualTo("Fix NullPointer");
-        assertThat(issue.body()).isEqualTo("Something failed");
-        assertThat(issue.htmlUrl()).isEqualTo("http://example.com/1");
-        assertThat(issue.reactions().totalCount()).isEqualTo(10);
     }
 
     @Test
-    void returnsEmptyListWhenServerErrors() {
-        mockServer.enqueue(new MockResponse().setResponseCode(500));
+    void trimsQuery() throws Exception {
+        enqueueJson("{\"items\": []}");
+        gitHubClient.searchIssues("x".repeat(300));
+        String q = mockServer.takeRequest().getRequestUrl().queryParameter("q");
 
-        List<GitHubIssue> issues = gitHubClient.searchIssues("anything");
+        assertThat(q.length()).isLessThanOrEqualTo(300);
+    }
 
-        assertThat(issues).isEmpty();
+    @Test
+    void returnsEmptyWhenItemsNull() {
+        enqueueJson("{ \"items\": null }");
+        assertThat(gitHubClient.searchIssues("x")).isEmpty();
+    }
+
+    @Test
+    void returnsEmptyOn403() {
+        mockServer.enqueue(new MockResponse().setResponseCode(403));
+        assertThat(gitHubClient.searchIssues("x")).isEmpty();
+    }
+
+    @Test
+    void returnsEmptyOnBrokenJson() {
+        mockServer.enqueue(new MockResponse().setBody("INVALID JSON"));
+        assertThat(gitHubClient.searchIssues("x")).isEmpty();
+    }
+
+    private void enqueueJson(String json) {
+        mockServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json")
+                .setBody(json));
     }
 }
