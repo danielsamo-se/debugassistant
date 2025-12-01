@@ -1,0 +1,62 @@
+.auth-container {
+    @apply w-full flex justify-center items-center min-h-screen px-4;
+}
+
+/* EXTREM BREITE AUTH CARD */
+.auth-card {
+    @apply w-full max-w-5xl          /* <- 5× so breit wie vorher */
+    bg-slate-800/80
+    backdrop-blur-sm
+    p-14
+    rounded-2xl
+    shadow-2xl
+    border border-slate-700;
+}
+
+/* TITLE */
+.auth-title {
+    @apply text-4xl font-bold mb-10 text-center text-white;
+}
+
+/* ERROR */
+.auth-error {
+    @apply bg-red-600/80 text-white p-4 rounded-lg mb-6 text-base;
+}
+
+/* FORM */
+.auth-form {
+    @apply flex flex-col gap-8;
+}
+
+/* FORM GROUP */
+.form-group {
+    @apply flex flex-col gap-2 w-full;
+}
+
+.form-group label {
+    @apply text-base text-slate-300 font-medium;
+}
+
+.form-group input {
+    @apply bg-slate-700 text-white p-4 rounded-lg border border-slate-600
+    focus:outline-none focus:ring-2 focus:ring-indigo-500;
+}
+
+/* BIG BUTTON */
+.auth-button {
+    @apply w-full bg-indigo-600 hover:bg-indigo-700 text-white
+    font-semibold py-4 rounded-lg text-lg transition-all duration-200;
+}
+
+.auth-button:disabled {
+    @apply opacity-60 cursor-not-allowed;
+}
+
+/* SWITCH BELOW FORM */
+.auth-switch {
+    @apply text-center text-base text-slate-400 mt-6;
+}
+
+.auth-switch a {
+    @apply text-indigo-400 hover:text-indigo-300 font-medium;
+}

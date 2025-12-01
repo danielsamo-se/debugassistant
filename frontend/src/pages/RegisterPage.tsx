@@ -13,7 +13,6 @@ export function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  // handle registration request
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -30,7 +29,6 @@ export function RegisterPage() {
 
     setIsLoading(true);
 
-    // send registration request
     try {
       await register(email, password, name || undefined);
       navigate('/');
@@ -49,56 +47,51 @@ export function RegisterPage() {
         {error && <div className="auth-error">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
-          {/* UI needs no comments */}
           <div className="form-group">
-            <label htmlFor="name">Name (optional)</label>
+            <label>Name (optional)</label>
             <input
-              id="name"
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
               placeholder="John Doe"
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label>Email</label>
             <input
-              id="email"
               type="email"
               value={email}
+              placeholder="you@example.com"
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="you@example.com"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label>Password</label>
             <input
-              id="password"
               type="password"
               value={password}
+              placeholder="••••••••"
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="••••••••"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <label>Confirm Password</label>
             <input
-              id="confirmPassword"
               type="password"
               value={confirmPassword}
+              placeholder="••••••••"
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              placeholder="••••••••"
             />
           </div>
 
-          <button type="submit" disabled={isLoading} className="auth-button">
-            {isLoading ? 'Creating account...' : 'Create Account'}
+          <button type="submit" className="auth-button" disabled={isLoading}>
+            {isLoading ? 'Creating account…' : 'Create Account'}
           </button>
         </form>
 

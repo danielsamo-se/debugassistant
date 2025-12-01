@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export function LoginPage() {
@@ -10,12 +10,7 @@ export function LoginPage() {
 
   const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // redirect path after login
-  const from = location.state?.from?.pathname || '/';
-
-  // handle login request
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -23,7 +18,7 @@ export function LoginPage() {
 
     try {
       await login(email, password);
-      navigate(from, { replace: true }); // go to previous page
+      navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -40,31 +35,29 @@ export function LoginPage() {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label>Email</label>
             <input
-              id="email"
               type="email"
               value={email}
+              placeholder="you@example.com"
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="you@example.com"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label>Password</label>
             <input
-              id="password"
               type="password"
               value={password}
+              placeholder="••••••••"
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="••••••••"
             />
           </div>
 
-          <button type="submit" disabled={isLoading} className="auth-button">
-            {isLoading ? 'Signing in' : 'Sign In'}
+          <button type="submit" className="auth-button" disabled={isLoading}>
+            {isLoading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
 
