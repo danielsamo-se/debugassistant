@@ -2,8 +2,12 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { saveHistory } from '../services/historyService';
 import { analyzeStackTrace } from '../services/analyzeService';
+
+import type { AnalyzeResponse } from '../types';
+
 import StackTraceInput from '../components/StackTraceInput';
 import ResultDisplay from '../components/ResultDisplay';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 import SkeletonSummary from '../components/skeletons/SkeletonSummary';
 import SkeletonResultCard from '../components/skeletons/SkeletonResultCard';
@@ -11,7 +15,7 @@ import SkeletonResultCard from '../components/skeletons/SkeletonResultCard';
 export function HomePage() {
   const { isAuthenticated } = useAuth();
 
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState('');
 
@@ -47,6 +51,7 @@ export function HomePage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
+      {/* Header */}
       <div className="text-center space-y-4 pt-4">
         <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">
           Debug Assistant
@@ -58,16 +63,19 @@ export function HomePage() {
         </p>
       </div>
 
+      {/* Input */}
       <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 backdrop-blur-sm">
         <StackTraceInput onAnalyze={handleAnalyze} loading={isAnalyzing} />
       </div>
 
+      {/* Error message */}
       {error && (
         <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400">
           {error}
         </div>
       )}
 
+      {/* Loading skeletons */}
       {isAnalyzing && !result && (
         <div className="space-y-6 mt-6">
           <SkeletonSummary />
@@ -77,10 +85,13 @@ export function HomePage() {
         </div>
       )}
 
+      {/* Result */}
       {!isAnalyzing && result && (
-        <div className="mt-8">
-          <ResultDisplay result={result} />
-        </div>
+        <ErrorBoundary>
+          <div className="mt-8">
+            <ResultDisplay result={result} />
+          </div>
+        </ErrorBoundary>
       )}
     </div>
   );

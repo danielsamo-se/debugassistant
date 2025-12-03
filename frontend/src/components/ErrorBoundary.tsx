@@ -1,21 +1,23 @@
 import React from 'react';
 
-interface State {
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
+
+interface ErrorBoundaryState {
   hasError: boolean;
-  error: Error | null;
 }
 
 export default class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  State
+  ErrorBoundaryProps,
+  ErrorBoundaryState
 > {
-  constructor(props: any) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
+  state: ErrorBoundaryState = {
+    hasError: false,
+  };
 
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
+  static getDerivedStateFromError(_: Error) {
+    return { hasError: true };
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
@@ -25,13 +27,15 @@ export default class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-8 text-center space-y-4">
-          <h1 className="text-2xl font-bold text-red-400">
-            Something went wrong.
-          </h1>
-          <p className="text-slate-400">
-            The interface crashed unexpectedly. Please refresh the page.
-          </p>
+        <div className="min-h-screen flex items-center justify-center bg-slate-900">
+          <div className="text-center space-y-4 max-w-md p-6">
+            <h1 className="text-2xl font-bold text-red-400">
+              Something went wrong
+            </h1>
+            <p className="text-slate-400">
+              An unexpected error occurred while rendering this section.
+            </p>
+          </div>
         </div>
       );
     }

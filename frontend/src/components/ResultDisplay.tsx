@@ -1,15 +1,17 @@
 import type { AnalyzeResponse } from '../types';
 import ResultCard from './ResultCard';
+import CopyButton from './CopyButton';
+import { JSX } from 'react';
 
 interface Props {
   result: AnalyzeResponse;
 }
 
-export default function ResultDisplay({ result }: Props) {
-  // count matches per source
+export default function ResultDisplay({ result }: Props): JSX.Element {
   const githubCount = result.results.filter(
     (r) => r.source === 'github',
   ).length;
+
   const soCount = result.results.filter(
     (r) => r.source === 'stackoverflow',
   ).length;
@@ -39,34 +41,19 @@ export default function ResultDisplay({ result }: Props) {
 
           {result.rootCause && (
             <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-              <span className="text-slate-400 text-xs uppercase tracking-wider block mb-1">
-                Root Cause
-              </span>
+              <div className="flex justify-between items-start mb-1">
+                <span className="text-slate-400 text-xs uppercase tracking-wider">
+                  Root Cause
+                </span>
+                <CopyButton text={result.rootCause} />
+              </div>
+
               <strong className="text-yellow-400 font-mono text-lg break-all">
                 {result.rootCause}
               </strong>
             </div>
           )}
         </div>
-
-        {/* keyword tags */}
-        {result.keywords.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-slate-700">
-            <span className="text-slate-500 text-xs mb-2 block">
-              Detected Keywords
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {result.keywords.map((kw, i) => (
-                <span
-                  key={i}
-                  className="px-2 py-1 bg-slate-700 text-slate-300 text-xs rounded border border-slate-600 font-mono"
-                >
-                  {kw}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* result list header */}
@@ -78,7 +65,6 @@ export default function ResultDisplay({ result }: Props) {
           </span>
         </h3>
 
-        {/* result list */}
         <div className="space-y-4">
           {result.results.length === 0 ? (
             <div className="text-center p-8 bg-slate-800/50 rounded-lg border border-slate-700 text-slate-400">
@@ -89,7 +75,7 @@ export default function ResultDisplay({ result }: Props) {
               <ResultCard
                 key={index}
                 result={item}
-                isTopMatch={index === 0 && item.score > 0.5} // highlight top result
+                isTopMatch={index === 0 && item.score > 0.5}
               />
             ))
           )}
