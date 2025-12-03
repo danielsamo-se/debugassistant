@@ -23,8 +23,9 @@ export default function StackTraceInput({ onAnalyze, loading }: Props) {
           onChange={(e) => setLocalTrace(e.target.value)}
           placeholder="Paste your error stack trace here..."
           className="w-full h-64 p-4 bg-slate-800 border border-slate-700 rounded-lg
-                     focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none
-                     text-slate-300 font-mono text-sm resize-y transition-all"
+           focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none
+           text-slate-300 font-mono text-sm resize-y transition-all
+           overflow-x-auto whitespace-pre"
           spellCheck={false}
           disabled={loading}
         />

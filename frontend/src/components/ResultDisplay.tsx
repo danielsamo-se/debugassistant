@@ -34,7 +34,7 @@ export default function ResultDisplay({ result }: Props): JSX.Element {
             <span className="text-slate-400 text-xs uppercase tracking-wider block mb-1">
               Type
             </span>
-            <strong className="text-red-400 font-mono text-lg break-all">
+            <strong className="text-red-400 font-mono text-lg break-words">
               {result.exceptionType}
             </strong>
           </div>

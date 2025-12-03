@@ -96,7 +96,7 @@ export function HistoryPage() {
                 </span>
               </div>
 
-              <pre className="text-slate-300 text-xs font-mono bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 overflow-x-auto">
+              <pre className="text-slate-300 text-xs font-mono bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 overflow-x-auto whitespace-pre">
                 {item.stackTraceSnippet}
               </pre>
             </div>
