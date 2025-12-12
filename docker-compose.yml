@@ -1,4 +1,33 @@
+version: "3.9"
+
 services:
+  backend:
+    build: .
+    image: debugassistant-backend
+    container_name: debugassistant-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/debugassistant
+      SPRING_DATASOURCE_USERNAME: debugassistant
+      SPRING_DATASOURCE_PASSWORD: debugassistant
+      SPRING_REDIS_HOST: redis
+      GITHUB_API_TOKEN: dummy
+      JWT_SECRET_KEY: dev-jwt-secret
+      JWT_EXPIRATION: 86400000
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    build: ./frontend
+    image: debugassistant-frontend
+    container_name: debugassistant-frontend
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+
   postgres:
     image: postgres:16-alpine
     container_name: debugassistant-postgres
@@ -6,16 +35,16 @@ services:
       POSTGRES_DB: debugassistant
       POSTGRES_USER: debugassistant
       POSTGRES_PASSWORD: debugassistant
-    ports:
-      - '5433:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
 
   redis:
     image: redis:alpine
     container_name: debugassistant-redis
     ports:
-      - '6379:6379'
+      - "6379:6379"
 
 volumes:
   postgres_data:
