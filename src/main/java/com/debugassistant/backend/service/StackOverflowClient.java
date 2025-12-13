@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -27,22 +29,31 @@ public class StackOverflowClient {
     public List<StackOverflowQuestion> search(String query, String language) {
         String tagged = mapLanguageToTag(language);
 
-        log.debug("Stack Overflow query: {} [tag: {}]", query, tagged);
-
         try {
+            UriComponentsBuilder b = UriComponentsBuilder
+                    .fromPath("/2.3/search/advanced")
+                    .queryParam("site", "stackoverflow")
+                    .queryParam("order", "desc")
+                    .queryParam("sort", "relevance")
+                    .queryParam("pagesize", 30)
+                    .queryParam("answers", 1) // only questions with answers
+                    .queryParam("q", query);
+
+            // add tag filter only if supported
+            if (!tagged.isBlank()) {
+                b.queryParam("tagged", tagged);
+            }
+
+            // encode to avoid invalid URI
+            String uri = b.encode(StandardCharsets.UTF_8).build().toUriString();
+            log.debug("StackOverflow request URI: {}", uri);
+
             StackOverflowResponse response = restClient.get()
-                    .uri(uri -> uri.path("/search/advanced")
-                            .queryParam("order", "desc")
-                            .queryParam("sort", "votes")
-                            .queryParam("accepted", "true")
-                            .queryParam("site", "stackoverflow")
-                            .queryParam("q", query)
-                            .queryParam("tagged", tagged)
-                            .queryParam("pagesize", "10")
-                            .build())
+                    .uri(uri)
                     .retrieve()
                     .body(StackOverflowResponse.class);
 
+            // treat empty payload as no results
             if (response == null || response.items() == null) {
                 log.debug("No results from Stack Overflow");
                 return List.of();
@@ -53,17 +64,21 @@ public class StackOverflowClient {
 
             return response.items();
 
+            // rate limit so return empty
         } catch (HttpClientErrorException.Forbidden | HttpClientErrorException.TooManyRequests e) {
-            log.warn("StackOverflow Rate Limit hit");
+            log.warn("StackOverflow rate limit/forbidden: {}", e.getStatusCode());
+            return List.of();
+
+        } catch (HttpClientErrorException e) {
+            log.warn("StackOverflow client error: {} {}", e.getStatusCode(), e.getMessage());
             return List.of();
 
         } catch (HttpServerErrorException e) {
-            log.warn("StackOverflow API error ");
+            log.warn("StackOverflow server error: {} {}", e.getStatusCode(), e.getMessage());
             return List.of();
 
         } catch (Exception e) {
-            // other failure
-            log.error("Stack Overflow request failed: {}", e.getMessage());
+            log.error("StackOverflow request failed: {}", e.toString());
             return List.of();
         }
     }

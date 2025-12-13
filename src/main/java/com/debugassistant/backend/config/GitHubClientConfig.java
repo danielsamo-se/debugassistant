@@ -12,11 +12,15 @@ import org.springframework.web.client.RestClient;
 public class GitHubClientConfig {
 
     @Bean
-    public RestClient restClient(@Value("${github.token}") String token) {
-        return RestClient.builder()
+    public RestClient restClient(@Value("${github.token:}") String token) {
+        RestClient.Builder builder = RestClient.builder()
                 .baseUrl("https://api.github.com")
-                .defaultHeader("Authorization", "Bearer " + token)
-                .defaultHeader("Accept", "application/vnd.github.v3+json")
-                .build();
+                .defaultHeader("Accept", "application/vnd.github.v3+json");
+
+        if (token != null && !token.isBlank()) {
+            builder.defaultHeader("Authorization", "Bearer " + token);
+        }
+
+        return builder.build();
     }
 }

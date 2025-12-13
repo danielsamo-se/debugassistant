@@ -42,3 +42,7 @@ build/
 *.log
 logs/
 postgres_data/
+
+.env
+.env.*
+!.env.example

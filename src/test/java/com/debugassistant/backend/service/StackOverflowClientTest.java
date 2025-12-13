@@ -38,22 +38,22 @@ class StackOverflowClientTest {
     @Test
     void javaHappyPath() throws Exception {
         String json = """
+    {
+      "items": [
         {
-          "items": [
-            {
-              "question_id": 123,
-              "title": "How to fix BeanCreationException?",
-              "link": "https://stackoverflow.com/q/123",
-              "score": 100,
-              "answer_count": 3,
-              "is_answered": true,
-              "creation_date": 1700000000,
-              "owner": { "display_name": "JohnDoe" }
-            }
-          ],
-          "quota_remaining": 300
+          "question_id": 123,
+          "title": "How to fix BeanCreationException?",
+          "link": "https://stackoverflow.com/q/123",
+          "score": 100,
+          "answer_count": 3,
+          "is_answered": true,
+          "creation_date": 1700000000,
+          "owner": { "display_name": "JohnDoe" }
         }
-        """;
+      ],
+      "quota_remaining": 300
+    }
+    """;
 
         mockServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -73,27 +73,33 @@ class StackOverflowClientTest {
 
         RecordedRequest request = mockServer.takeRequest();
         assertThat(request.getRequestUrl().queryParameter("tagged")).isEqualTo("java");
+
+        assertThat(request.getRequestUrl().queryParameter("site")).isEqualTo("stackoverflow");
+        assertThat(request.getRequestUrl().queryParameter("order")).isEqualTo("desc");
+        assertThat(request.getRequestUrl().queryParameter("sort")).isEqualTo("relevance");
+        assertThat(request.getRequestUrl().queryParameter("answers")).isEqualTo("1");
+        assertThat(request.getRequestUrl().queryParameter("pagesize")).isEqualTo("30");
     }
 
     @Test
     void pythonHappyPath() throws Exception {
         String json = """
+    {
+      "items": [
         {
-          "items": [
-            {
-              "question_id": 456,
-              "title": "IndexError: list index out of range",
-              "link": "https://stackoverflow.com/q/456",
-              "score": 50,
-              "answer_count": 1,
-              "is_answered": true,
-              "creation_date": 1600000000,
-              "owner": { "display_name": "PyGuru" }
-            }
-          ],
-          "quota_remaining": 250
+          "question_id": 456,
+          "title": "IndexError: list index out of range",
+          "link": "https://stackoverflow.com/q/456",
+          "score": 50,
+          "answer_count": 1,
+          "is_answered": true,
+          "creation_date": 1600000000,
+          "owner": { "display_name": "PyGuru" }
         }
-        """;
+      ],
+      "quota_remaining": 250
+    }
+    """;
 
         mockServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -110,16 +116,22 @@ class StackOverflowClientTest {
 
         RecordedRequest request = mockServer.takeRequest();
         assertThat(request.getRequestUrl().queryParameter("tagged")).isEqualTo("python");
+
+        assertThat(request.getRequestUrl().queryParameter("site")).isEqualTo("stackoverflow");
+        assertThat(request.getRequestUrl().queryParameter("order")).isEqualTo("desc");
+        assertThat(request.getRequestUrl().queryParameter("sort")).isEqualTo("relevance");
+        assertThat(request.getRequestUrl().queryParameter("answers")).isEqualTo("1");
+        assertThat(request.getRequestUrl().queryParameter("pagesize")).isEqualTo("30");
     }
 
     @Test
     void emptyTagWhenLanguageUnknown() throws Exception {
         String json = """
-        {
-          "items": [],
-          "quota_remaining": 100
-        }
-        """;
+    {
+      "items": [],
+      "quota_remaining": 100
+    }
+    """;
 
         mockServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -131,7 +143,7 @@ class StackOverflowClientTest {
         assertThat(result).isEmpty();
 
         RecordedRequest request = mockServer.takeRequest();
-        assertThat(request.getRequestUrl().queryParameter("tagged")).isEqualTo("");
+        assertThat(request.getRequestUrl().queryParameter("tagged")).isNull();
     }
 
     @Test
