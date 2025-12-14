@@ -31,7 +31,12 @@ public class AnalyzeService {
     private final StackOverflowClient stackOverflowClient;
     private final RankingService rankingService;
 
-    @Cacheable(value = "analyses", key = "T(org.springframework.util.DigestUtils).md5DigestAsHex(#request.stackTrace().getBytes())")
+    @Cacheable(
+            value = "analyses",
+            key = "T(org.springframework.util.DigestUtils).md5DigestAsHex(" +
+                    "#request.stackTrace().trim().replace('\\r\\n','\\n')" +
+                    ".getBytes(T(java.nio.charset.StandardCharsets).UTF_8))"
+    )
     public AnalyzeResponse analyze(AnalyzeRequest request) {
         log.info("Nothing found in cache, analyzing stack trace");
         ParsedError parsed = parserRegistry.parse(request.stackTrace());
@@ -61,7 +66,7 @@ public class AnalyzeService {
         results.sort(Comparator.comparingDouble(SearchResult::getScore).reversed());
 
         if (results.size() > 15) {
-            results = results.subList(0, 15);
+            results = new ArrayList<>(results.subList(0, 15));
         }
 
         return AnalyzeResponse.builder()

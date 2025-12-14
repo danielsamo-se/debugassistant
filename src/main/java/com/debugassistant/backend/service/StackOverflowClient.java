@@ -31,11 +31,12 @@ public class StackOverflowClient {
 
         try {
             UriComponentsBuilder b = UriComponentsBuilder
-                    .fromPath("/2.3/search/advanced")
+                    .fromPath("/search/advanced")
                     .queryParam("site", "stackoverflow")
                     .queryParam("order", "desc")
                     .queryParam("sort", "relevance")
                     .queryParam("pagesize", 30)
+                    .queryParam("accepted", "true")
                     .queryParam("answers", 1) // only questions with answers
                     .queryParam("q", query);
 

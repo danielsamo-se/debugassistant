@@ -16,6 +16,7 @@ services:
       GITHUB_API_TOKEN: ${GITHUB_API_TOKEN}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
+
     depends_on:
       postgres:
         condition: service_healthy
