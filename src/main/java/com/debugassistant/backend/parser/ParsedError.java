@@ -15,13 +15,5 @@ public record ParsedError(
         String rootCause,
         Integer stackTraceLines
 ) {
-    // constructor for basic cases
-    public ParsedError(String language, String exceptionType, String message) {
-        this(language, exceptionType, message, Set.of(), null, null);
-    }
 
-    public ParsedError(String language, String exceptionType, String message,
-                       String rootCause, Integer stackTraceLines) {
-        this(language, exceptionType, message, Set.of(), rootCause, stackTraceLines);
-    }
 }

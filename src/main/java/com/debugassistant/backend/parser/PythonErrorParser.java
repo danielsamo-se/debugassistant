@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Parses Python stack traces and extracts exception info
@@ -30,6 +29,9 @@ public class PythonErrorParser implements ErrorParser {
 
     @Override
     public ParsedError parse(String stackTrace) {
+        if (stackTrace == null || stackTrace.isBlank()) {
+            throw new InvalidStackTraceException("Stack trace cannot be empty");
+        }
         log.debug("Parsing Python stack trace ({} chars)", stackTrace.length());
 
         List<String> lines = stackTrace.lines()
@@ -66,7 +68,9 @@ public class PythonErrorParser implements ErrorParser {
                 .stackTraceLines(lines.size())
                 .build();
 
-        String rootCause = rootCauseExtractor.extractRootCauseLine(stackTrace);
+        String rootCauseLine = rootCauseExtractor.extractRootCauseLine(stackTrace);
+        String rootCause = extractRootCauseType(rootCauseLine);
+
         List<String> keywords = keywordExtractor.extract(basicError);
 
         return ParsedError.builder()
@@ -77,5 +81,18 @@ public class PythonErrorParser implements ErrorParser {
                 .keywords(Set.copyOf(keywords))
                 .stackTraceLines(lines.size())
                 .build();
+    }
+
+    private String extractRootCauseType(String rootCauseLine) {
+        if (rootCauseLine == null || rootCauseLine.isBlank()) return null;
+
+        Matcher m = PYTHON_ERROR_PATTERN.matcher(rootCauseLine.trim());
+        if (m.matches()) {
+            return m.group(1);
+        }
+
+        // fallback: cut before first ":"
+        String type = rootCauseLine.split(":", 2)[0].trim();
+        return type.isBlank() ? null : type;
     }
 }

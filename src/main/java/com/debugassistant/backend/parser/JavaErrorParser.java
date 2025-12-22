@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 /**
  * Parses Java stack traces and extracts exception info
  */
@@ -29,6 +28,18 @@ public class JavaErrorParser implements ErrorParser {
 
     @Override
     public ParsedError parse(String stackTrace) {
+        if (stackTrace == null) {
+            // should be prevented by ParserRegistry, but keep parser robust
+            return ParsedError.builder()
+                    .language("java")
+                    .exceptionType("UnknownException")
+                    .message("")
+                    .keywords(Set.of())
+                    .rootCause(null)
+                    .stackTraceLines(0)
+                    .build();
+        }
+
         log.debug("Parsing Java stack trace ({} chars)", stackTrace.length());
 
         List<String> lines = stackTrace.lines().toList();
@@ -95,8 +106,16 @@ public class JavaErrorParser implements ErrorParser {
 
     // Split "Type: message"
     private String extractRootCauseType(String rootCauseLine) {
-        String[] parts = rootCauseLine.split(":");
-        return extractSimpleName(parts[0].trim());
+        String s = rootCauseLine.trim();
+
+        // handle typical "Caused by:" prefix
+        if (s.regionMatches(true, 0, "Caused by:", 0, "Caused by:".length())) {
+            s = s.substring("Caused by:".length()).trim();
+        }
+
+        // split only once
+        String type = s.split(":", 2)[0].trim();
+        return extractSimpleName(type);
     }
 
     private String extractFallback(List<String> lines) {

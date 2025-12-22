@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Calculates relevance scores for search results
@@ -25,9 +26,11 @@ public class RankingService {
     public double calculateGitHubScore(GitHubIssue issue, Set<String> keywords) {
         if (issue == null) return 0;
 
+        Instant now = Instant.now();
+
         double reactionScore = calcGitHubReactionScore(issue);
         double overlapScore = calcKeywordOverlap(issue.title(), issue.body(), keywords);
-        double recencyScore = calcRecencyScore(issue.createdAt());
+        double recencyScore = calcRecencyScore(issue.createdAt(), now);
         double sourceScore = 0.5; // simple default score
 
         double finalScore = REACTIONS_WEIGHT * reactionScore +
@@ -44,6 +47,8 @@ public class RankingService {
     public double calculateStackOverflowScore(StackOverflowQuestion question, Set<String> keywords) {
         if (question == null) return 0;
 
+        Instant now = Instant.now();
+
         // Keep only strong tokens
         Set<String> anchors = (keywords == null) ? Set.of() : keywords.stream()
                 .map(String::toLowerCase)
@@ -54,7 +59,7 @@ public class RankingService {
                                 k.contains("(") ||
                                 k.contains(")")
                 )
-                .collect(java.util.stream.Collectors.toSet());
+                .collect(Collectors.toSet());
 
         // No anchors, skip
         if (anchors.isEmpty()) return -1.0;
@@ -65,7 +70,7 @@ public class RankingService {
         if (overlapScore == 0) return -1.0;
 
         double reactionScore = calcStackOverflowReactionScore(question);
-        double recencyScore = calcRecencyFromEpoch(question.creationDate());
+        double recencyScore = calcRecencyFromEpoch(question.creationDate(), now);
         double sourceScore = question.isAnswered() ? 1.0 : 0.7;
 
         return REACTIONS_WEIGHT * reactionScore +
@@ -105,18 +110,18 @@ public class RankingService {
         return (double) matches / keywords.size(); // measure keyword match ratio
     }
 
-    private double calcRecencyScore(Instant createdAt) {
+    private double calcRecencyScore(Instant createdAt, Instant now) {
         if (createdAt == null) return 0.5; // neutral score
-        long daysOld = ChronoUnit.DAYS.between(createdAt, Instant.now());
+        long daysOld = ChronoUnit.DAYS.between(createdAt, now);
         if (daysOld <= 0) return 1.0;
         if (daysOld > 730) return 0.0; // too old
         return 1.0 - (daysOld / 730.0);
     }
 
-    private double calcRecencyFromEpoch(Long epochSeconds) {
+    private double calcRecencyFromEpoch(Long epochSeconds, Instant now) {
         if (epochSeconds == null) return 0.5;
         Instant createdAt = Instant.ofEpochSecond(epochSeconds);
-        return calcRecencyScore(createdAt);
+        return calcRecencyScore(createdAt, now);
     }
 
     private String truncate(String text, int maxLength) {

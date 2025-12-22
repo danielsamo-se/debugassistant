@@ -80,6 +80,11 @@ public class QueryBuilder {
         // requires package structure
         if (fullClassName == null || !fullClassName.contains(".")) return null;
 
+        // skip Java standard packages (usually not helpful as "library")
+        if (fullClassName.startsWith("java.") || fullClassName.startsWith("javax.") || fullClassName.startsWith("jakarta.")) {
+            return null;
+        }
+
         String[] parts = fullClassName.split("\\.");
 
         // not enough segments
@@ -159,10 +164,11 @@ public class QueryBuilder {
         if (msg == null) return "";
 
         String s = msg;
+        String lower = s.toLowerCase();
 
         // common Java NPE phrasing
-        if (s.contains("Cannot invoke")) return "Cannot invoke";
-        if (s.contains("NullPointerException")) return "NullPointerException";
+        if (lower.contains("cannot invoke")) return "Cannot invoke";
+        if (lower.contains("nullpointerexception")) return "NullPointerException";
 
         String m = s.replaceAll(".*?([A-Za-z0-9_]+\\.[A-Za-z0-9_]+).*", "$1");
         if (!m.equals(s) && m.contains(".")) return m;

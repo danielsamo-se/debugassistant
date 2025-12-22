@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class RootCauseExtractor {
 
-    // Python error line (e.g. TypeError: ...)
+    // Python error line
     private static final Pattern PYTHON_EXCEPTION_LINE =
             Pattern.compile("^[A-Za-z0-9_]+(?:Error|Exception):.*");
 
@@ -21,7 +21,8 @@ public class RootCauseExtractor {
             return null;
         }
 
-        String[] lines = stackTrace.split("\n");
+        // was: split("\n")
+        String[] lines = stackTrace.split("\\R");
 
         String lastCause = null;
         boolean expectPythonRootNext = false;

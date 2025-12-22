@@ -82,11 +82,6 @@ public class KeywordExtractor {
                 word.contains("\\") ||
                 word.endsWith(".java") ||
                 word.endsWith(".py") ||
-                // neu:
-                word.matches("'.+'") ||
-                word.matches("\".+\"") ||
-                word.matches("[a-z0-9_]{3,}") && word.equals(word.toLowerCase()) && word.length() <= 20 && word.contains("_"); // typische user_ids
+                (word.contains("_") && word.matches(".*\\d.*") && word.length() <= 20);
     }
-
-
 }
