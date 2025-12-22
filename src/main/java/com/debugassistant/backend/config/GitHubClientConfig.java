@@ -12,7 +12,7 @@ import org.springframework.web.client.RestClient;
 public class GitHubClientConfig {
 
     @Bean
-    public RestClient restClient(@Value("${github.token:}") String token) {
+    public RestClient restClient(@Value("${GITHUB_API_TOKEN:}") String token) {
         RestClient.Builder builder = RestClient.builder()
                 .baseUrl("https://api.github.com")
                 .defaultHeader("Accept", "application/vnd.github.v3+json");

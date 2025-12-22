@@ -10,10 +10,11 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class StackOverflowClientConfig {
 
-    @Bean
+    @Bean(name = "stackOverflowRestClient")
     public RestClient stackOverflowRestClient() {
         return RestClient.builder()
                 .baseUrl("https://api.stackexchange.com/2.3")
+                .defaultHeader("Accept", "application/json")
                 .build();
     }
 }

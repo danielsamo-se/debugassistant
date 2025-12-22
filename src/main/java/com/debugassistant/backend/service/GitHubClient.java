@@ -24,8 +24,12 @@ public class GitHubClient {
     }
 
     public List<GitHubIssue> searchIssues(String query) {
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
+
         if (query.length() > 250) {
-            query = query.substring(0, 250);
+            query = query.substring(0, 250).trim();
         }
 
         String fullQuery = query + " is:issue sort:reactions-desc";
@@ -49,7 +53,7 @@ public class GitHubClient {
             return response.items();
 
         } catch (HttpClientErrorException.Forbidden | HttpClientErrorException.TooManyRequests e) {
-            log.warn("GitHub Rate Limit reached");
+            log.warn("GitHub rate limit reached");
             return List.of();
 
         } catch (HttpServerErrorException e) {
@@ -57,8 +61,7 @@ public class GitHubClient {
             return List.of();
 
         } catch (Exception e) {
-            // other failure
-            log.error("GitHub request failed: {}", e.getMessage());
+            log.error("GitHub request failed", e);
             return List.of();
         }
     }
