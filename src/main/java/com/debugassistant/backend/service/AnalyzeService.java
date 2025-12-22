@@ -33,25 +33,31 @@ public class AnalyzeService {
 
     @Cacheable(
             value = "analyses",
+            // Cache key = normalized stacktrace (stable across whitespace/line endings)
             key = "T(org.springframework.util.DigestUtils).md5DigestAsHex(" +
                     "#request.stackTrace().trim().replace('\\r\\n','\\n')" +
                     ".getBytes(T(java.nio.charset.StandardCharsets).UTF_8))"
     )
     public AnalyzeResponse analyze(AnalyzeRequest request) {
         log.info("Nothing found in cache, analyzing stack trace");
+
+        // Extract language + keywords
         ParsedError parsed = parserRegistry.parse(request.stackTrace());
         log.info("Parsed {} error: {}", parsed.language(), parsed.exceptionType());
 
-        String query = queryBuilder.buildSmartQuery(parsed, request.stackTrace());
+        // GitHub search query
+        String githubQuery = queryBuilder.buildGitHubQuery(parsed, request.stackTrace());
+        List<GitHubIssue> githubIssues = gitHubClient.searchIssues(githubQuery);
 
-        // search both sources in parallel (could be async later)
-        List<GitHubIssue> githubIssues = gitHubClient.searchIssues(query);
-        List<StackOverflowQuestion> soQuestions = stackOverflowClient.search(query, parsed.language());
+        // Multiple SO queries for broader matches
+        List<String> soQueries = queryBuilder.buildStackOverflowQueries(parsed, request.stackTrace());
+        List<StackOverflowQuestion> soQuestions = stackOverflowClient.searchOnion(
+                soQueries, parsed.language(), parsed.exceptionType()
+        );
 
         log.debug("Found {} GitHub issues, {} Stack Overflow questions",
                 githubIssues.size(), soQuestions.size());
 
-        // merge and rank results
         List<SearchResult> results = new ArrayList<>();
 
         for (GitHubIssue issue : githubIssues) {
@@ -62,9 +68,13 @@ public class AnalyzeService {
             results.add(toSearchResult(question, parsed.keywords()));
         }
 
-        // sort descending by score
+        // Drop bad matches
+        results.removeIf(r -> r.getScore() < 0);
+
+        // Best score first
         results.sort(Comparator.comparingDouble(SearchResult::getScore).reversed());
 
+        // Limit response size
         if (results.size() > 15) {
             results = new ArrayList<>(results.subList(0, 15));
         }
@@ -82,6 +92,7 @@ public class AnalyzeService {
     private SearchResult toSearchResult(GitHubIssue issue, Set<String> keywords) {
         double score = rankingService.calculateGitHubScore(issue, keywords);
 
+        // Missing reactions can be null
         int reactions = 0;
         if (issue.reactions() != null && issue.reactions().totalCount() != null) {
             reactions = issue.reactions().totalCount();

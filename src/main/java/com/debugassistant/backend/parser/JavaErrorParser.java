@@ -36,6 +36,7 @@ public class JavaErrorParser implements ErrorParser {
         String exceptionType = null;
         String message = "";
 
+        // First match as fallback
         for (String line : lines) {
             String trimmed = line.trim();
             if (trimmed.isEmpty()) continue;
@@ -54,16 +55,26 @@ public class JavaErrorParser implements ErrorParser {
             log.warn("Used fallback parsing: {}", exceptionType);
         }
 
-        // build basic error first for keyword extraction
+        // Root cause overrides fallback
+        String rootCauseLine = rootCauseExtractor.extractRootCauseLine(stackTrace);
+        String rootCause = rootCauseLine != null ? extractRootCauseType(rootCauseLine) : null;
+
+        if (rootCauseLine != null && !rootCauseLine.isBlank()) {
+            Matcher rcMatcher = EXCEPTION_LINE_PATTERN.matcher(rootCauseLine.trim());
+            if (rcMatcher.matches()) {
+                exceptionType = extractSimpleName(rcMatcher.group(1));
+                message = rcMatcher.group(2) != null ? rcMatcher.group(2).trim() : "";
+            }
+        }
+
         ParsedError basicError = ParsedError.builder()
                 .language("java")
                 .exceptionType(exceptionType)
                 .message(message)
+                .rootCause(rootCause)
                 .stackTraceLines(lines.size())
                 .build();
 
-        String rootCauseLine = rootCauseExtractor.extractRootCauseLine(stackTrace);
-        String rootCause = rootCauseLine != null ? extractRootCauseType(rootCauseLine) : null;
         List<String> keywords = keywordExtractor.extract(basicError);
 
         return ParsedError.builder()
@@ -76,13 +87,13 @@ public class JavaErrorParser implements ErrorParser {
                 .build();
     }
 
-    // convert java.lang.NullPointerException to NullPointerException
+    // Strip package name
     private String extractSimpleName(String fullName) {
         int lastDot = fullName.lastIndexOf('.');
         return lastDot >= 0 ? fullName.substring(lastDot + 1) : fullName;
     }
 
-    // convert java.lang.IllegalStateException: something to "IllegalStateException"
+    // Split "Type: message"
     private String extractRootCauseType(String rootCauseLine) {
         String[] parts = rootCauseLine.split(":");
         return extractSimpleName(parts[0].trim());

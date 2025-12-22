@@ -92,4 +92,51 @@ public class StackOverflowClient {
             default -> "";
         };
     }
+
+    public List<StackOverflowQuestion> searchOnion(List<String> queries, String language, String exceptionType) {
+        String tagged = mapLanguageToTag(language);
+
+        // Try queries from strict to broad
+        for (String q : queries) {
+            if (q == null || q.isBlank()) continue;
+            List<StackOverflowQuestion> res = searchAdvanced(q, tagged, exceptionType);
+            if (!res.isEmpty()) return res;
+        }
+        return List.of();
+    }
+
+    private List<StackOverflowQuestion> searchAdvanced(String q, String tagged, String exceptionType) {
+        try {
+            UriComponentsBuilder b = UriComponentsBuilder
+                    .fromPath("/search/advanced")
+                    .queryParam("site", "stackoverflow")
+                    .queryParam("order", "desc")
+                    .queryParam("sort", "relevance")
+                    .queryParam("pagesize", 30)
+                    .queryParam("answers", 1)
+                    .queryParam("accepted", "true");
+
+            // Boost by exception in title
+            if (exceptionType != null && !exceptionType.isBlank()) {
+                b.queryParam("intitle", exceptionType);
+            }
+            if (tagged != null && !tagged.isBlank()) {
+                b.queryParam("tagged", tagged);
+            }
+            if (q != null && !q.isBlank()) {
+                b.queryParam("q", q);
+            }
+
+            String uri = b.encode(StandardCharsets.UTF_8).build().toUriString();
+            log.debug("StackOverflow request URI: {}", uri);
+
+            StackOverflowResponse response = restClient.get().uri(uri).retrieve().body(StackOverflowResponse.class);
+            if (response == null || response.items() == null) return List.of();
+            return response.items();
+
+        } catch (Exception e) {
+            log.warn("StackOverflow request failed: {}", e.toString());
+            return List.of();
+        }
+    }
 }

@@ -28,7 +28,7 @@ public class RankingService {
         double reactionScore = calcGitHubReactionScore(issue);
         double overlapScore = calcKeywordOverlap(issue.title(), issue.body(), keywords);
         double recencyScore = calcRecencyScore(issue.createdAt());
-        double sourceScore = 0.5; // simple default source score
+        double sourceScore = 0.5; // simple default score
 
         double finalScore = REACTIONS_WEIGHT * reactionScore +
                 KEYWORD_WEIGHT * overlapScore +
@@ -44,20 +44,34 @@ public class RankingService {
     public double calculateStackOverflowScore(StackOverflowQuestion question, Set<String> keywords) {
         if (question == null) return 0;
 
+        // Keep only strong tokens
+        Set<String> anchors = (keywords == null) ? Set.of() : keywords.stream()
+                .map(String::toLowerCase)
+                .filter(k ->
+                        k.endsWith("exception") ||
+                                k.endsWith("error") ||
+                                k.contains(".") ||
+                                k.contains("(") ||
+                                k.contains(")")
+                )
+                .collect(java.util.stream.Collectors.toSet());
+
+        // No anchors, skip
+        if (anchors.isEmpty()) return -1.0;
+
+        double overlapScore = calcKeywordOverlap(question.title(), null, anchors);
+
+        // no anchor in title
+        if (overlapScore == 0) return -1.0;
+
         double reactionScore = calcStackOverflowReactionScore(question);
-        double overlapScore = calcKeywordOverlap(question.title(), null, keywords);
         double recencyScore = calcRecencyFromEpoch(question.creationDate());
         double sourceScore = question.isAnswered() ? 1.0 : 0.7;
 
-        double finalScore = REACTIONS_WEIGHT * reactionScore +
+        return REACTIONS_WEIGHT * reactionScore +
                 KEYWORD_WEIGHT * overlapScore +
                 RECENCY_WEIGHT * recencyScore +
                 SOURCE_WEIGHT * sourceScore;
-
-        log.debug("SO '{}' - reactions={}, overlap={}, recency={}, answered={}, final={}",
-                truncate(question.title(), 30), reactionScore, overlapScore, recencyScore, question.isAnswered(), finalScore);
-
-        return finalScore;
     }
 
     private double calcGitHubReactionScore(GitHubIssue issue) {
@@ -67,14 +81,14 @@ public class RankingService {
         }
         int comments = issue.comments() != null ? issue.comments() : 0;
         int engagement = reactions + comments;
-        return Math.min(1.0, engagement / 20.0); // scale engagement to 1
+        return Math.min(1.0, engagement / 20.0); // scale to 0-1
     }
 
     private double calcStackOverflowReactionScore(StackOverflowQuestion question) {
         int score = Math.max(0, question.score());
         int answers = question.answerCount();
         int engagement = score + (answers * 2);
-        return Math.min(1.0, engagement / 25.0); // same scaling idea here
+        return Math.min(1.0, engagement / 25.0); // scale to 0-1
     }
 
     private double calcKeywordOverlap(String title, String body, Set<String> keywords) {
@@ -92,10 +106,10 @@ public class RankingService {
     }
 
     private double calcRecencyScore(Instant createdAt) {
-        if (createdAt == null) return 0.5; // use neutral score here
+        if (createdAt == null) return 0.5; // neutral score
         long daysOld = ChronoUnit.DAYS.between(createdAt, Instant.now());
         if (daysOld <= 0) return 1.0;
-        if (daysOld > 730) return 0.0; // older than two years
+        if (daysOld > 730) return 0.0; // too old
         return 1.0 - (daysOld / 730.0);
     }
 

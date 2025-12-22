@@ -13,6 +13,7 @@ import java.util.Set;
 @Component
 public class QueryBuilder {
 
+    // Generic filler words
     private static final Set<String> STOP_WORDS = Set.of(
             "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
             "have", "has", "had", "do", "does", "did", "will", "would", "could",
@@ -28,6 +29,7 @@ public class QueryBuilder {
             "jakarta", "github", "software"
     );
 
+    // unnecessary packgae names
     private static final Set<String> GENERIC_PACKAGE_PARTS = Set.of(
             "internal", "util", "utils", "common", "core", "impl",
             "exception", "error", "api", "spi"
@@ -38,6 +40,7 @@ public class QueryBuilder {
     public String buildSmartQuery(ParsedError error, String rawStackTrace) {
         List<String> parts = new ArrayList<>();
 
+        // Prefer root cause over top exception
         String rawExceptionString = error.exceptionType();
         if (error.rootCause() != null && !error.rootCause().isBlank()) {
             rawExceptionString = error.rootCause().split(":")[0];
@@ -115,5 +118,83 @@ public class QueryBuilder {
             return fullClassName.substring(fullClassName.lastIndexOf('.') + 1).trim();
         }
         return fullClassName.trim();
+    }
+
+    public List<String> buildStackOverflowQueries(ParsedError parsed, String rawStackTrace) {
+        String msg = sanitizeMessage(parsed.message());
+        String phrase = extractStrongPhrase(msg);
+        String qA = joinNonEmpty(msg, phraseQuoted(phrase));
+        String qB = phraseQuoted(phrase);
+
+        return List.of(qA, qB);
+    }
+
+    public String buildGitHubQuery(ParsedError error, String rawStackTrace) {
+        return buildSmartQuery(error, rawStackTrace);
+    }
+
+    // Remove search operators, paths, hex, long quotes
+    private String sanitizeMessage(String message) {
+        if (message == null) return "";
+        String s = message.trim();
+
+        s = s.replace("in:title,body", " ");
+        s = s.replaceAll("\\s+", " ").trim();
+
+        // remove paths, very rough
+        s = s.replaceAll("[A-Za-z]:\\\\[^\\s]+", " ");
+        s = s.replaceAll("/[^\\s]+", " ");
+
+        // remove hex addresses
+        s = s.replaceAll("0x[0-9a-fA-F]+", "0xX");
+
+        // shrink quotes noise a bit
+        s = s.replaceAll("\"[^\"]{60,}\"", "\"...\"");
+
+        return s.replaceAll("\\s+", " ").trim();
+    }
+
+    // Pick strong phrase if possible
+    private String extractStrongPhrase(String msg) {
+        if (msg == null) return "";
+
+        String s = msg;
+
+        // common Java NPE phrasing
+        if (s.contains("Cannot invoke")) return "Cannot invoke";
+        if (s.contains("NullPointerException")) return "NullPointerException";
+
+        String m = s.replaceAll(".*?([A-Za-z0-9_]+\\.[A-Za-z0-9_]+).*", "$1");
+        if (!m.equals(s) && m.contains(".")) return m;
+
+        return "";
+    }
+
+    // Quote phrases for better matches
+    private String phraseQuoted(String phrase) {
+        if (phrase == null) return "";
+        String p = phrase.trim();
+        if (p.isBlank()) return "";
+
+        // Quote phrases and dotted tokens to boost precision
+        if (p.contains(" ") || p.contains(".")) {
+            return "\"" + p.replace("\"", "") + "\"";
+        }
+        return p;
+    }
+
+    // Join without duplicates
+    private String joinNonEmpty(String a, String b) {
+        String x = (a == null ? "" : a.trim());
+        String y = (b == null ? "" : b.trim());
+
+        if (x.isBlank() && y.isBlank()) return "";
+        if (x.isBlank()) return y;
+        if (y.isBlank()) return x;
+
+        // avoid duplicate if b already contained
+        if (x.contains(y)) return x;
+
+        return (x + " " + y).trim();
     }
 }
