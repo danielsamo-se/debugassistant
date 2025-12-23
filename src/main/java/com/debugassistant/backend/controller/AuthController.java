@@ -28,8 +28,7 @@ public class AuthController {
     @PostMapping("/register")
     @Operation(summary = "Register a new user", description = "Creates account and returns JWT token")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        log.info("Registering new user: {}", request.email());
-
+        log.info("Register request received");
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(authenticationService.register(request));
     }
@@ -37,7 +36,7 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Login user", description = "Authenticates credentials and returns token")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        log.debug("Login attempt for: {}", request.email());
+        log.debug("Login attempt received");
         return ResponseEntity.ok(authenticationService.login(request));
     }
 }

@@ -33,10 +33,9 @@ public class AnalyzeService {
 
     @Cacheable(
             value = "analyses",
-            // Cache key = normalized stacktrace (stable across whitespace/line endings)
-            key = "T(org.springframework.util.DigestUtils).md5DigestAsHex(" +
-                    "#request.stackTrace().trim().replace('\\r\\n','\\n')" +
-                    ".getBytes(T(java.nio.charset.StandardCharsets).UTF_8))"
+            key = "T(org.springframework.util.DigestUtils).md5DigestAsHex((" +
+                    "#request.stackTrace().trim().replace(\"\\r\\n\", \"\\n\")" +
+                    ").getBytes(T(java.nio.charset.StandardCharsets).UTF_8))"
     )
     public AnalyzeResponse analyze(AnalyzeRequest request) {
         log.info("Nothing found in cache, analyzing stack trace");

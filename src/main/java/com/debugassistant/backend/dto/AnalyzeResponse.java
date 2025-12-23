@@ -27,7 +27,7 @@ public record AnalyzeResponse(
         @Schema(description = "Root cause if found", example = "SQLException")
         String rootCause,
 
-        @Schema(description = "Search results from GitHub")
+        @Schema(description = "Search results from GitHub and Stack Overflow")
         List<SearchResult> results
 
 ) {}

@@ -26,9 +26,7 @@ public class AnalyzeController {
     @PostMapping
     @Operation(summary = "Analyze stack trace", description = "Parses stack trace and returns solutions")
     public ResponseEntity<AnalyzeResponse> analyze(@Valid @RequestBody AnalyzeRequest request) {
-        log.info("Received analyze request ({} chars)", request.stackTrace().length());
-
-        AnalyzeResponse response = analyzeService.analyze(request);
-        return ResponseEntity.ok(response);
+        log.info("Received analyze request ({} chars)", request.stackTrace() == null ? 0 : request.stackTrace().length());
+        return ResponseEntity.ok(analyzeService.analyze(request));
     }
 }

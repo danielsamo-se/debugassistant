@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,11 @@ public class HistoryController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody SaveHistoryRequest request) {
 
-        log.info("Saving history entry for user {}", user.getEmail());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        log.info("Saving history entry");
 
         SearchHistory saved = historyService.saveSearch(
                 user,
@@ -44,12 +49,16 @@ public class HistoryController {
                 request.searchUrl()
         );
 
-        return ResponseEntity.ok(HistoryResponse.from(saved));
+        return ResponseEntity.status(HttpStatus.CREATED).body(HistoryResponse.from(saved));
     }
 
     @GetMapping
     @Operation(summary = "Get history", description = "Returns history list for current user")
     public ResponseEntity<List<HistoryResponse>> getHistory(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         List<HistoryResponse> history = historyService.getUserHistory(user.getId())
                 .stream()
                 .map(HistoryResponse::from)

@@ -17,8 +17,4 @@ public record SearchResult(
         return score != null ? score : 0.0;
     }
 
-    // backward compatible constructor
-    public SearchResult(String source, String title, String url, Integer reactions, String snippet, Double score) {
-        this(source, title, url, reactions, snippet, score, null, null);
-    }
 }

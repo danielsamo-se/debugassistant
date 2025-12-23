@@ -22,19 +22,20 @@ public class HistoryService {
 
     public SearchHistory saveSearch(User user, String stackTraceSnippet, String language,
                                     String exceptionType, String searchUrl) {
+
+        String snippet = stackTraceSnippet == null ? "" : stackTraceSnippet;
+
         // limit stack trace snippet to 500 characters
         SearchHistory history = SearchHistory.builder()
                 .user(user)
-                .stackTraceSnippet(stackTraceSnippet.length() > 500
-                        ? stackTraceSnippet.substring(0, 500)
-                        : stackTraceSnippet)
+                .stackTraceSnippet(snippet.length() > 500 ? snippet.substring(0, 500) : snippet)
                 .language(language)
                 .exceptionType(exceptionType)
                 .searchUrl(searchUrl)
                 .searchedAt(LocalDateTime.now())
                 .build();
 
-        log.debug("Saving search history for user: {}", user.getEmail());
+        log.debug("Saving search history entry");
         return searchHistoryRepository.save(history);
     }
 

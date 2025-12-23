@@ -1,13 +1,10 @@
-package com.debugassistant.backend.config;
-
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Swagger/OpenAPI configuration
- */
 @Configuration
 public class OpenApiConfig {
 
@@ -18,6 +15,14 @@ public class OpenApiConfig {
                         .title("Debug Assistant API")
                         .version("1.0")
                         .description("API for analyzing stack traces and finding solutions")
-                );
+                )
+                .schemaRequirement("bearerAuth",
+                        new SecurityScheme()
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")
+                )
+                // apply globally
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
     }
 }
