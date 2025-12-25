@@ -60,7 +60,7 @@ class RankingServiceTest {
                 "open",
                 0,
                 null,
-                Instant.now().minusSeconds(365 * 24 * 3600),
+                Instant.now().minusSeconds(365L * 24 * 3600),
                 "body"
         );
 
@@ -102,17 +102,17 @@ class RankingServiceTest {
 
     @Test
     void shouldScoreStackOverflowHigherWhenAnswered() {
+        Set<String> keywords = Set.of("NullPointerException");
+
         StackOverflowQuestion answered = new StackOverflowQuestion(
-                1L, "How to fix NPE", "https://so.com/1", 20, 3, true,
+                1L, "NullPointerException when calling foo()", "https://so.com/1", 20, 3, true,
                 Instant.now().getEpochSecond(), null
         );
 
         StackOverflowQuestion unanswered = new StackOverflowQuestion(
-                2L, "How to fix NPE", "https://so.com/2", 20, 3, false,
+                2L, "NullPointerException when calling foo()", "https://so.com/2", 20, 3, false,
                 Instant.now().getEpochSecond(), null
         );
-
-        Set<String> keywords = Set.of("npe");
 
         double answeredScore = ranking.calculateStackOverflowScore(answered, keywords);
         double unansweredScore = ranking.calculateStackOverflowScore(unanswered, keywords);
@@ -122,18 +122,20 @@ class RankingServiceTest {
 
     @Test
     void shouldScoreStackOverflowWithHighVotes() {
+        Set<String> keywords = Set.of("NullPointerException");
+
         StackOverflowQuestion highVotes = new StackOverflowQuestion(
-                1L, "Popular question", "https://so.com/1", 100, 10, true,
+                1L, "NullPointerException in production", "https://so.com/1", 100, 10, true,
                 Instant.now().getEpochSecond(), null
         );
 
         StackOverflowQuestion lowVotes = new StackOverflowQuestion(
-                2L, "Unpopular question", "https://so.com/2", 2, 1, true,
+                2L, "NullPointerException in production", "https://so.com/2", 2, 1, true,
                 Instant.now().getEpochSecond(), null
         );
 
-        double highScore = ranking.calculateStackOverflowScore(highVotes, Set.of());
-        double lowScore = ranking.calculateStackOverflowScore(lowVotes, Set.of());
+        double highScore = ranking.calculateStackOverflowScore(highVotes, keywords);
+        double lowScore = ranking.calculateStackOverflowScore(lowVotes, keywords);
 
         assertThat(highScore).isGreaterThan(lowScore);
     }
@@ -151,13 +153,14 @@ class RankingServiceTest {
     }
 
     @Test
-    void shouldHandleEmptyKeywordsForStackOverflow() {
+    void shouldReturnNegativeScoreWhenNoAnchorsForStackOverflow() {
         StackOverflowQuestion question = new StackOverflowQuestion(
                 1L, "Some question", "url", 10, 2, true,
                 Instant.now().getEpochSecond(), null
         );
 
         double score = ranking.calculateStackOverflowScore(question, Set.of());
-        assertThat(score).isGreaterThanOrEqualTo(0);
+
+        assertThat(score).isEqualTo(-1.0);
     }
 }

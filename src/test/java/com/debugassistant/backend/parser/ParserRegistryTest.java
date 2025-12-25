@@ -8,6 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Set;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -28,10 +30,17 @@ class ParserRegistryTest {
 
     @Test
     void shouldRouteToJavaParser() {
-        String javaTrace = "java.lang.NullPointerException at com.test.Main.java:10";
+        String javaTrace = "java.lang.NullPointerException at com.test.Main(Main.java:10)";
 
         when(javaErrorParser.parse(anyString()))
-                .thenReturn(new ParsedError("java", "NullPointerException", "msg"));
+                .thenReturn(ParsedError.builder()
+                        .language("java")
+                        .exceptionType("NullPointerException")
+                        .message("msg")
+                        .keywords(Set.of("nullpointerexception"))
+                        .rootCause("java.lang.NullPointerException: boom")
+                        .stackTraceLines(2)
+                        .build());
 
         ParsedError result = parserRegistry.parse(javaTrace);
 
@@ -41,15 +50,45 @@ class ParserRegistryTest {
 
     @Test
     void shouldRouteToPythonParser() {
-        String pythonTrace = "Traceback (most recent call last):\nFile script.py...";
+        String pythonTrace = "Traceback (most recent call last):\n  File \"script.py\", line 1, in <module>\nValueError: bad";
 
         when(pythonErrorParser.parse(anyString()))
-                .thenReturn(new ParsedError("python", "ValueError", "msg"));
+                .thenReturn(ParsedError.builder()
+                        .language("python")
+                        .exceptionType("ValueError")
+                        .message("msg")
+                        .keywords(Set.of("valueerror"))
+                        .rootCause("ValueError: bad")
+                        .stackTraceLines(3)
+                        .build());
 
         ParsedError result = parserRegistry.parse(pythonTrace);
 
         verify(pythonErrorParser).parse(pythonTrace);
         assertThat(result.language()).isEqualTo("python");
+    }
+
+    @Test
+    void shouldPreferJavaOnTie() {
+        String mixed = """
+                Traceback
+                java.lang.Exception
+                """;
+
+        when(javaErrorParser.parse(anyString()))
+                .thenReturn(ParsedError.builder()
+                        .language("java")
+                        .exceptionType("Exception")
+                        .message("")
+                        .keywords(Set.of())
+                        .rootCause(null)
+                        .stackTraceLines(2)
+                        .build());
+
+        ParsedError result = parserRegistry.parse(mixed);
+
+        verify(javaErrorParser).parse(mixed);
+        assertThat(result.language()).isEqualTo("java");
     }
 
     @Test

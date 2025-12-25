@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -24,24 +25,13 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AnalyzeServiceTest {
 
-    @Mock
-    private ParserRegistry parserRegistry;
+    @Mock private ParserRegistry parserRegistry;
+    @Mock private GitHubClient gitHubClient;
+    @Mock private StackOverflowClient stackOverflowClient;
+    @Mock private RankingService rankingService;
+    @Mock private QueryBuilder queryBuilder;
 
-    @Mock
-    private GitHubClient gitHubClient;
-
-    @Mock
-    private StackOverflowClient stackOverflowClient;
-
-    @Mock
-    private RankingService rankingService;
-
-    @Mock
-    private QueryBuilder queryBuilder;
-
-    @InjectMocks
-    private AnalyzeService analyzeService;
-
+    @InjectMocks private AnalyzeService analyzeService;
 
     @Test
     void shouldAnalyzeAndReturnResults() {
@@ -65,26 +55,40 @@ class AnalyzeServiceTest {
         );
 
         when(parserRegistry.parse(trace)).thenReturn(parsedError);
-        when(queryBuilder.buildSmartQuery(parsedError, trace)).thenReturn("built-query");
-        when(gitHubClient.searchIssues("built-query")).thenReturn(List.of(issue));
-        when(stackOverflowClient.search("built-query", "java")).thenReturn(List.of());
+
+        when(queryBuilder.buildGitHubQuery(parsedError, trace)).thenReturn("gh-query");
+        when(queryBuilder.buildStackOverflowQueries(parsedError, trace)).thenReturn(List.of("so-query"));
+
+        when(gitHubClient.searchIssues("gh-query")).thenReturn(List.of(issue));
+
+        when(stackOverflowClient.searchOnion(
+                eq(List.of("so-query")),
+                eq("java"),
+                eq("NPE")
+        )).thenReturn(List.of());
+
         when(rankingService.calculateGitHubScore(eq(issue), anySet())).thenReturn(5.0);
 
         AnalyzeResponse response = analyzeService.analyze(new AnalyzeRequest(trace));
 
         assertThat(response.language()).isEqualTo("java");
+        assertThat(response.exceptionType()).isEqualTo("NPE");
         assertThat(response.results()).hasSize(1);
         assertThat(response.results().getFirst().title()).isEqualTo("Fix NPE");
+        assertThat(response.results().getFirst().source()).isEqualTo("github");
 
         verify(parserRegistry).parse(trace);
-        verify(queryBuilder).buildSmartQuery(parsedError, trace);
-        verify(gitHubClient).searchIssues("built-query");
+        verify(queryBuilder).buildGitHubQuery(parsedError, trace);
+        verify(queryBuilder).buildStackOverflowQueries(parsedError, trace);
+        verify(gitHubClient).searchIssues("gh-query");
+        verify(stackOverflowClient).searchOnion(List.of("so-query"), "java", "NPE");
         verify(rankingService).calculateGitHubScore(eq(issue), anySet());
     }
 
     @Test
-    void shouldHandleEmptyGitHubResults() {
+    void shouldHandleEmptyResults() {
         String trace = "Traceback...";
+
         ParsedError parsedError = ParsedError.builder()
                 .language("python")
                 .exceptionType("Error")
@@ -93,13 +97,20 @@ class AnalyzeServiceTest {
                 .build();
 
         when(parserRegistry.parse(trace)).thenReturn(parsedError);
-        when(queryBuilder.buildSmartQuery(parsedError, trace)).thenReturn("built-query");
-        when(gitHubClient.searchIssues("built-query")).thenReturn(Collections.emptyList());
-        when(stackOverflowClient.search("built-query", "python")).thenReturn(Collections.emptyList());
+        when(queryBuilder.buildGitHubQuery(parsedError, trace)).thenReturn("gh-query");
+        when(queryBuilder.buildStackOverflowQueries(parsedError, trace)).thenReturn(List.of("so-q"));
+
+        when(gitHubClient.searchIssues("gh-query")).thenReturn(Collections.emptyList());
+        when(stackOverflowClient.searchOnion(
+                eq(List.of("so-q")),
+                eq("python"),
+                eq("Error")
+        )).thenReturn(Collections.emptyList());
 
         AnalyzeResponse response = analyzeService.analyze(new AnalyzeRequest(trace));
 
         assertThat(response.results()).isEmpty();
+
         verify(rankingService, never()).calculateGitHubScore(any(), anySet());
         verify(rankingService, never()).calculateStackOverflowScore(any(), anySet());
     }
@@ -107,6 +118,7 @@ class AnalyzeServiceTest {
     @Test
     void shouldSortResultsByScoreDescending() {
         String trace = "Error";
+
         ParsedError parsed = ParsedError.builder()
                 .language("java")
                 .exceptionType("Err")
@@ -135,9 +147,17 @@ class AnalyzeServiceTest {
         );
 
         when(parserRegistry.parse(anyString())).thenReturn(parsed);
-        when(queryBuilder.buildSmartQuery(eq(parsed), anyString())).thenReturn("built-query");
-        when(gitHubClient.searchIssues("built-query")).thenReturn(List.of(lowIssue, highIssue));
-        when(stackOverflowClient.search("built-query", "java")).thenReturn(List.of());
+
+        when(queryBuilder.buildGitHubQuery(eq(parsed), anyString())).thenReturn("gh-query");
+        when(queryBuilder.buildStackOverflowQueries(eq(parsed), anyString())).thenReturn(List.of("so-q"));
+
+        when(gitHubClient.searchIssues("gh-query")).thenReturn(List.of(lowIssue, highIssue));
+        when(stackOverflowClient.searchOnion(
+                eq(List.of("so-q")),
+                eq("java"),
+                eq("Err")
+        )).thenReturn(List.of());
+
         when(rankingService.calculateGitHubScore(eq(lowIssue), anySet())).thenReturn(2.0);
         when(rankingService.calculateGitHubScore(eq(highIssue), anySet())).thenReturn(10.0);
 
@@ -147,7 +167,6 @@ class AnalyzeServiceTest {
         assertThat(response.results().get(0).title()).isEqualTo("High");
         assertThat(response.results().get(1).title()).isEqualTo("Low");
     }
-
 
     @Test
     void shouldMergeResultsFromBothSources() {
@@ -169,15 +188,24 @@ class AnalyzeServiceTest {
         );
 
         when(parserRegistry.parse(trace)).thenReturn(parsedError);
-        when(queryBuilder.buildSmartQuery(parsedError, trace)).thenReturn("query");
-        when(gitHubClient.searchIssues("query")).thenReturn(List.of(githubIssue));
-        when(stackOverflowClient.search("query", "java")).thenReturn(List.of(soQuestion));
+
+        when(queryBuilder.buildGitHubQuery(parsedError, trace)).thenReturn("gh-query");
+        when(queryBuilder.buildStackOverflowQueries(parsedError, trace)).thenReturn(List.of("so-q"));
+
+        when(gitHubClient.searchIssues("gh-query")).thenReturn(List.of(githubIssue));
+        when(stackOverflowClient.searchOnion(
+                eq(List.of("so-q")),
+                eq("java"),
+                eq("NPE")
+        )).thenReturn(List.of(soQuestion));
+
         when(rankingService.calculateGitHubScore(any(), anySet())).thenReturn(5.0);
         when(rankingService.calculateStackOverflowScore(any(), anySet())).thenReturn(8.0);
 
         AnalyzeResponse response = analyzeService.analyze(new AnalyzeRequest(trace));
 
         assertThat(response.results()).hasSize(2);
+
         assertThat(response.results().get(0).source()).isEqualTo("stackoverflow");
         assertThat(response.results().get(1).source()).isEqualTo("github");
     }
@@ -185,6 +213,7 @@ class AnalyzeServiceTest {
     @Test
     void shouldIncludeStackOverflowSpecificFields() {
         String trace = "error";
+
         ParsedError parsed = ParsedError.builder()
                 .language("python")
                 .exceptionType("ValueError")
@@ -198,9 +227,17 @@ class AnalyzeServiceTest {
         );
 
         when(parserRegistry.parse(trace)).thenReturn(parsed);
-        when(queryBuilder.buildSmartQuery(eq(parsed), anyString())).thenReturn("query");
-        when(gitHubClient.searchIssues("query")).thenReturn(List.of());
-        when(stackOverflowClient.search("query", "python")).thenReturn(List.of(question));
+
+        when(queryBuilder.buildGitHubQuery(eq(parsed), anyString())).thenReturn("gh-query");
+        when(queryBuilder.buildStackOverflowQueries(eq(parsed), anyString())).thenReturn(List.of("so-q"));
+
+        when(gitHubClient.searchIssues("gh-query")).thenReturn(List.of());
+        when(stackOverflowClient.searchOnion(
+                eq(List.of("so-q")),
+                eq("python"),
+                eq("ValueError")
+        )).thenReturn(List.of(question));
+
         when(rankingService.calculateStackOverflowScore(any(), anySet())).thenReturn(7.0);
 
         AnalyzeResponse response = analyzeService.analyze(new AnalyzeRequest(trace));
@@ -208,11 +245,13 @@ class AnalyzeServiceTest {
         assertThat(response.results()).hasSize(1);
         assertThat(response.results().get(0).answerCount()).isEqualTo(7);
         assertThat(response.results().get(0).isAnswered()).isTrue();
+        assertThat(response.results().get(0).source()).isEqualTo("stackoverflow");
     }
 
     @Test
     void shouldLimitResultsToFifteen() {
         String trace = "error";
+
         ParsedError parsed = ParsedError.builder()
                 .language("java")
                 .exceptionType("Exception")
@@ -220,7 +259,7 @@ class AnalyzeServiceTest {
                 .keywords(Set.of())
                 .build();
 
-        List<GitHubIssue> manyIssues = new java.util.ArrayList<>();
+        List<GitHubIssue> manyIssues = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             manyIssues.add(new GitHubIssue(
                     "Issue " + i, "url" + i, "open", i, null, Instant.now(), "body"
@@ -228,9 +267,17 @@ class AnalyzeServiceTest {
         }
 
         when(parserRegistry.parse(trace)).thenReturn(parsed);
-        when(queryBuilder.buildSmartQuery(eq(parsed), anyString())).thenReturn("query");
-        when(gitHubClient.searchIssues("query")).thenReturn(manyIssues);
-        when(stackOverflowClient.search("query", "java")).thenReturn(List.of());
+
+        when(queryBuilder.buildGitHubQuery(eq(parsed), anyString())).thenReturn("gh-query");
+        when(queryBuilder.buildStackOverflowQueries(eq(parsed), anyString())).thenReturn(List.of("so-q"));
+
+        when(gitHubClient.searchIssues("gh-query")).thenReturn(manyIssues);
+        when(stackOverflowClient.searchOnion(
+                eq(List.of("so-q")),
+                eq("java"),
+                eq("Exception")
+        )).thenReturn(List.of());
+
         when(rankingService.calculateGitHubScore(any(), anySet())).thenReturn(5.0);
 
         AnalyzeResponse response = analyzeService.analyze(new AnalyzeRequest(trace));

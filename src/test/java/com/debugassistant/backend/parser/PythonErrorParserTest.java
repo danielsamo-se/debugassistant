@@ -1,9 +1,11 @@
 package com.debugassistant.backend.parser;
 
+import com.debugassistant.backend.exception.InvalidStackTraceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PythonErrorParserTest {
 
@@ -57,5 +59,11 @@ class PythonErrorParserTest {
         ParsedError result = parser.parse(stackTrace);
 
         assertThat(result.keywords()).isNotEmpty();
+    }
+
+    @Test
+    void shouldThrowForBlankInput() {
+        assertThatThrownBy(() -> parser.parse("   \n\n"))
+                .isInstanceOf(InvalidStackTraceException.class);
     }
 }

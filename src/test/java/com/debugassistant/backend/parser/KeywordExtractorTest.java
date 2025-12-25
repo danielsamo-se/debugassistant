@@ -29,7 +29,7 @@ class KeywordExtractorTest {
     }
 
     @Test
-    void mergesDuplicateKeywords() {
+    void keepsAndRanksKeywordsFromMessageAndRootCause() {
         ParsedError error = ParsedError.builder()
                 .exceptionType("TimeoutError")
                 .message("timeout occurred here")
@@ -42,15 +42,15 @@ class KeywordExtractorTest {
     }
 
     @Test
-    void filtersStopwords() {
+    void filtersConfiguredStopwords() {
         ParsedError error = ParsedError.builder()
-                .exceptionType("SomeError")
-                .message("the message failed for the user")
+                .exceptionType("AuthenticationFailedException")
+                .message("authentication failed because user password is wrong")
                 .build();
 
         List<String> result = extractor.extract(error);
 
-        assertThat(result).doesNotContain("the", "error", "failed", "for");
+        assertThat(result).doesNotContain("authentication", "failed", "because", "user", "password");
     }
 
     @Test

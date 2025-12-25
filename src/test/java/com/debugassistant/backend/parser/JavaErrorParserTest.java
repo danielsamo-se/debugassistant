@@ -68,8 +68,9 @@ class JavaErrorParserTest {
 
         ParsedError result = parser.parse(trace);
 
-        assertThat(result.exceptionType()).isEqualTo("RuntimeException");
+        assertThat(result.exceptionType()).isEqualTo("SQLException");
         assertThat(result.rootCause()).isEqualTo("SQLException");
+        assertThat(result.message()).isEqualTo("Connection failed");
     }
 
     @Test

@@ -3,7 +3,6 @@ package com.debugassistant.backend.service;
 import com.debugassistant.backend.entity.SearchHistory;
 import com.debugassistant.backend.entity.User;
 import com.debugassistant.backend.repository.SearchHistoryRepository;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -78,6 +77,23 @@ class HistoryServiceTest {
         assertEquals(SIMPLE_PYTHON_TRACE.length(), result.getStackTraceSnippet().length());
         assertEquals(SIMPLE_PYTHON_TRACE, result.getStackTraceSnippet());
         assertEquals("Python", result.getLanguage());
+    }
+
+    @Test
+    void shouldHandleNullSnippet() {
+        User user = new User();
+        when(historyRepository.save(any(SearchHistory.class))).thenAnswer(i -> i.getArgument(0));
+
+        SearchHistory result = historyService.saveSearch(
+                user,
+                null,
+                "Java",
+                "NullPointerException",
+                "https://example.com"
+        );
+
+        assertNotNull(result);
+        assertEquals("", result.getStackTraceSnippet());
     }
 
     @Test

@@ -1,7 +1,6 @@
 package com.debugassistant.backend.service;
 
 import com.debugassistant.backend.dto.github.GitHubIssue;
-import com.debugassistant.backend.dto.github.GitHubSearchResponse;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
@@ -69,9 +68,27 @@ class GitHubClientTest {
     }
 
     @Test
+    void returnsEmptyOn429() {
+        mockServer.enqueue(new MockResponse().setResponseCode(429));
+        assertThat(gitHubClient.searchIssues("x")).isEmpty();
+    }
+
+    @Test
+    void returnsEmptyOnServerError() {
+        mockServer.enqueue(new MockResponse().setResponseCode(500));
+        assertThat(gitHubClient.searchIssues("x")).isEmpty();
+    }
+
+    @Test
     void returnsEmptyOnBrokenJson() {
         mockServer.enqueue(new MockResponse().setBody("INVALID JSON"));
         assertThat(gitHubClient.searchIssues("x")).isEmpty();
+    }
+
+    @Test
+    void returnsEmptyOnBlankQueryWithoutHttpCall() {
+        assertThat(gitHubClient.searchIssues("   ")).isEmpty();
+        assertThat(mockServer.getRequestCount()).isEqualTo(0);
     }
 
     private void enqueueJson(String json) {

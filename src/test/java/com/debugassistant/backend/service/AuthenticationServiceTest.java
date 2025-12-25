@@ -4,6 +4,8 @@ import com.debugassistant.backend.dto.auth.AuthResponse;
 import com.debugassistant.backend.dto.auth.LoginRequest;
 import com.debugassistant.backend.dto.auth.RegisterRequest;
 import com.debugassistant.backend.entity.User;
+import com.debugassistant.backend.exception.EmailAlreadyRegisteredException;
+import com.debugassistant.backend.exception.UserNotFoundException;
 import com.debugassistant.backend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,20 +27,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
+    @Mock private UserRepository userRepository;
+    @Mock private PasswordEncoder passwordEncoder;
+    @Mock private AuthenticationManager authenticationManager;
+    @Mock private JwtService jwtService;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
-
-    @Mock
-    private AuthenticationManager authenticationManager;
-
-    @Mock
-    private JwtService jwtService;
-
-    @InjectMocks
-    private AuthenticationService authenticationService;
+    @InjectMocks private AuthenticationService authenticationService;
 
     @Test
     void shouldRegisterNewUser() {
@@ -68,7 +62,7 @@ class AuthenticationServiceTest {
         when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
 
         assertThatThrownBy(() -> authenticationService.register(request))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(EmailAlreadyRegisteredException.class)
                 .hasMessage("Email already registered");
 
         verify(userRepository, never()).save(any());
@@ -84,6 +78,7 @@ class AuthenticationServiceTest {
                 .name("Test User")
                 .build();
 
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(null);
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
         when(jwtService.generateToken(user)).thenReturn("jwt_token");
         when(jwtService.getExpirationTime()).thenReturn(86400000L);
@@ -102,9 +97,11 @@ class AuthenticationServiceTest {
     void shouldRejectLoginForNonexistentUser() {
         LoginRequest request = new LoginRequest("unknown@example.com", "password");
 
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(null);
         when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authenticationService.login(request))
-                .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessage("User not found");
     }
 }

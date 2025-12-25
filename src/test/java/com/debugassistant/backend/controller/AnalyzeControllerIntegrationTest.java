@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Instant;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -64,7 +65,10 @@ class AnalyzeControllerIntegrationTest {
         );
 
         when(gitHubClient.searchIssues(anyString())).thenReturn(List.of(issue));
-        when(stackOverflowClient.search(anyString(), anyString())).thenReturn(List.of(question));
+
+        // NEW: mock the updated StackOverflowClient API
+        when(stackOverflowClient.searchOnion(anyList(), anyString(), anyString()))
+                .thenReturn(List.of(question));
 
         AnalyzeRequest request = new AnalyzeRequest("""
                 java.lang.NullPointerException: boom
@@ -75,8 +79,23 @@ class AnalyzeControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.language").value("java"))
                 .andExpect(jsonPath("$.exceptionType").value("NullPointerException"))
                 .andExpect(jsonPath("$.results").isArray());
+    }
+
+    @Test
+    void analyzeReturns400ForBlankStackTrace() throws Exception {
+        // NotBlank should trigger
+        AnalyzeRequest request = new AnalyzeRequest("   ");
+
+        mockMvc.perform(post("/api/analyze")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("Stack trace cannot be empty"))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 }

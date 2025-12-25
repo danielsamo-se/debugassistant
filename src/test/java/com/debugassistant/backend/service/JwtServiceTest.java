@@ -15,7 +15,7 @@ class JwtServiceTest {
     void setUp() {
         jwtService = new JwtService();
         ReflectionTestUtils.setField(jwtService, "secretKey",
-                "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970");
+                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
         ReflectionTestUtils.setField(jwtService, "jwtExpiration", 86400000L);
     }
 
