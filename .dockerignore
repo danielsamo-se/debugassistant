@@ -1,11 +1,20 @@
-target/
-.mvn/
+.git
+.idea
+.vscode
+*.iml
 *.log
+logs/
 
-.idea/
-.vscode/
+.env
+.env.*
 
-node_modules/
+target/
+**/node_modules/
+**/dist/
+**/build/
+coverage/
+test-results/
+playwright-report/
 
 .DS_Store
 Thumbs.db

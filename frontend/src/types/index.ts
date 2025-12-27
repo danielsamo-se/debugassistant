@@ -2,7 +2,7 @@ export interface SearchResult {
   source: 'github' | 'stackoverflow';
   title: string;
   url: string;
-  reactions: number;
+  reactions?: number;
   score: number;
   snippet?: string;
   answerCount?: number;

@@ -17,63 +17,63 @@ export default function ResultDisplay({ result }: Props): JSX.Element {
   ).length;
 
   return (
-    <div className="space-y-8 animate-slide-up">
+    <div className="space-y-6 animate-slide-up pb-8">
       {/* summary section */}
-      <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-            <span className="text-slate-400 text-xs uppercase tracking-wider block mb-1">
+      <div className="bg-zinc-900/50 rounded-md border border-zinc-800 overflow-hidden">
+        <div className="grid grid-cols-2 divide-x divide-zinc-800 border-b border-zinc-800">
+          <div className="p-3">
+            <span className="text-zinc-500 text-xs uppercase block mb-1">
               Language
             </span>
-            <strong className="text-green-400 font-mono text-lg">
-              {result.language.toUpperCase()}
+            <strong className="text-zinc-200 font-mono text-sm uppercase">
+              {result.language}
             </strong>
           </div>
 
-          <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-            <span className="text-slate-400 text-xs uppercase tracking-wider block mb-1">
+          <div className="p-3">
+            <span className="text-zinc-500 text-xs uppercase block mb-1">
               Type
             </span>
-            <strong className="text-red-400 font-mono text-lg break-words">
+            <strong className="text-red-400 font-mono text-sm break-all">
               {result.exceptionType}
             </strong>
           </div>
-
-          {result.rootCause && (
-            <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-              <div className="flex justify-between items-start mb-1">
-                <span className="text-slate-400 text-xs uppercase tracking-wider">
-                  Root Cause
-                </span>
-                <CopyButton text={result.rootCause} />
-              </div>
-
-              <strong className="text-yellow-400 font-mono text-lg break-all">
-                {result.rootCause}
-              </strong>
-            </div>
-          )}
         </div>
+
+        {result.rootCause && (
+          <div className="p-3 bg-zinc-900">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-zinc-500 text-xs uppercase">
+                Root Cause
+              </span>
+              <CopyButton text={result.rootCause} />
+            </div>
+
+            <strong className="text-zinc-300 font-mono text-sm break-words font-normal">
+              {result.rootCause}
+            </strong>
+          </div>
+        )}
       </div>
 
       {/* result list header */}
       <div>
-        <h3 className="text-xl font-bold text-slate-200 mb-4 flex items-center gap-2">
+        <h3 className="text-sm font-bold text-zinc-200 mb-4 flex items-center gap-2 uppercase tracking-wide">
           Found {result.results.length} Solutions
-          <span className="text-sm font-normal text-slate-500 ml-2">
+          <span className="text-xs font-normal text-zinc-500 ml-2 font-mono normal-case">
             ({soCount} Stack Overflow, {githubCount} GitHub)
           </span>
         </h3>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {result.results.length === 0 ? (
-            <div className="text-center p-8 bg-slate-800/50 rounded-lg border border-slate-700 text-slate-400">
+            <div className="text-center p-8 bg-zinc-900/50 rounded-md border border-zinc-800 border-dashed text-zinc-500 text-sm">
               No matches found. Try a different stack trace.
             </div>
           ) : (
             result.results.map((item, index) => (
               <ResultCard
-                key={index}
+                key={item.url}
                 result={item}
                 isTopMatch={index === 0 && item.score > 0.5}
               />

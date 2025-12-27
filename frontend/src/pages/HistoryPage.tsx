@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getHistory } from '../services/historyService';
-import { SearchHistory } from '../types';
+import type { SearchHistory } from '../types';
 
 import SkeletonHistoryList from '../components/skeletons/SkeletonHistoryList';
 
@@ -11,29 +11,42 @@ export function HistoryPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
+
+    const loadHistory = async () => {
+      try {
+        const data = await getHistory();
+        if (!cancelled) setHistory(data);
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) {
+          setError(
+            err instanceof Error ? err.message : 'Failed to load history',
+          );
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
     loadHistory();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const loadHistory = async () => {
-    try {
-      const data = await getHistory();
-      setHistory(data);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to load history');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const formatDate = (dateString: string) =>
-    new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (dateString: string) => {
+    // Backend sends LocalDateTime (no timezone). This makes parsing more stable in browsers.
+    const safe = dateString.replace('T', ' ');
+    return new Date(safe).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
 
   if (isLoading) {
     return (

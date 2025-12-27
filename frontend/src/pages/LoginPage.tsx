@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export function LoginPage() {
@@ -10,6 +10,11 @@ export function LoginPage() {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from =
+    (location.state as { from?: { pathname?: string } } | null)?.from
+      ?.pathname || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +23,7 @@ export function LoginPage() {
 
     try {
       await login(email, password);
-      navigate('/');
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -62,7 +67,7 @@ export function LoginPage() {
         </form>
 
         <p className="auth-switch">
-          Don't have an account? <Link to="/register">Sign up</Link>
+          Don&apos;t have an account? <Link to="/register">Sign up</Link>
         </p>
       </div>
     </div>

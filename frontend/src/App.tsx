@@ -13,9 +13,9 @@ function App() {
     <AuthProvider>
       <ErrorBoundary>
         <BrowserRouter>
-          <div className="min-h-screen bg-slate-900">
+          <div className="min-h-screen flex flex-col">
             <Navbar />
-            <main className="container mx-auto px-4 py-8">
+            <main className="flex-grow w-full max-w-6xl mx-auto px-4 py-8">
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />

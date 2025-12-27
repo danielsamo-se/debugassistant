@@ -16,39 +16,68 @@ export default function StackTraceInput({ onAnalyze, loading }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="relative">
+    <form onSubmit={handleSubmit} className="flex flex-col h-full group">
+      {/* Editor Area */}
+      <div className="relative flex-grow bg-zinc-950/30">
         <textarea
           value={localTrace}
           onChange={(e) => setLocalTrace(e.target.value)}
-          placeholder="Paste your error stack trace here..."
-          className="w-full h-64 p-4 bg-slate-800 border border-slate-700 rounded-lg
-           focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none
-           text-slate-300 font-mono text-sm resize-y transition-all
-           overflow-x-auto whitespace-pre"
+          placeholder="// Paste your error stack trace here..."
+          className="w-full h-full p-5 bg-transparent text-zinc-300 font-mono text-sm resize-none focus:outline-none placeholder-zinc-700 leading-relaxed"
           spellCheck={false}
           disabled={loading}
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={loading || !localTrace.trim()}
-        className={`w-full py-4 rounded-lg font-semibold text-white transition-all
-          ${
-            loading || !localTrace.trim()
-              ? 'bg-slate-700 cursor-not-allowed opacity-50'
-              : 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 hover:transform hover:-translate-y-0.5'
-          }`}
-      >
-        {loading ? (
-          <span className="flex items-center justify-center gap-2">
-            <span className="animate-spin"></span> Analyzing
+      {/* Toolbar / Footer */}
+      <div className="border-t border-zinc-800/50 bg-zinc-900/50 p-4 flex justify-between items-center shrink-0 backdrop-blur-md">
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-zinc-500 font-mono">
+            {localTrace.length} chars
           </span>
-        ) : (
-          'Analyze Stack Trace'
-        )}
-      </button>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading || !localTrace.trim()}
+          className={`
+            px-5 py-2 text-sm font-semibold rounded shadow-lg transition-all transform active:scale-95
+            ${
+              loading || !localTrace.trim()
+                ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed border border-zinc-700'
+                : 'bg-zinc-100 text-zinc-900 hover:bg-white hover:shadow-zinc-500/10 border border-transparent'
+            }
+          `}
+        >
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <svg
+                className="animate-spin h-4 w-4 text-zinc-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Analyzing...
+            </span>
+          ) : (
+            'Analyze Trace'
+          )}
+        </button>
+      </div>
     </form>
   );
 }

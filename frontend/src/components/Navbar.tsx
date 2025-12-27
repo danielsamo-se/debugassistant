@@ -12,35 +12,35 @@ export function Navbar() {
   };
 
   return (
-    <nav className="bg-slate-800 border-b border-slate-700 shadow-lg">
-      <div className="max-w-4xl mx-auto px-4 h-16 flex justify-between items-center">
+    <nav className="bg-zinc-950 border-b border-zinc-800 z-50">
+      <div className="w-full px-6 h-14 flex justify-between items-center">
         <Link
           to="/"
-          className="text-xl font-bold text-white hover:text-blue-400 transition-colors"
+          className="text-lg font-bold font-mono text-white tracking-tight flex items-center gap-2"
         >
-          Debug Assistant
+          <span className="text-zinc-600">{'>'}</span> Debug Assistant
         </Link>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-6 text-sm">
           {isAuthenticated ? (
             <>
               {/* history is only visible for logged-in users */}
               <Link
                 to="/history"
-                className="text-slate-300 hover:text-white font-medium transition-colors"
+                className="text-zinc-400 hover:text-white font-medium transition-colors"
               >
                 History
               </Link>
 
               {/* shows user identity + logout action */}
-              <div className="flex items-center gap-4 border-l border-slate-600 pl-6">
-                <span className="text-slate-400 text-sm hidden sm:block font-mono">
+              <div className="flex items-center gap-4 border-l border-zinc-800 pl-6">
+                <span className="text-zinc-500 text-xs hidden sm:block font-mono">
                   {user?.name || user?.email}
                 </span>
 
                 <button
                   onClick={handleLogout}
-                  className="px-3 py-1.5 text-sm font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-md transition-all"
+                  className="text-zinc-400 hover:text-white text-xs uppercase font-bold tracking-wider hover:underline decoration-zinc-600 underline-offset-4"
                 >
                   Logout
                 </button>
@@ -51,14 +51,14 @@ export function Navbar() {
             <div className="flex items-center gap-4">
               <Link
                 to="/login"
-                className="text-slate-300 hover:text-white font-medium transition-colors"
+                className="text-zinc-400 hover:text-white font-medium transition-colors"
               >
                 Login
               </Link>
 
               <Link
                 to="/register"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-lg shadow-blue-500/20 transition-all"
+                className="px-3 py-1.5 bg-white text-black hover:bg-zinc-200 text-xs font-bold uppercase tracking-wide rounded-sm transition-all"
               >
                 Sign Up
               </Link>

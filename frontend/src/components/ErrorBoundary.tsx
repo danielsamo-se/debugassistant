@@ -12,9 +12,7 @@ export default class ErrorBoundary extends React.Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
 > {
-  state: ErrorBoundaryState = {
-    hasError: false,
-  };
+  state: ErrorBoundaryState = { hasError: false };
 
   static getDerivedStateFromError(_: Error) {
     return { hasError: true };
@@ -23,6 +21,10 @@ export default class ErrorBoundary extends React.Component<
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     console.error('UI crashed:', error, info);
   }
+
+  private handleReset = () => {
+    this.setState({ hasError: false });
+  };
 
   render() {
     if (this.state.hasError) {
@@ -35,6 +37,13 @@ export default class ErrorBoundary extends React.Component<
             <p className="text-slate-400">
               An unexpected error occurred while rendering this section.
             </p>
+
+            <button
+              onClick={this.handleReset}
+              className="px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm"
+            >
+              Try again
+            </button>
           </div>
         </div>
       );

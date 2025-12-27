@@ -2,65 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
-/* GLOBAL BACKGROUND */
 :root {
-    background-color: #0f172a;
-    color: white;
+    background-color: #09090b; /* Zinc 950 */
+    color: #e4e4e7; /* Zinc 200 */
 }
 
-/* ---------- AUTH PAGE STYLES ---------- */
+@layer base {
+    body {
+        @apply antialiased selection:bg-zinc-800 selection:text-white;
+    }
+}
+
+.bg-grid-pattern {
+    background-size: 40px 40px;
+    background-image: linear-gradient(to right, #27272a 1px, transparent 1px),
+    linear-gradient(to bottom, #27272a 1px, transparent 1px);
+    mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+}
 
 .auth-container {
     @apply flex items-center justify-center min-h-[calc(100vh-4rem)] px-4;
 }
 
 .auth-card {
-    @apply bg-slate-800/80 backdrop-blur-xl p-10 rounded-2xl
-    shadow-[0_8px_30px_rgb(0,0,0,0.4)]
-    w-full max-w-lg border border-slate-700/50;
+    @apply bg-zinc-900 p-8 rounded-lg
+    w-full max-w-md border border-zinc-800
+    shadow-none;
 }
 
 .auth-title {
-    @apply text-3xl font-bold mb-8 text-center text-white;
+    @apply text-2xl font-semibold mb-6 text-white tracking-tight;
 }
 
 .auth-error {
-    @apply bg-red-600/80 text-white p-3 rounded-lg mb-4 text-sm font-medium;
+    @apply bg-red-900/30 border border-red-900/50 text-red-200 p-3 rounded-md mb-4 text-sm;
 }
 
 .auth-form {
-    @apply flex flex-col gap-6;
+    @apply flex flex-col gap-5;
 }
 
 .form-group {
-    @apply flex flex-col gap-1;
+    @apply flex flex-col gap-1.5;
 }
 
 .form-group label {
-    @apply text-sm text-slate-300 font-medium;
+    @apply text-xs uppercase tracking-wider text-zinc-500 font-semibold;
 }
 
 .form-group input {
-    @apply bg-slate-700/60 text-white p-3 rounded-xl border border-slate-600
-    placeholder-slate-400
-    focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-    transition-all duration-200;
+    @apply bg-zinc-950 text-zinc-100 p-3 rounded-md border border-zinc-800
+    placeholder-zinc-600 font-mono text-sm
+    focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500
+    transition-colors duration-200;
 }
 
 .auth-button {
-    @apply w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl
-    shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30
-    transition-all duration-200;
+    @apply w-full bg-white hover:bg-zinc-200 text-black font-medium py-2.5 rounded-md
+    border border-transparent
+    transition-colors duration-200 text-sm;
 }
 
 .auth-button:disabled {
-    @apply opacity-60 cursor-not-allowed;
+    @apply bg-zinc-800 text-zinc-500 border-zinc-800 cursor-not-allowed;
 }
 
 .auth-switch {
-    @apply text-center text-sm text-slate-400 mt-4;
+    @apply text-center text-sm text-zinc-500 mt-6;
 }
 
 .auth-switch a {
-    @apply text-indigo-400 hover:text-indigo-300 font-medium;
+    @apply text-white hover:underline underline-offset-4 decoration-zinc-600;
 }

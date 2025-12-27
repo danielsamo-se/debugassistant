@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export function RegisterPage() {
@@ -12,6 +12,11 @@ export function RegisterPage() {
 
   const { register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from =
+    (location.state as { from?: { pathname?: string } } | null)?.from
+      ?.pathname || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +36,7 @@ export function RegisterPage() {
 
     try {
       await register(email, password, name || undefined);
-      navigate('/');
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {
