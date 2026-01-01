@@ -15,7 +15,8 @@ public class GitHubClientConfig {
     public RestClient restClient(@Value("${GITHUB_API_TOKEN:}") String token) {
         RestClient.Builder builder = RestClient.builder()
                 .baseUrl("https://api.github.com")
-                .defaultHeader("Accept", "application/vnd.github.v3+json");
+                .defaultHeader("Accept", "application/vnd.github.v3+json")
+                .defaultHeader("User-Agent", "debugassistant");
 
         if (token != null && !token.isBlank()) {
             builder.defaultHeader("Authorization", "Bearer " + token);

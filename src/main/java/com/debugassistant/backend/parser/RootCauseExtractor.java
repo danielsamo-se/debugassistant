@@ -21,7 +21,6 @@ public class RootCauseExtractor {
             return null;
         }
 
-        // was: split("\n")
         String[] lines = stackTrace.split("\\R");
 
         String lastCause = null;

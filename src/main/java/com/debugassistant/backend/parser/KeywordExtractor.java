@@ -12,10 +12,11 @@ public class KeywordExtractor {
 
     // noise
     private static final Set<String> STOPWORDS = Set.of(
-            "user", "password", "username", "account",
-            "available", "qualifying",
-            "because", "cannot", "invoke",
-            "authentication", "failed"
+            "user", "password", "username", "from",
+            "available", "qualifying", "because",
+            "cannot", "invoke",  "authentication",
+            "failed","value", "string", "integer",
+            "type", "valid", "account"
     );
 
     private static final int MAX_KEYWORDS = 5;

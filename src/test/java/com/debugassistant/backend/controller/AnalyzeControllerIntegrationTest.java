@@ -4,6 +4,7 @@ import com.debugassistant.backend.dto.AnalyzeRequest;
 import com.debugassistant.backend.dto.github.GitHubIssue;
 import com.debugassistant.backend.dto.stackoverflow.StackOverflowQuestion;
 import com.debugassistant.backend.service.GitHubClient;
+import com.debugassistant.backend.service.HistoryService;
 import com.debugassistant.backend.service.StackOverflowClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,9 @@ class AnalyzeControllerIntegrationTest {
     @MockBean
     private StackOverflowClient stackOverflowClient;
 
+    @MockBean
+    private HistoryService historyService;
+
     @Test
     void analyzeReturnsStructuredResponse() throws Exception {
         GitHubIssue issue = new GitHubIssue(
@@ -66,7 +70,6 @@ class AnalyzeControllerIntegrationTest {
 
         when(gitHubClient.searchIssues(anyString())).thenReturn(List.of(issue));
 
-        // NEW: mock the updated StackOverflowClient API
         when(stackOverflowClient.searchOnion(anyList(), anyString(), anyString()))
                 .thenReturn(List.of(question));
 
@@ -87,7 +90,6 @@ class AnalyzeControllerIntegrationTest {
 
     @Test
     void analyzeReturns400ForBlankStackTrace() throws Exception {
-        // NotBlank should trigger
         AnalyzeRequest request = new AnalyzeRequest("   ");
 
         mockMvc.perform(post("/api/analyze")

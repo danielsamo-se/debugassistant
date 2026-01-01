@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -68,12 +69,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
 
-        String message = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .findFirst()
+        var errors = ex.getBindingResult().getFieldErrors();
+
+        String message = errors.stream()
+                .filter(e -> "stackTrace".equals(e.getField()))
+                .filter(e -> e.getCodes() != null && Arrays.stream(e.getCodes()).anyMatch(c -> c.contains("NotBlank")))
                 .map(FieldError::getDefaultMessage)
-                .orElse("Validation error");
+                .findFirst()
+                .orElseGet(() -> errors.stream()
+                        .findFirst()
+                        .map(FieldError::getDefaultMessage)
+                        .orElse("Validation error"));
 
         log.warn("Validation error: {}", message);
         return ResponseEntity

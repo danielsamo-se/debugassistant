@@ -9,6 +9,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,41 +37,45 @@ public class StackOverflowClient {
     public List<StackOverflowQuestion> searchOnion(List<String> queries, String language, String exceptionType) {
         if (queries == null || queries.isEmpty()) return List.of();
 
-        String tagged = mapLanguageToTag(language);
+        String tagged = mapLanguageToTag(language); // narrow by language tag
+        List<StackOverflowQuestion> collected = new ArrayList<>();
+        int MIN_RESULTS = 5; // early stop threshold
 
-        // Try queries from strict to broad
+        // strict -> broad
         for (String q : queries) {
-            if (q == null || q.isBlank()) continue;
-            List<StackOverflowQuestion> res = searchAdvanced(q, tagged, exceptionType);
-            if (!res.isEmpty()) return res;
+            if (q == null || q.isBlank()) continue; // skip blanks
+
+            var res = searchAdvanced(q, tagged, true, false); // require answers
+            if (!res.isEmpty()) {
+                collected.addAll(res);
+                if (collected.size() >= MIN_RESULTS) return collected; // stop early
+            }
+
+            res = searchAdvanced(q, tagged, false, false); // relax constraints
+            if (!res.isEmpty()) {
+                collected.addAll(res);
+                if (collected.size() >= MIN_RESULTS) return collected; // stop early
+            }
         }
-        return List.of();
+        return collected;
     }
 
-    private List<StackOverflowQuestion> searchAdvanced(String q, String tagged, String exceptionType) {
+    private List<StackOverflowQuestion> searchAdvanced(String q, String tagged, boolean requireAnswers, boolean requireAccepted) {
         try {
             UriComponentsBuilder b = UriComponentsBuilder
                     .fromPath("/search/advanced")
                     .queryParam("site", "stackoverflow")
                     .queryParam("order", "desc")
                     .queryParam("sort", "relevance")
-                    .queryParam("pagesize", 30)
-                    .queryParam("answers", 1)
-                    .queryParam("accepted", "true");
+                    .queryParam("pagesize", 30);
 
-            // Boost by exception in title
-            if (exceptionType != null && !exceptionType.isBlank()) {
-                b.queryParam("intitle", exceptionType);
-            }
-            if (tagged != null && !tagged.isBlank()) {
-                b.queryParam("tagged", tagged);
-            }
-            if (q != null && !q.isBlank()) {
-                b.queryParam("q", q);
-            }
+            if (requireAnswers) b.queryParam("answers", 1);          // filter zero-answer
+            if (requireAccepted) b.queryParam("accepted", "true");   // stricter filter
+            if (tagged != null && !tagged.isBlank()) b.queryParam("tagged", tagged); // language scope
+            if (q != null && !q.isBlank()) b.queryParam("q", q);     // query text
 
-            String uri = b.encode(StandardCharsets.UTF_8).build().toUriString();
-            log.debug("StackOverflow request URI: {}", uri);
+            String uri = b.encode(StandardCharsets.UTF_8).build().toUriString(); // safe encoding
+            log.info("StackOverflow request URI: {}", uri);
 
             StackOverflowResponse response = restClient.get()
                     .uri(uri)
