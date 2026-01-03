@@ -27,18 +27,21 @@ export function HomePage() {
       const analysisResult = await analyzeStackTrace(traceContent);
       setResult(analysisResult);
 
-      if (isAuthenticated) {
+      const handleAnalyze = async (traceContent: string) => {
+        setIsAnalyzing(true);
+        setError('');
+        setResult(null);
+
         try {
-          await saveHistory({
-            stackTraceSnippet: traceContent.substring(0, 500),
-            language: analysisResult.language,
-            exceptionType: analysisResult.exceptionType,
-            searchUrl: window.location.href,
-          });
-        } catch (saveErr) {
-          console.error('Failed to save history:', saveErr);
+          const analysisResult = await analyzeStackTrace(traceContent);
+          setResult(analysisResult);
+        } catch (err) {
+          console.error('Analysis request failed', err);
+          setError(err instanceof Error ? err.message : 'Analysis failed');
+        } finally {
+          setIsAnalyzing(false);
         }
-      }
+      };
     } catch (err) {
       console.error('Analysis request failed', err);
       setError(err instanceof Error ? err.message : 'Analysis failed');
@@ -55,14 +58,18 @@ export function HomePage() {
 
       <div
         className={`
-          relative z-10 flex flex-col transition-all duration-700 ease-in-out h-full
-          ${showEmptyState ? 'max-w-3xl mx-auto w-full justify-center pb-20 px-6' : 'flex-row'}
-      `}
+    relative z-10 flex transition-all duration-700 ease-in-out h-full
+    ${
+      showEmptyState
+        ? 'flex-col max-w-3xl mx-auto w-full justify-center pb-20 px-6'
+        : 'flex-col lg:flex-row w-full max-w-6xl mx-auto px-6'
+    }
+  `}
       >
         <div
           className={`
             flex flex-col transition-all duration-500
-            ${showEmptyState ? 'w-full' : 'lg:w-1/2 w-full border-r border-zinc-800/50 bg-zinc-950/50 backdrop-blur-sm p-6'}
+            ${showEmptyState ? 'w-full' : 'w-full lg:w-1/2 lg:border-r lg:border-zinc-800/50 min-w-0 bg-zinc-950/50 backdrop-blur-sm p-6'}
         `}
         >
           <div
@@ -99,7 +106,7 @@ export function HomePage() {
         </div>
 
         {(result || isAnalyzing) && (
-          <div className="lg:w-1/2 w-full bg-zinc-950/80 p-6 flex flex-col overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500">
+          <div className="lg:w-1/2 w-full min-w-0 bg-zinc-950/80 p-6 flex flex-col overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500">
             <div className="mb-4 flex justify-between items-center border-b border-zinc-800 pb-4">
               <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
                 <span

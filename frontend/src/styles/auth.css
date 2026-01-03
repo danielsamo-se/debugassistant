@@ -1,0 +1,56 @@
+@layer components {
+    .auth-container {
+        @apply flex items-center justify-center min-h-[calc(100vh-4rem)] px-4;
+    }
+
+    .auth-card {
+        @apply bg-zinc-900 p-8 rounded-lg
+        w-full max-w-md border border-zinc-800
+        shadow-none;
+    }
+
+    .auth-title {
+        @apply text-2xl font-semibold mb-6 text-white tracking-tight;
+    }
+
+    .auth-error {
+        @apply bg-red-900/30 border border-red-900/50 text-red-200 p-3 rounded-md mb-4 text-sm;
+    }
+
+    .auth-form {
+        @apply flex flex-col gap-5;
+    }
+
+    .form-group {
+        @apply flex flex-col gap-1.5;
+    }
+
+    .form-group label {
+        @apply text-xs uppercase tracking-wider text-zinc-500 font-semibold;
+    }
+
+    .form-group input {
+        @apply bg-zinc-950 text-zinc-100 p-3 rounded-md border border-zinc-800
+        placeholder-zinc-600 font-mono text-sm
+        focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500
+        transition-colors duration-200;
+    }
+
+    .auth-button {
+        @apply w-full bg-white hover:bg-zinc-200 text-black font-medium py-2.5 rounded-md
+        border border-transparent
+        transition-colors duration-200 text-sm;
+    }
+
+    .auth-button:disabled {
+        @apply bg-zinc-800 text-zinc-500 border-zinc-800 cursor-not-allowed;
+    }
+
+    .auth-switch {
+        @apply text-center text-sm text-zinc-500 mt-6;
+    }
+
+    .auth-switch a {
+        @apply text-white hover:underline underline-offset-4 decoration-zinc-600;
+    }
+}

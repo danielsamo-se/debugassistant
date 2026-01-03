@@ -1,0 +1,111 @@
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@layer components {
+    .result-section {
+        animation: fadeIn 0.3s ease;
+    }
+
+    .summary {
+        @apply flex flex-col gap-2 mb-4 sm:flex-row sm:flex-wrap;
+    }
+
+    .badge {
+        @apply bg-zinc-900/50 border border-zinc-800 text-zinc-300 px-4 py-2 rounded-full text-sm;
+    }
+
+    .badge strong {
+        @apply text-white;
+    }
+
+    .keywords {
+        @apply flex flex-wrap gap-2 mb-6;
+    }
+
+    .keyword-tag {
+        @apply bg-indigo-500/10 text-indigo-300 px-3 py-1 rounded-md text-xs;
+        font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco,
+        Consolas, 'Liberation Mono', 'Courier New', monospace;
+    }
+
+    .results-header {
+        @apply text-white mb-4 text-base flex items-center gap-2 flex-wrap;
+    }
+
+    .source-counts {
+        @apply text-zinc-400 font-normal text-sm;
+    }
+
+    .results-list {
+        @apply flex flex-col gap-3;
+    }
+
+    .no-results {
+        @apply text-center text-zinc-400 py-8;
+    }
+
+    .result-card {
+        @apply bg-zinc-900/50 border border-zinc-800 p-4 rounded-xl transition duration-200;
+    }
+
+    .result-card:hover {
+        @apply border-zinc-700 translate-x-1;
+    }
+
+    .result-card.top-match {
+        @apply border-2 border-indigo-500;
+        background: linear-gradient(
+                135deg,
+                rgba(99, 102, 241, 0.12),
+                rgba(168, 85, 247, 0.12)
+        );
+    }
+
+    .result-header {
+        @apply flex items-center gap-2 mb-2;
+    }
+
+    .source-badge {
+        @apply px-2.5 py-1 rounded-md text-xs font-semibold;
+    }
+
+    .source-badge.github {
+        @apply bg-emerald-500/10 text-emerald-300;
+    }
+
+    .source-badge.stackoverflow {
+        @apply bg-orange-500/10 text-orange-300;
+    }
+
+    .answered-badge {
+        @apply bg-emerald-500/10 text-emerald-300 px-2.5 py-1 rounded-md text-xs font-semibold;
+    }
+
+    .result-title {
+        @apply text-base font-semibold text-sky-300 block mb-2 leading-snug;
+    }
+
+    .result-title:hover {
+        @apply text-sky-200 underline;
+    }
+
+    .result-meta {
+        @apply text-xs text-zinc-400 flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:gap-4;
+    }
+
+    .result-meta .relevance {
+        @apply text-purple-300 font-medium;
+    }
+
+    .error-box {
+        @apply bg-red-500/10 border border-red-500/30 text-red-300 p-4 rounded-lg mb-4;
+    }
+}

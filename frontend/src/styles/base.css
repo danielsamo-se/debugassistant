@@ -1,0 +1,13 @@
+@layer base {
+    :root {
+        --primary: #2563eb;
+        --bg-color: #0f172a;
+        --card-bg: #1e293b;
+        --text-main: #f1f5f9;
+        --text-muted: #94a3b8;
+        --border: #334155;
+        --github: #238636;
+        --stackoverflow: #f48024;
+        --success: #22c55e;
+    }
+}

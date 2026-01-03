@@ -11,29 +11,51 @@ import ErrorBoundary from './components/ErrorBoundary';
 function App() {
   return (
     <AuthProvider>
-      <ErrorBoundary>
-        <BrowserRouter>
+      <BrowserRouter>
+        <ErrorBoundary>
           <div className="min-h-screen flex flex-col">
             <Navbar />
             <main className="flex-grow w-full max-w-6xl mx-auto px-4 py-8">
               <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-
+                <Route
+                  path="/"
+                  element={
+                    <ErrorBoundary>
+                      <HomePage />
+                    </ErrorBoundary>
+                  }
+                />
+                <Route
+                  path="/login"
+                  element={
+                    <ErrorBoundary>
+                      <LoginPage />
+                    </ErrorBoundary>
+                  }
+                />
+                <Route
+                  path="/register"
+                  element={
+                    <ErrorBoundary>
+                      <RegisterPage />
+                    </ErrorBoundary>
+                  }
+                />
                 <Route
                   path="/history"
                   element={
                     <ProtectedRoute>
-                      <HistoryPage />
+                      <ErrorBoundary>
+                        <HistoryPage />
+                      </ErrorBoundary>
                     </ProtectedRoute>
                   }
                 />
               </Routes>
             </main>
           </div>
-        </BrowserRouter>
-      </ErrorBoundary>
+        </ErrorBoundary>
+      </BrowserRouter>
     </AuthProvider>
   );
 }
