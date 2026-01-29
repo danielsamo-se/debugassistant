@@ -13,16 +13,19 @@ from app.schemas import (
     IndexRequest, IndexResponse,
     IndexBatchRequest, IndexBatchResponse,
     SearchRequest, SearchResponse, SearchResult,
-    StoreInfoResponse
+    StoreInfoResponse,
+    AnalyzeRequest, AnalyzeResponse
 )
 from app.services.embedding_service import get_embedding_service
 from app.services.similarity_search import get_similarity_search
+from app.services.rag_service import get_rag_service
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     get_embedding_service()
     get_similarity_search()
+    get_rag_service()
     yield
 
 
@@ -139,3 +142,15 @@ async def clear_store():
     store = get_similarity_search()
     store.clear()
     return {"message": "Store cleared"}
+
+
+@app.post("/analyze", response_model=AnalyzeResponse)
+async def analyze_stack_trace(request: AnalyzeRequest):
+    rag_service = get_rag_service()
+    result = rag_service.analyze(request.stack_trace, request.use_retrieval)
+
+    return AnalyzeResponse(
+        analysis=result["analysis"],
+        similar_errors=[SearchResult(**r) for r in result["similar_errors"]],
+        context_used=result["context_used"]
+    )

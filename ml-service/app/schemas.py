@@ -74,3 +74,14 @@ class SearchResponse(BaseModel):
 class StoreInfoResponse(BaseModel):
     size: int
     dimension: int
+
+
+class AnalyzeRequest(BaseModel):
+    stack_trace: str
+    use_retrieval: bool = True
+
+
+class AnalyzeResponse(BaseModel):
+    analysis: str
+    similar_errors: List[SearchResult]
+    context_used: bool
