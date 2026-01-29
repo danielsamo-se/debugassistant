@@ -32,3 +32,12 @@ login.json
 register.json
 test-results/
 tmp.json
+
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+.eggs/
