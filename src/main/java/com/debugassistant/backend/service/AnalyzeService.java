@@ -4,6 +4,7 @@ import com.debugassistant.backend.dto.AnalyzeRequest;
 import com.debugassistant.backend.dto.AnalyzeResponse;
 import com.debugassistant.backend.dto.SearchResult;
 import com.debugassistant.backend.dto.github.GitHubIssue;
+import com.debugassistant.backend.dto.ml.MlAnalyzeResponse;
 import com.debugassistant.backend.dto.stackoverflow.StackOverflowQuestion;
 import com.debugassistant.backend.parser.ParsedError;
 import com.debugassistant.backend.parser.ParserRegistry;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -35,10 +37,10 @@ public class AnalyzeService {
     private final GitHubClient gitHubClient;
     private final StackOverflowClient stackOverflowClient;
     private final RankingService rankingService;
+    private final MlServiceClient mlServiceClient;
 
     @Cacheable(
             value = "analyses",
-            // stable cache key: trim + normalize CRLF
             key = "T(org.springframework.util.DigestUtils).md5DigestAsHex((" +
                     "#request.stackTrace().trim().replace(\"\\r\\n\", \"\\n\")" +
                     ").getBytes(T(java.nio.charset.StandardCharsets).UTF_8))"
@@ -49,20 +51,20 @@ public class AnalyzeService {
         ParsedError parsed = parserRegistry.parse(request.stackTrace());
         log.info("Parsed {} error: {}", parsed.language(), parsed.exceptionType());
 
-        List<String> ghQueries = queryBuilder.buildGitHubQueries(parsed, request.stackTrace()); // fallback queries
-        List<GitHubIssue> githubIssues = gitHubClient.searchOnion(ghQueries); // broaden recall
+        List<String> ghQueries = queryBuilder.buildGitHubQueries(parsed, request.stackTrace());
+        List<GitHubIssue> githubIssues = gitHubClient.searchOnion(ghQueries);
 
-        List<String> soQueries = queryBuilder.buildStackOverflowQueries(parsed, request.stackTrace()); // SO-specific
+        List<String> soQueries = queryBuilder.buildStackOverflowQueries(parsed, request.stackTrace());
         List<StackOverflowQuestion> soQuestions = stackOverflowClient.searchOnion(
                 soQueries, parsed.language(), parsed.exceptionType()
-        ); // reduce ambiguity
+        );
 
         log.info("Found {} GitHub issues, {} Stack Overflow questions",
                 githubIssues.size(), soQuestions.size());
 
         List<SearchResult> results = new ArrayList<>();
 
-        Set<String> gitHubKeywords = enrichGitHubKeywords(parsed); // improve matching on GH metadata
+        Set<String> gitHubKeywords = enrichGitHubKeywords(parsed);
 
         for (GitHubIssue issue : githubIssues) {
             SearchResult result = toSearchResult(issue, gitHubKeywords);
@@ -74,18 +76,20 @@ public class AnalyzeService {
         for (StackOverflowQuestion question : soQuestions) {
             SearchResult result = toSearchResult(question, parsed.keywords());
             if (Boolean.TRUE.equals(result.isAnswered())) {
-                result = boostAnsweredStackOverflow(result); // prefer accepted/solved
+                result = boostAnsweredStackOverflow(result);
             }
             if (result.getScore() >= STACKOVERFLOW_SCORE_THRESHOLD) {
                 results.add(result);
             }
         }
 
-        results.sort(Comparator.comparingDouble(SearchResult::getScore).reversed()); // rank descending
+        results.sort(Comparator.comparingDouble(SearchResult::getScore).reversed());
 
         if (results.size() > 15) {
-            results = new ArrayList<>(results.subList(0, 15)); // cap payload
+            results = new ArrayList<>(results.subList(0, 15));
         }
+
+        String mlAnalysis = getMlAnalysis(request.stackTrace());
 
         return AnalyzeResponse.builder()
                 .language(parsed.language())
@@ -94,7 +98,18 @@ public class AnalyzeService {
                 .keywords(parsed.keywords())
                 .rootCause(parsed.rootCause())
                 .results(results)
+                .mlAnalysis(mlAnalysis)
                 .build();
+    }
+
+    private String getMlAnalysis(String stackTrace) {
+        try {
+            Optional<MlAnalyzeResponse> mlResponse = mlServiceClient.analyze(stackTrace);
+            return mlResponse.map(MlAnalyzeResponse::analysis).orElse(null);
+        } catch (Exception e) {
+            log.warn("ML analysis failed: {}", e.getMessage());
+            return null;
+        }
     }
 
     private SearchResult boostAnsweredStackOverflow(SearchResult result) {
@@ -123,7 +138,7 @@ public class AnalyzeService {
         }
 
         if (parsed.rootCause() != null && !parsed.rootCause().isBlank()) {
-            String rc = parsed.rootCause().split(":")[0].trim();  // drop message tail
+            String rc = parsed.rootCause().split(":")[0].trim();
             if (!rc.isBlank()) {
                 out.add(simpleName(rc));
                 out.add(rc);
@@ -137,7 +152,7 @@ public class AnalyzeService {
         if (value == null) return "";
         String v = value.trim();
         int idx = v.lastIndexOf('.');
-        return idx >= 0 ? v.substring(idx + 1) : v; // class name only
+        return idx >= 0 ? v.substring(idx + 1) : v;
     }
 
     private SearchResult toSearchResult(GitHubIssue issue, Set<String> keywords) {

@@ -28,6 +28,9 @@ public record AnalyzeResponse(
         String rootCause,
 
         @Schema(description = "Search results from GitHub and Stack Overflow")
-        List<SearchResult> results
+        List<SearchResult> results,
+
+        @Schema(description = "AI generated analysis and solution")
+        String mlAnalysis
 
 ) {}
