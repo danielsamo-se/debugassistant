@@ -1,0 +1,452 @@
+[
+  {
+    "id": 1,
+    "trace": "org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'com.example.UserService' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {@org.springframework.beans.factory.annotation.Autowired(required=true)}",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "NoSuchBeanDefinitionException",
+    "solution": "Add @Service, @Component, or @Repository annotation to the class. Ensure component scanning covers the package with @ComponentScan or proper package structure.",
+    "url": "https://stackoverflow.com/questions/40830548"
+  },
+  {
+    "id": 2,
+    "trace": "org.hibernate.LazyInitializationException: failed to lazily initialize a collection of role: com.example.entity.User.orders, could not initialize proxy - no Session\n\tat org.hibernate.collection.internal.AbstractPersistentCollection.throwLazyInitializationException(AbstractPersistentCollection.java:612)",
+    "language": "java",
+    "framework": "hibernate",
+    "exception": "LazyInitializationException",
+    "solution": "Use @Transactional on the service method, use JOIN FETCH in JPQL query, or initialize collection within transaction. Avoid FetchType.EAGER as it causes N+1 problems.",
+    "url": "https://stackoverflow.com/questions/21574236"
+  },
+  {
+    "id": 3,
+    "trace": "java.lang.NullPointerException: Cannot invoke \"String.length()\" because \"str\" is null\n\tat com.example.service.UserService.processName(UserService.java:42)\n\tat com.example.controller.UserController.getUser(UserController.java:28)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "NullPointerException",
+    "solution": "Add null check before method call: if (str != null). Use Optional.ofNullable() for cleaner handling. Consider using Objects.requireNonNull() for fail-fast validation.",
+    "url": "https://stackoverflow.com/questions/218384"
+  },
+  {
+    "id": 4,
+    "trace": "java.util.ConcurrentModificationException\n\tat java.base/java.util.ArrayList$Itr.checkForComodification(ArrayList.java:1013)\n\tat java.base/java.util.ArrayList$Itr.next(ArrayList.java:967)\n\tat com.example.OrderService.processOrders(OrderService.java:55)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "ConcurrentModificationException",
+    "solution": "Use Iterator.remove() instead of collection.remove() during iteration. Alternative: use CopyOnWriteArrayList for concurrent access, or collect items to remove in separate list first.",
+    "url": "https://stackoverflow.com/questions/223918"
+  },
+  {
+    "id": 5,
+    "trace": "java.lang.StackOverflowError\n\tat com.example.parser.RecursiveParser.parse(RecursiveParser.java:31)\n\tat com.example.parser.RecursiveParser.parse(RecursiveParser.java:31)\n\tat com.example.parser.RecursiveParser.parse(RecursiveParser.java:31)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "StackOverflowError",
+    "solution": "Add base case to stop recursion. Check termination condition is reachable. Consider converting to iterative approach with explicit stack. Increase stack size with -Xss only if recursion depth is intentional.",
+    "url": "https://stackoverflow.com/questions/214741"
+  },
+  {
+    "id": 6,
+    "trace": "org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'POST' not supported\n\tat org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping.handleNoMatch(RequestMappingInfoHandlerMapping.java:265)",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "HttpRequestMethodNotSupportedException",
+    "solution": "Verify @GetMapping/@PostMapping/@RequestMapping annotation matches the HTTP method being sent. Check endpoint path for typos. Ensure CORS is configured if calling from different origin.",
+    "url": "https://stackoverflow.com/questions/11713340"
+  },
+  {
+    "id": 7,
+    "trace": "org.springframework.boot.web.server.PortInUseException: Port 8080 is already in use\n\tat org.springframework.boot.web.embedded.tomcat.TomcatWebServer.start(TomcatWebServer.java:257)",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "PortInUseException",
+    "solution": "Find and kill process using port: lsof -i :8080 (Linux/Mac) or netstat -ano | findstr :8080 (Windows). Or change server.port in application.properties to different port.",
+    "url": "https://stackoverflow.com/questions/20533867"
+  },
+  {
+    "id": 8,
+    "trace": "com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `java.lang.Integer` from String \"abc\": not a valid Integer value\n\tat com.fasterxml.jackson.databind.exc.InvalidFormatException.from(InvalidFormatException.java:67)",
+    "language": "java",
+    "framework": "jackson",
+    "exception": "InvalidFormatException",
+    "solution": "Ensure JSON field contains valid integer, not string. Use @JsonFormat for custom parsing. Add custom deserializer for complex cases. Validate input data before deserialization.",
+    "url": "https://stackoverflow.com/questions/19158345"
+  },
+  {
+    "id": 9,
+    "trace": "java.lang.OutOfMemoryError: Java heap space\n\tat java.base/java.util.Arrays.copyOf(Arrays.java:3720)\n\tat java.base/java.util.ArrayList.grow(ArrayList.java:265)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "OutOfMemoryError",
+    "solution": "Increase heap with -Xmx flag (e.g., -Xmx2g). Check for memory leaks using profiler (VisualVM, JProfiler). Use streaming for large data instead of loading all into memory.",
+    "url": "https://stackoverflow.com/questions/37335"
+  },
+  {
+    "id": 10,
+    "trace": "java.lang.ClassNotFoundException: com.mysql.cj.jdbc.Driver\n\tat java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)\n\tat java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)",
+    "language": "java",
+    "framework": "jdbc",
+    "exception": "ClassNotFoundException",
+    "solution": "Add MySQL connector dependency: mysql-connector-java in pom.xml or build.gradle. Verify the JAR is on classpath. For newer MySQL use com.mysql.cj.jdbc.Driver instead of com.mysql.jdbc.Driver.",
+    "url": "https://stackoverflow.com/questions/1585811"
+  },
+  {
+    "id": 11,
+    "trace": "org.hibernate.TransientPropertyValueException: object references an unsaved transient instance - save the transient instance before flushing : com.example.entity.Order.customer -> com.example.entity.Customer\n\tat org.hibernate.engine.spi.CascadingActions$8.noCascade(CascadingActions.java:379)",
+    "language": "java",
+    "framework": "hibernate",
+    "exception": "TransientPropertyValueException",
+    "solution": "Save the referenced entity first before saving parent. Or add cascade = CascadeType.PERSIST or CascadeType.ALL to the @ManyToOne/@OneToMany annotation.",
+    "url": "https://stackoverflow.com/questions/2302802"
+  },
+  {
+    "id": 12,
+    "trace": "org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory': Requested bean is currently in creation: Is there an unresolvable circular reference?\n\tat org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.beforeSingletonCreation(DefaultSingletonBeanRegistry.java:355)",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "BeanCreationException",
+    "solution": "Break circular dependency by using @Lazy on one of the dependencies. Refactor to remove circular dependency. Use setter injection instead of constructor injection for one bean.",
+    "url": "https://stackoverflow.com/questions/3485347"
+  },
+  {
+    "id": 13,
+    "trace": "java.sql.SQLException: No suitable driver found for jdbc:postgresql://localhost:5432/mydb\n\tat java.sql/java.sql.DriverManager.getConnection(DriverManager.java:702)\n\tat java.sql/java.sql.DriverManager.getConnection(DriverManager.java:228)",
+    "language": "java",
+    "framework": "jdbc",
+    "exception": "SQLException",
+    "solution": "Add PostgreSQL driver dependency (postgresql) to pom.xml. Verify JDBC URL format: jdbc:postgresql://host:port/database. Ensure driver is loaded with Class.forName() if not using JDBC 4.0+.",
+    "url": "https://stackoverflow.com/questions/1911253"
+  },
+  {
+    "id": 14,
+    "trace": "javax.persistence.OptimisticLockException: Row was updated or deleted by another transaction (or unsaved-value mapping was incorrect)\n\tat org.hibernate.internal.ExceptionConverterImpl.wrapStaleStateException(ExceptionConverterImpl.java:226)",
+    "language": "java",
+    "framework": "hibernate",
+    "exception": "OptimisticLockException",
+    "solution": "Implement retry logic for the transaction. Use pessimistic locking (@Lock) for high-contention scenarios. Refresh entity before update. Consider merging changes instead of direct update.",
+    "url": "https://stackoverflow.com/questions/21120043"
+  },
+  {
+    "id": 15,
+    "trace": "org.springframework.security.access.AccessDeniedException: Access is denied\n\tat org.springframework.security.access.vote.AffirmativeBased.decide(AffirmativeBased.java:73)\n\tat org.springframework.security.access.intercept.AbstractSecurityInterceptor.beforeInvocation(AbstractSecurityInterceptor.java:233)",
+    "language": "java",
+    "framework": "spring-security",
+    "exception": "AccessDeniedException",
+    "solution": "Verify user has required role/authority. Check @PreAuthorize or @Secured annotations. Review SecurityConfig for antMatchers permissions. Ensure authentication is properly set in SecurityContext.",
+    "url": "https://stackoverflow.com/questions/19525380"
+  },
+  {
+    "id": 16,
+    "trace": "io.jsonwebtoken.ExpiredJwtException: JWT expired at 2024-01-15T10:30:00Z. Current time: 2024-01-15T12:00:00Z\n\tat io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:385)",
+    "language": "java",
+    "framework": "security",
+    "exception": "ExpiredJwtException",
+    "solution": "Implement refresh token mechanism. Increase token expiration time if appropriate. Handle exception on client side to redirect to login. Consider using sliding expiration.",
+    "url": "https://stackoverflow.com/questions/26739167"
+  },
+  {
+    "id": 17,
+    "trace": "java.io.FileNotFoundException: config.yaml (No such file or directory)\n\tat java.base/java.io.FileInputStream.open0(Native Method)\n\tat java.base/java.io.FileInputStream.open(FileInputStream.java:216)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "FileNotFoundException",
+    "solution": "Use absolute path or verify relative path from working directory. For classpath resources use getClass().getResourceAsStream(\"/config.yaml\"). Check file permissions.",
+    "url": "https://stackoverflow.com/questions/2788080"
+  },
+  {
+    "id": 18,
+    "trace": "java.net.ConnectException: Connection refused (Connection refused)\n\tat java.base/sun.nio.ch.Net.connect0(Native Method)\n\tat java.base/sun.nio.ch.Net.connect(Net.java:579)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "ConnectException",
+    "solution": "Verify target service is running on expected host:port. Check firewall rules. Verify network connectivity with ping/telnet. Ensure correct protocol (http vs https).",
+    "url": "https://stackoverflow.com/questions/6876266"
+  },
+  {
+    "id": 19,
+    "trace": "java.lang.IllegalStateException: Failed to load ApplicationContext\n\tat org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:98)\n\tat org.springframework.test.context.support.DefaultTestContext.getApplicationContext(DefaultTestContext.java:124)",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "IllegalStateException",
+    "solution": "Check for configuration errors in application.properties. Verify all required beans are defined. Look at nested exception for root cause. Ensure test profile configuration is correct.",
+    "url": "https://stackoverflow.com/questions/26684907"
+  },
+  {
+    "id": 20,
+    "trace": "org.springframework.dao.DataIntegrityViolationException: could not execute statement; SQL [n/a]; constraint [UK_user_email]\n\tat org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:276)",
+    "language": "java",
+    "framework": "spring-data",
+    "exception": "DataIntegrityViolationException",
+    "solution": "Unique constraint violated - check if record with same value exists. Verify foreign key references exist. Ensure required (NOT NULL) fields have values.",
+    "url": "https://stackoverflow.com/questions/22821695"
+  },
+  {
+    "id": 21,
+    "trace": "java.lang.NoSuchMethodError: 'void org.slf4j.spi.LocationAwareLogger.log(org.slf4j.Marker, java.lang.String, int, java.lang.String, java.lang.Object[], java.lang.Throwable)'\n\tat org.apache.commons.logging.LogAdapter$Slf4jLocationAwareLog.debug(LogAdapter.java:166)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "NoSuchMethodError",
+    "solution": "Version mismatch between compile-time and runtime dependencies. Run mvn dependency:tree to find conflicts. Exclude transitive dependency or align versions explicitly.",
+    "url": "https://stackoverflow.com/questions/11283003"
+  },
+  {
+    "id": 22,
+    "trace": "com.fasterxml.jackson.databind.exc.JsonMappingException: No serializer found for class com.example.dto.UserResponse and no properties discovered to create BeanSerializer\n\tat com.fasterxml.jackson.databind.exc.InvalidDefinitionException.from(InvalidDefinitionException.java:77)",
+    "language": "java",
+    "framework": "jackson",
+    "exception": "JsonMappingException",
+    "solution": "Add public getters to the class. Or use @JsonAutoDetect(fieldVisibility = ANY). Or configure ObjectMapper with setVisibility. Ensure class is not inner class without static.",
+    "url": "https://stackoverflow.com/questions/8367312"
+  },
+  {
+    "id": 23,
+    "trace": "org.springframework.web.client.HttpClientErrorException$NotFound: 404 Not Found: [no body]\n\tat org.springframework.web.client.HttpClientErrorException.create(HttpClientErrorException.java:113)",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "HttpClientErrorException",
+    "solution": "Verify endpoint URL is correct. Check if resource exists. Ensure correct HTTP method. Review API documentation for required path parameters.",
+    "url": "https://stackoverflow.com/questions/36922388"
+  },
+  {
+    "id": 24,
+    "trace": "java.lang.ArrayIndexOutOfBoundsException: Index 5 out of bounds for length 3\n\tat com.example.DataProcessor.processArray(DataProcessor.java:42)\n\tat com.example.Main.main(Main.java:15)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "ArrayIndexOutOfBoundsException",
+    "solution": "Check array.length before accessing index. Use enhanced for-loop to avoid index issues. Validate input index is within bounds. Consider using List instead of array.",
+    "url": "https://stackoverflow.com/questions/5554734"
+  },
+  {
+    "id": 25,
+    "trace": "org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot deserialize value of type `com.example.dto.UserRequest` from Array value\n\tat org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:389)",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "HttpMessageNotReadableException",
+    "solution": "JSON structure doesn't match DTO. Sending array but expecting object or vice versa. Verify Content-Type header is application/json. Validate JSON syntax.",
+    "url": "https://stackoverflow.com/questions/35050846"
+  },
+  {
+    "id": 26,
+    "trace": "java.lang.NumberFormatException: For input string: \"abc\"\n\tat java.base/java.lang.NumberFormatException.forInputString(NumberFormatException.java:67)\n\tat java.base/java.lang.Integer.parseInt(Integer.java:668)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "NumberFormatException",
+    "solution": "Validate input is numeric before parsing. Use try-catch for user input. Consider using Apache Commons NumberUtils.toInt() with default value. Trim whitespace from input.",
+    "url": "https://stackoverflow.com/questions/1486077"
+  },
+  {
+    "id": 27,
+    "trace": "org.springframework.transaction.UnexpectedRollbackException: Transaction silently rolled back because it has been marked as rollback-only\n\tat org.springframework.transaction.support.AbstractPlatformTransactionManager.processRollback(AbstractPlatformTransactionManager.java:870)",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "UnexpectedRollbackException",
+    "solution": "Exception occurred in nested @Transactional method causing rollback. Check inner method exceptions. Use propagation = REQUIRES_NEW for independent transaction. Review rollbackFor settings.",
+    "url": "https://stackoverflow.com/questions/19349898"
+  },
+  {
+    "id": 28,
+    "trace": "java.lang.UnsupportedOperationException: null\n\tat java.base/java.util.AbstractList.add(AbstractList.java:153)\n\tat java.base/java.util.AbstractList.add(AbstractList.java:111)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "UnsupportedOperationException",
+    "solution": "Arrays.asList() returns fixed-size list that cannot be modified. Wrap in new ArrayList<>(Arrays.asList(...)) for mutable list. Or use List.of() and explicitly create ArrayList.",
+    "url": "https://stackoverflow.com/questions/2965747"
+  },
+  {
+    "id": 29,
+    "trace": "org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'userController': Unsatisfied dependency expressed through field 'userService'\n\tat org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:660)",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "UnsatisfiedDependencyException",
+    "solution": "Ensure the dependency bean exists with correct annotation (@Service, @Component). Check component scan path includes the package. Verify no circular dependencies.",
+    "url": "https://stackoverflow.com/questions/39390095"
+  },
+  {
+    "id": 30,
+    "trace": "org.hibernate.MappingException: Unknown entity: com.example.entity.User\n\tat org.hibernate.metamodel.internal.MetamodelImpl.entityPersister(MetamodelImpl.java:704)",
+    "language": "java",
+    "framework": "hibernate",
+    "exception": "MappingException",
+    "solution": "Add @Entity annotation to the class. Ensure entity is in package scanned by JPA (@EntityScan). Verify persistence.xml includes the entity class.",
+    "url": "https://stackoverflow.com/questions/1258658"
+  },
+  {
+    "id": 31,
+    "trace": "java.lang.IllegalArgumentException: Unknown return value type: java.lang.String\n\tat org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite.handleReturnValue(HandlerMethodReturnValueHandlerComposite.java:80)",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "IllegalArgumentException",
+    "solution": "Add @ResponseBody annotation or use @RestController instead of @Controller. Return ResponseEntity for more control. Ensure Jackson is on classpath for JSON serialization.",
+    "url": "https://stackoverflow.com/questions/44839753"
+  },
+  {
+    "id": 32,
+    "trace": "com.fasterxml.jackson.core.JsonParseException: Unexpected character ('\"' (code 34)): was expecting comma to separate Object entries\n\tat com.fasterxml.jackson.core.JsonParser._constructError(JsonParser.java:2391)",
+    "language": "java",
+    "framework": "jackson",
+    "exception": "JsonParseException",
+    "solution": "Malformed JSON - missing comma, extra comma, or syntax error. Validate JSON with online validator. Check for unescaped quotes in string values. Ensure proper encoding.",
+    "url": "https://stackoverflow.com/questions/22394235"
+  },
+  {
+    "id": 33,
+    "trace": "org.springframework.web.servlet.NoHandlerFoundException: No handler found for GET /api/users\n\tat org.springframework.web.servlet.DispatcherServlet.noHandlerFound(DispatcherServlet.java:1278)",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "NoHandlerFoundException",
+    "solution": "Verify @RequestMapping path matches URL. Check controller has @RestController or @Controller annotation. Ensure component scan includes controller package. Check for typos in URL.",
+    "url": "https://stackoverflow.com/questions/36857615"
+  },
+  {
+    "id": 34,
+    "trace": "java.time.format.DateTimeParseException: Text '2024-01-15' could not be parsed at index 0\n\tat java.base/java.time.format.DateTimeFormatter.parseResolved0(DateTimeFormatter.java:2052)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "DateTimeParseException",
+    "solution": "Date format doesn't match pattern. Use correct DateTimeFormatter pattern (yyyy-MM-dd vs dd/MM/yyyy). Consider using ISO_LOCAL_DATE for standard formats.",
+    "url": "https://stackoverflow.com/questions/22463062"
+  },
+  {
+    "id": 35,
+    "trace": "org.postgresql.util.PSQLException: ERROR: relation \"users\" does not exist\n\tat org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2675)",
+    "language": "java",
+    "framework": "jdbc",
+    "exception": "PSQLException",
+    "solution": "Table doesn't exist in database. Run migrations or create table. Check schema name if using non-public schema. Verify database connection is to correct database.",
+    "url": "https://stackoverflow.com/questions/22556299"
+  },
+  {
+    "id": 36,
+    "trace": "org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public ResponseEntity: [Field error in object 'userRequest' on field 'email': rejected value [null]]\n\tat org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor.resolveArgument(RequestResponseBodyMethodProcessor.java:141)",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "MethodArgumentNotValidException",
+    "solution": "Request body validation failed. Add @Valid annotation to controller parameter. Check @NotNull, @NotBlank constraints on DTO. Return proper error response with field errors.",
+    "url": "https://stackoverflow.com/questions/33663801"
+  },
+  {
+    "id": 37,
+    "trace": "java.lang.ClassCastException: class java.lang.String cannot be cast to class java.lang.Integer\n\tat com.example.service.DataService.processData(DataService.java:45)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "ClassCastException",
+    "solution": "Check type before casting with instanceof. Use generics to avoid raw type casts. Review the data source to ensure correct types. Consider using wrapper methods with proper typing.",
+    "url": "https://stackoverflow.com/questions/907360"
+  },
+  {
+    "id": 38,
+    "trace": "org.springframework.web.multipart.MaxUploadSizeExceededException: Maximum upload size exceeded; nested exception is java.lang.IllegalStateException: org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "MaxUploadSizeExceededException",
+    "solution": "Increase limit in application.properties: spring.servlet.multipart.max-file-size=10MB and spring.servlet.multipart.max-request-size=10MB. Handle exception with @ExceptionHandler.",
+    "url": "https://stackoverflow.com/questions/2689989"
+  },
+  {
+    "id": 39,
+    "trace": "org.springframework.orm.jpa.JpaSystemException: ids for this class must be manually assigned before calling save()\n\tat org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:321)",
+    "language": "java",
+    "framework": "spring-data",
+    "exception": "JpaSystemException",
+    "solution": "Entity ID is not auto-generated. Add @GeneratedValue(strategy = GenerationType.IDENTITY) to @Id field. Or manually set ID before saving.",
+    "url": "https://stackoverflow.com/questions/19483589"
+  },
+  {
+    "id": 40,
+    "trace": "java.lang.NoClassDefFoundError: Could not initialize class org.apache.logging.log4j.util.PropertiesUtil\n\tat org.apache.logging.log4j.status.StatusLogger.<clinit>(StatusLogger.java:71)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "NoClassDefFoundError",
+    "solution": "Class was present at compile time but missing at runtime. Check for dependency conflicts. Ensure all transitive dependencies are included. Clean and rebuild project.",
+    "url": "https://stackoverflow.com/questions/17973970"
+  },
+  {
+    "id": 41,
+    "trace": "org.springframework.data.mapping.PropertyReferenceException: No property 'findByName' found for type 'User'\n\tat org.springframework.data.mapping.PropertyPath.<init>(PropertyPath.java:90)",
+    "language": "java",
+    "framework": "spring-data",
+    "exception": "PropertyReferenceException",
+    "solution": "Repository method name doesn't match entity property. Verify property name exists in entity (case-sensitive). Check method naming convention: findByPropertyName.",
+    "url": "https://stackoverflow.com/questions/19583540"
+  },
+  {
+    "id": 42,
+    "trace": "javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target\n\tat java.base/sun.security.ssl.Alert.createSSLException(Alert.java:131)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "SSLHandshakeException",
+    "solution": "SSL certificate not trusted. Import certificate to Java truststore with keytool. For testing, configure to trust all certificates (not for production). Use valid CA-signed certificate.",
+    "url": "https://stackoverflow.com/questions/21076179"
+  },
+  {
+    "id": 43,
+    "trace": "java.lang.OutOfMemoryError: GC overhead limit exceeded\n\tat java.base/java.util.HashMap.resize(HashMap.java:704)\n\tat java.base/java.util.HashMap.putVal(HashMap.java:629)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "OutOfMemoryError",
+    "solution": "JVM spending >98% time in GC. Increase heap size. Check for memory leaks with profiler. Review code creating many objects. Consider weak references for caches.",
+    "url": "https://stackoverflow.com/questions/1393486"
+  },
+  {
+    "id": 44,
+    "trace": "org.springframework.web.HttpMediaTypeNotSupportedException: Content type 'text/plain;charset=UTF-8' not supported\n\tat org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodArgumentResolver.readWithMessageConverters(AbstractMessageConverterMethodArgumentResolver.java:207)",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "HttpMediaTypeNotSupportedException",
+    "solution": "Set Content-Type header to application/json. Add consumes attribute to @RequestMapping if expecting specific type. Ensure request body is valid JSON.",
+    "url": "https://stackoverflow.com/questions/22710046"
+  },
+  {
+    "id": 45,
+    "trace": "java.util.zip.ZipException: invalid stored block lengths\n\tat java.base/java.util.zip.InflaterInputStream.read(InflaterInputStream.java:165)\n\tat java.base/java.util.zip.GZIPInputStream.read(GZIPInputStream.java:118)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "ZipException",
+    "solution": "Corrupted or invalid compressed file. Check file was fully downloaded. Verify file is actually compressed (not renamed). Try re-downloading or re-compressing source.",
+    "url": "https://stackoverflow.com/questions/18336277"
+  },
+  {
+    "id": 46,
+    "trace": "io.jsonwebtoken.security.WeakKeyException: The signing key's size is 128 bits which is not secure enough for the HS256 algorithm\n\tat io.jsonwebtoken.security.Keys.hmacShaKeyFor(Keys.java:96)",
+    "language": "java",
+    "framework": "security",
+    "exception": "WeakKeyException",
+    "solution": "JWT secret key too short. HS256 requires at least 256 bits (32 bytes). Generate longer secret key. Use Keys.secretKeyFor(SignatureAlgorithm.HS256) for proper key generation.",
+    "url": "https://stackoverflow.com/questions/40252903"
+  },
+  {
+    "id": 47,
+    "trace": "org.springframework.beans.ConversionNotSupportedException: Failed to convert property value of type 'java.lang.String' to required type 'java.time.LocalDate'\n\tat org.springframework.beans.AbstractNestablePropertyAccessor.convertIfNecessary(AbstractNestablePropertyAccessor.java:595)",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "ConversionNotSupportedException",
+    "solution": "Add @DateTimeFormat(pattern = \"yyyy-MM-dd\") to LocalDate field. Or register custom converter. For JSON, use @JsonFormat annotation with date pattern.",
+    "url": "https://stackoverflow.com/questions/40274353"
+  },
+  {
+    "id": 48,
+    "trace": "org.hibernate.StaleObjectStateException: Row was updated or deleted by another transaction (or unsaved-value mapping was incorrect) : [com.example.entity.User#1]\n\tat org.hibernate.event.internal.DefaultMergeEventListener.entityIsDetached(DefaultMergeEventListener.java:308)",
+    "language": "java",
+    "framework": "hibernate",
+    "exception": "StaleObjectStateException",
+    "solution": "Optimistic locking conflict. Reload entity before update. Implement merge strategy. Use @Version for optimistic locking. Consider pessimistic lock for high contention.",
+    "url": "https://stackoverflow.com/questions/20475035"
+  },
+  {
+    "id": 49,
+    "trace": "org.springframework.context.ApplicationContextException: Unable to start web server; nested exception is org.springframework.boot.web.server.WebServerException: Unable to start embedded Tomcat\n\tat org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.onRefresh(ServletWebServerApplicationContext.java:163)",
+    "language": "java",
+    "framework": "spring-boot",
+    "exception": "ApplicationContextException",
+    "solution": "Check nested exception for root cause. Common causes: port in use, missing servlet dependency, configuration error. Verify spring-boot-starter-web is included.",
+    "url": "https://stackoverflow.com/questions/43059653"
+  },
+  {
+    "id": 50,
+    "trace": "java.lang.InterruptedException: sleep interrupted\n\tat java.base/java.lang.Thread.sleep(Native Method)\n\tat com.example.service.AsyncService.processAsync(AsyncService.java:28)",
+    "language": "java",
+    "framework": "java-core",
+    "exception": "InterruptedException",
+    "solution": "Thread was interrupted during sleep/wait. Handle gracefully by checking Thread.interrupted(). Restore interrupt status with Thread.currentThread().interrupt(). Consider using CompletableFuture.",
+    "url": "https://stackoverflow.com/questions/3976344"
+  }
+]
