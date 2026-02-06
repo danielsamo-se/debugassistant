@@ -2,9 +2,16 @@
 Similarity search using FAISS for efficient semantic retrieval
 """
 
+import json
+import logging
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+
 import faiss
 import numpy as np
-from typing import List, Dict, Any, Optional
+
+
+logger = logging.getLogger(__name__)
 
 
 class SimilaritySearch:
@@ -12,6 +19,38 @@ class SimilaritySearch:
         self.dimension = dimension
         self.index = faiss.IndexFlatIP(dimension)
         self.documents: List[Dict[str, Any]] = []
+        self._load_prebuilt_index()
+
+    def _load_prebuilt_index(self):
+        data_dir = Path(__file__).parent.parent.parent / "data"
+        index_path = data_dir / "error_index.faiss"
+        metadata_path = data_dir / "error_metadata.json"
+
+        if not index_path.exists():
+            logger.info(f"No pre-built index found, starting empty")
+            return
+
+        if not metadata_path.exists():
+            logger.warning(f"Index found but no metadata, starting empty")
+            return
+
+        try:
+            self.index = faiss.read_index(str(index_path))
+            with open(metadata_path, "r", encoding="utf-8") as f:
+                self.documents = json.load(f)
+
+            if self.index.ntotal != len(self.documents):
+                logger.error(f"Index/metadata mismatch: {self.index.ntotal} vs {len(self.documents)}")
+                self.index = faiss.IndexFlatIP(self.dimension)
+                self.documents = []
+                return
+
+            logger.info(f"Loaded pre-built index with {self.index.ntotal} vectors")
+
+        except Exception as e:
+            logger.error(f"Failed to load pre-built index: {e}")
+            self.index = faiss.IndexFlatIP(self.dimension)
+            self.documents = []
 
     def add(self, embedding: List[float], metadata: Dict[str, Any]) -> int:
         vector = np.array([embedding], dtype=np.float32)
