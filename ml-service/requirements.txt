@@ -4,11 +4,20 @@ uvicorn[standard]==0.27.0
 pydantic==2.5.3
 pydantic-settings==2.1.0
 
+# ML / Embeddings
 sentence-transformers==3.0.1
 numpy==1.26.3
 faiss-cpu==1.7.4
 
+# LLM
 groq==0.4.2
+
+# Agent Framework
+langgraph==0.2.60
+langchain-core==0.3.25
+langchain-groq==0.2.1
+
+# Utils
 python-dotenv==1.0.0
 
 # Testing
