@@ -4,7 +4,9 @@ Semantic search for debugging using BERT embeddings and FAISS vector similarity.
 
 Finds relevant Stack Overflow and GitHub solutions by understanding stack traces semantically. Uses rule-based preprocessing to extract key terms, then BERT embeddings for semantic matching—finding "race condition null reference" when you search "async NPE".
 
-> Architecture: Java backend for trace parsing + Python ML service for semantic search (BERT + FAISS)
+An LLM-powered debug agent autonomously selects tools (stack trace analysis, semantic search, framework best practices) to generate actionable solutions.
+
+> Architecture: Java backend for trace parsing + Python ML service for semantic search (BERT + FAISS) + LLM agent (Gemini)
 
 > Design principle: relevance over quantity (strict filtering by design).
 > If a trace has no distinctive anchors, DebugAssistant will intentionally return 0 results.
@@ -23,6 +25,7 @@ Finds relevant Stack Overflow and GitHub solutions by understanding stack traces
 
 - BERT embeddings (sentence-transformers) for semantic similarity matching
 - FAISS vector search with 3-6ms retrieval on 50 curated traces
+- LLM debug agent with autonomous tool selection (Gemini)
 - Rule-based anchor extraction (exception types, packages, keywords)
 - Precision-first ranking with strict drops (low-confidence results removed)
 - Stack Overflow uses layered query strategy (specific → broad) with answered/engagement weighting
@@ -37,6 +40,8 @@ Finds relevant Stack Overflow and GitHub solutions by understanding stack traces
 **ML Service (Python):**
 - Embeddings: sentence-transformers (all-MiniLM-L6-v2)
 - Vector Search: FAISS (IndexFlatIP, exact search)
+- LLM: Google Gemini API (gemini-2.5-flash-lite)
+- Agent: Tool-calling loop with autonomous tool selection
 - API: FastAPI
 - Dataset: 50 curated Java exception traces
 
@@ -48,7 +53,7 @@ Finds relevant Stack Overflow and GitHub solutions by understanding stack traces
 
 ## Architecture
 
-Two-layer system: Java backend for preprocessing + Python ML service for semantic search.
+Two-layer system: Java backend for preprocessing + Python ML service for semantic search and LLM agent.
 
 ### Pipeline
 ```
@@ -63,6 +68,21 @@ Stack Trace
 Ranked Results (Top-K most similar traces)
     ↓
 [Java Backend] Cache (Redis) + History (PostgreSQL)
+```
+
+### Debug Agent Pipeline
+```
+Stack Trace
+    ↓
+[Gemini LLM] Decides which tools to call
+    ↓
+┌─────────────────────┬──────────────────────┬─────────────────────────────┐
+│ analyze_stack_trace  │ search_similar_errors│ get_framework_best_practices│
+│ (extract exception,  │ (FAISS semantic      │ (Spring Boot, Hibernate,    │
+│  framework, cause)   │  search over index)  │  Jackson guidance)          │
+└─────────────────────┴──────────────────────┴─────────────────────────────┘
+    ↓ (tool results fed back to LLM)
+[Gemini LLM] Synthesizes final analysis with concrete fixes
 ```
 
 ### Components
@@ -91,7 +111,18 @@ Why this matters: Generic search on "error" returns millions of results. Anchor 
 
 **Note:** Embedding time could be reduced to <50ms with GPU acceleration or ONNX optimization. Current implementation prioritizes simplicity over speed.
 
-**3. Ranking & Filtering**
+**3. Debug Agent (Python/Gemini)**
+
+LLM-powered agent that autonomously decides which tools to use for each stack trace:
+- `analyze_stack_trace` — Extract exception type, framework, root cause
+- `search_similar_errors` — FAISS semantic search over curated error patterns
+- `get_framework_best_practices` — General debugging guidance per framework
+
+The agent uses a simple tool-calling loop with the Google Gemini API (gemini-2.5-flash-lite). The LLM receives the stack trace, calls tools as needed, and synthesizes a structured analysis with concrete fixes.
+
+Implementation uses the google-genai SDK directly (without LangGraph) to ensure correct message ordering for Gemini's strict function-calling protocol.
+
+**4. Ranking & Filtering**
 
 Precision-first approach:
 - Similarity threshold: 0.3 (drop low-confidence matches)
@@ -160,12 +191,12 @@ React 19 + TypeScript with Vite.
 ### Prerequisites
 
 - Docker and Docker Compose
-- GROQ API Key (required for LLM-generated explanations)
+- Gemini API Key (free from [Google AI Studio](https://aistudio.google.com/apikey), no credit card required)
 
 ### Start
 ```bash
 cp .env.example .env
-# Edit .env and add GROQ_API_KEY
+# Edit .env and add GEMINI_API_KEY
 
 # FAISS index already included in repository
 docker compose up --build
@@ -232,7 +263,7 @@ Request:
 Response includes:
 * language, exceptionType, message, keywords, rootCause
 * results[] (GitHub and Stack Overflow links + ranking fields)
-* mlAnalysis (String, LLM-generated explanation if GROQ_API_KEY configured)
+* mlAnalysis (String, LLM-generated explanation if GEMINI_API_KEY configured)
 
 > See Swagger UI (/swagger-ui/index.html) for the exact schema.
 
@@ -265,7 +296,7 @@ docker compose exec redis redis-cli FLUSHDB
 
 Required keys:
 ```properties
-GROQ_API_KEY
+GEMINI_API_KEY
 GITHUB_API_TOKEN
 JWT_SECRET_KEY
 JWT_EXPIRATION
@@ -350,6 +381,20 @@ The system generates BERT embeddings from extracted anchors. An embedding from `
 - Brittle to unexpected formats
 - Future: Could add learned extraction for edge cases
 
+### Gemini SDK over LangGraph
+
+**Choice:** Direct google-genai SDK with manual tool-calling loop instead of LangGraph
+
+**Why:**
+- Gemini requires strict message ordering (function response must immediately follow function call)
+- LangGraph inserts extra messages that break this ordering
+- Direct SDK gives full control over the conversation structure
+
+**Trade-off:**
+- More manual code for the tool-calling loop
+- No built-in state management from LangGraph
+- But: simpler, fewer dependencies, and actually works reliably with Gemini
+
 ---
 
 ## Demo Stack Traces
@@ -430,10 +475,14 @@ Limitations (intentional):
 
 ## Tests
 ```bash
-mvn test
+mvn test                    # Backend tests
+cd ml-service && pytest     # ML service tests
+cd frontend && npm test     # Frontend tests
 ```
 * Controller/integration tests via @SpringBootTest + MockMvc.
 * External clients (GitHub / Stack Overflow) are mocked.
+* ML service: unit tests for embedding, similarity search, and RAG pipeline.
+* Frontend: Vitest + Playwright.
 
 ---
 
@@ -442,7 +491,7 @@ mvn test
 debugassistant/
 ├── ml-service/           # Python ML microservice
 │   ├── app/
-│   │   ├── services/     # BERT, FAISS, similarity search
+│   │   ├── services/     # BERT, FAISS, RAG, debug agent
 │   │   └── main.py       # FastAPI app
 │   ├── data/             # FAISS index, sample traces
 │   ├── scripts/          # build_index.py
@@ -469,6 +518,8 @@ debugassistant/
 - Full-stack UI
 - JWT authentication
 - Redis caching
+- Debug agent with autonomous tool selection
+- Google Gemini API integration
 
 ### Phase 2: Production Readiness (Planned)
 - Batch ingestion pipeline (Stack Overflow API, GitHub API)
@@ -497,4 +548,5 @@ MIT License
 
 - Sentence Transformers for BERT embeddings
 - FAISS for vector similarity search
+- Google Gemini for LLM-powered analysis
 - Stack Overflow community for curated solutions
