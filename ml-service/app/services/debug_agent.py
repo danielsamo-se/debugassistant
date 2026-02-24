@@ -1,17 +1,19 @@
 """
-Debug agent using LangGraph for autonomous tool selection
+Debug agent using simple tool-calling loop with Gemini
 """
 
 import os
 import logging
-from typing import Annotated, TypedDict, Sequence
+from typing import Optional
 
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
-from langchain_groq import ChatGroq
-from langgraph.graph import StateGraph, END
-from langgraph.prebuilt import ToolNode
+from google import genai
+from google.genai import types
 
-from app.services.agent_tools import get_all_tools
+from app.services.agent_tools import (
+    analyze_stack_trace,
+    search_similar_errors,
+    get_framework_best_practices,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -33,74 +35,143 @@ Strategy:
 Be concise and practical. Focus on the root cause and concrete fixes."""
 
 
-class AgentState(TypedDict):
-    messages: Annotated[Sequence[BaseMessage], "The messages in the conversation"]
+TOOL_MAP = {
+    "analyze_stack_trace": analyze_stack_trace,
+    "search_similar_errors": search_similar_errors,
+    "get_framework_best_practices": get_framework_best_practices,
+}
+
+TOOL_DECLARATIONS = [
+    {
+        "name": "analyze_stack_trace",
+        "description": "Extract structured info from a stack trace including exception type, framework, and root cause",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "stack_trace": {
+                    "type": "string",
+                    "description": "The stack trace to analyze"
+                }
+            },
+            "required": ["stack_trace"]
+        }
+    },
+    {
+        "name": "search_similar_errors",
+        "description": "Search the knowledge base for similar errors and their solutions",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "The error message or exception to search for"
+                }
+            },
+            "required": ["query"]
+        }
+    },
+    {
+        "name": "get_framework_best_practices",
+        "description": "Get debugging best practices for a specific framework",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "framework": {
+                    "type": "string",
+                    "description": "The framework name (e.g. Spring Boot, Hibernate, React)"
+                }
+            },
+            "required": ["framework"]
+        }
+    },
+]
 
 
 class DebugAgent:
     def __init__(self, api_key: str = None):
-        self.api_key = api_key or os.getenv("GROQ_API_KEY")
-        self.tools = get_all_tools()
-        self.graph = None
+        self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+        self.client = None
+        self.model = "gemini-2.5-flash-lite"
 
         if self.api_key:
-            self._build_graph()
+            self.client = genai.Client(api_key=self.api_key)
 
-    def _build_graph(self):
-        llm = ChatGroq(
-            api_key=self.api_key,
-            model="meta-llama/llama-4-scout-17b-16e-instruct",
-            temperature=0
-        )
-        llm_with_tools = llm.bind_tools(self.tools)
+    def analyze(self, stack_trace: str, max_iterations: int = 5) -> dict:
+        if not self.client:
+            logger.warning("Agent not initialized - missing GEMINI_API_KEY")
+            return {"analysis": None, "tools_used": [], "error": "Agent not configured - set GEMINI_API_KEY"}
 
-        def should_continue(state: AgentState) -> str:
-            last_message = state["messages"][-1]
-            if hasattr(last_message, "tool_calls") and last_message.tool_calls:
-                return "tools"
-            return END
-
-        def call_model(state: AgentState) -> dict:
-            messages = state["messages"]
-            response = llm_with_tools.invoke(messages)
-            return {"messages": [response]}
-
-        tool_node = ToolNode(self.tools)
-
-        graph = StateGraph(AgentState)
-        graph.add_node("agent", call_model)
-        graph.add_node("tools", tool_node)
-        graph.set_entry_point("agent")
-        graph.add_conditional_edges("agent", should_continue, {"tools": "tools", END: END})
-        graph.add_edge("tools", "agent")
-
-        self.graph = graph.compile()
-
-    def analyze(self, stack_trace: str) -> dict:
-        if not self.graph:
-            logger.warning("Agent not initialized - missing GROQ_API_KEY")
-            return {"analysis": None, "tools_used": [], "error": "Agent not configured"}
-
-        messages = [
-            SystemMessage(content=SYSTEM_PROMPT),
-            HumanMessage(content=f"Analyze this stack trace and provide a solution:\n\n{stack_trace}")
+        tools_used = []
+        contents = [
+            types.Content(
+                role="user",
+                parts=[types.Part.from_text(text=
+                                            f"Analyze this stack trace and provide a solution:\n\n{stack_trace}"
+                                            )]
+            )
         ]
 
+        tool_config = types.Tool(function_declarations=[
+            types.FunctionDeclaration(**t) for t in TOOL_DECLARATIONS
+        ])
+
         try:
-            result = self.graph.invoke({"messages": messages})
+            for _ in range(max_iterations):
+                response = self.client.models.generate_content(
+                    model=self.model,
+                    contents=contents,
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_PROMPT,
+                        tools=[tool_config],
+                        temperature=0,
+                    )
+                )
 
-            tools_used = []
-            final_response = None
+                candidate = response.candidates[0]
 
-            for msg in result["messages"]:
-                if hasattr(msg, "tool_calls") and msg.tool_calls:
-                    for tool_call in msg.tool_calls:
-                        tools_used.append(tool_call["name"])
-                if isinstance(msg, AIMessage) and msg.content and not getattr(msg, "tool_calls", None):
-                    final_response = msg.content
+                # Check if model wants to call tools
+                function_calls = [
+                    p for p in candidate.content.parts
+                    if p.function_call
+                ]
+
+                if not function_calls:
+                    # No tool calls = final answer
+                    final_text = response.text
+                    return {
+                        "analysis": final_text,
+                        "tools_used": list(set(tools_used))
+                    }
+
+                # Execute each tool call
+                contents.append(candidate.content)
+
+                tool_response_parts = []
+                for fc in function_calls:
+                    fn_name = fc.function_call.name
+                    fn_args = dict(fc.function_call.args)
+                    tools_used.append(fn_name)
+
+                    logger.info(f"Calling tool: {fn_name}({fn_args})")
+
+                    if fn_name in TOOL_MAP:
+                        result = TOOL_MAP[fn_name].invoke(fn_args)
+                    else:
+                        result = f"Unknown tool: {fn_name}"
+
+                    tool_response_parts.append(
+                        types.Part.from_function_response(
+                            name=fn_name,
+                            response={"result": str(result)}
+                        )
+                    )
+
+                contents.append(
+                    types.Content(role="user", parts=tool_response_parts)
+                )
 
             return {
-                "analysis": final_response,
+                "analysis": "Max iterations reached",
                 "tools_used": list(set(tools_used))
             }
 

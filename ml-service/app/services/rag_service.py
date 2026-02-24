@@ -4,7 +4,8 @@ RAG service combining retrieval and LLM generation for stack trace analysis
 
 import os
 from typing import List, Dict, Any, Optional
-from groq import Groq
+from google import genai
+from google.genai import types
 
 from app.services.embedding_service import get_embedding_service
 from app.services.similarity_search import get_similarity_search
@@ -22,11 +23,11 @@ Be concise and practical. Focus on actionable advice."""
 
 class RAGService:
     def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key or os.getenv("GROQ_API_KEY")
+        self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         self.client = None
         if self.api_key:
-            self.client = Groq(api_key=self.api_key)
-        self.model = "llama-3.1-8b-instant"
+            self.client = genai.Client(api_key=self.api_key)
+        self.model = "gemini-2.5-flash-lite"
 
     def _build_context(self, similar_docs: List[Dict[str, Any]]) -> str:
         if not similar_docs:
@@ -73,21 +74,21 @@ class RAGService:
             return self._fallback_response(prompt)
 
         try:
-            response = self.client.chat.completions.create(
+            response = self.client.models.generate_content(
                 model=self.model,
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3,
-                max_tokens=1024
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_PROMPT,
+                    temperature=0.3,
+                    max_output_tokens=1024
+                )
             )
-            return response.choices[0].message.content
+            return response.text
         except Exception as e:
             return f"LLM error: {str(e)}"
 
     def _fallback_response(self, prompt: str) -> str:
-        return "LLM not configured. Set GROQ_API_KEY environment variable for AI-powered analysis."
+        return "LLM not configured. Set GEMINI_API_KEY environment variable for AI-powered analysis."
 
 
 _rag_service: Optional[RAGService] = None
