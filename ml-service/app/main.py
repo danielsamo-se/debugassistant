@@ -18,14 +18,14 @@ from app.schemas import (
 )
 from app.services.embedding_service import get_embedding_service
 from app.services.similarity_search import get_similarity_search
-from app.services.rag_service import get_rag_service
+from app.services.debug_agent import get_debug_agent
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     get_embedding_service()
     get_similarity_search()
-    get_rag_service()
+    get_debug_agent()
     yield
 
 
@@ -146,11 +146,19 @@ async def clear_store():
 
 @app.post("/analyze", response_model=AnalyzeResponse)
 async def analyze_stack_trace(request: AnalyzeRequest):
-    rag_service = get_rag_service()
-    result = rag_service.analyze(request.stack_trace, request.use_retrieval)
+    embedding_service = get_embedding_service()
+    store = get_similarity_search()
+    agent = get_debug_agent()
+
+    similar_errors = []
+    if request.use_retrieval and store.size() > 0:
+        query_embedding = embedding_service.embed(request.stack_trace)
+        similar_errors = store.search(query_embedding, k=3)
+
+    agent_result = agent.analyze(request.stack_trace)
 
     return AnalyzeResponse(
-        analysis=result["analysis"],
-        similar_errors=[SearchResult(**r) for r in result["similar_errors"]],
-        context_used=result["context_used"]
+        analysis=agent_result.get("analysis") or "Agent analysis unavailable",
+        similar_errors=[SearchResult(**r) for r in similar_errors],
+        context_used=bool(similar_errors)
     )
