@@ -16,6 +16,8 @@ export interface AnalyzeResponse {
   keywords: string[];
   rootCause: string | null;
   results: SearchResult[];
+  mlAnalysis: string | null;
+  toolsUsed: string[] | null;
 }
 
 export interface User {

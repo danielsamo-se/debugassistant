@@ -85,3 +85,4 @@ class AnalyzeResponse(BaseModel):
     analysis: str
     similar_errors: List[SearchResult]
     context_used: bool
+    tools_used: List[str] = []

@@ -26,22 +26,6 @@ export function HomePage() {
     try {
       const analysisResult = await analyzeStackTrace(traceContent);
       setResult(analysisResult);
-
-      const handleAnalyze = async (traceContent: string) => {
-        setIsAnalyzing(true);
-        setError('');
-        setResult(null);
-
-        try {
-          const analysisResult = await analyzeStackTrace(traceContent);
-          setResult(analysisResult);
-        } catch (err) {
-          console.error('Analysis request failed', err);
-          setError(err instanceof Error ? err.message : 'Analysis failed');
-        } finally {
-          setIsAnalyzing(false);
-        }
-      };
     } catch (err) {
       console.error('Analysis request failed', err);
       setError(err instanceof Error ? err.message : 'Analysis failed');
@@ -69,7 +53,7 @@ export function HomePage() {
         <div
           className={`
             flex flex-col transition-all duration-500
-            ${showEmptyState ? 'w-full' : 'w-full lg:w-1/2 lg:border-r lg:border-zinc-800/50 min-w-0 bg-zinc-950/50 backdrop-blur-sm p-6'}
+            ${showEmptyState ? 'w-full' : 'w-full lg:w-1/2 lg:border-r lg:border-zinc-800/50 min-w-0 bg-zinc-950/50 backdrop-blur-sm p-6 lg:sticky lg:top-0 lg:self-start'}
         `}
         >
           <div
@@ -91,8 +75,8 @@ export function HomePage() {
 
           <div
             className={`
-                flex-grow flex flex-col min-h-0 rounded-xl overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-500
-                ${showEmptyState ? 'h-[400px] bg-zinc-900' : 'h-full bg-zinc-900/50'}
+                flex flex-col min-h-0 rounded-xl overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-500
+                ${showEmptyState ? 'flex-grow h-[400px] bg-zinc-900' : 'h-[300px] bg-zinc-900/50'}
             `}
           >
             <StackTraceInput onAnalyze={handleAnalyze} loading={isAnalyzing} />

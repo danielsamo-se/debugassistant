@@ -9,5 +9,6 @@ import java.util.Map;
 public record MlAnalyzeResponse(
         String analysis,
         List<MlSimilarError> similar_errors,
-        boolean context_used
+        boolean context_used,
+        List<String> tools_used
 ) {}

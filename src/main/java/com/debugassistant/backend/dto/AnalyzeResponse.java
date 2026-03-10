@@ -31,6 +31,9 @@ public record AnalyzeResponse(
         List<SearchResult> results,
 
         @Schema(description = "AI generated analysis and solution")
-        String mlAnalysis
+        String mlAnalysis,
+
+        @Schema(description = "Tools the agent autonomously selected")
+        List<String> toolsUsed
 
 ) {}

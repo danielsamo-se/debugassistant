@@ -89,7 +89,18 @@ public class AnalyzeService {
             results = new ArrayList<>(results.subList(0, 15));
         }
 
-        String mlAnalysis = getMlAnalysis(request.stackTrace());
+        String mlAnalysis = null;
+        List<String> toolsUsed = null;
+
+        try {
+            Optional<MlAnalyzeResponse> mlResponse = mlServiceClient.analyze(request.stackTrace());
+            if (mlResponse.isPresent()) {
+                mlAnalysis = mlResponse.get().analysis();
+                toolsUsed = mlResponse.get().tools_used();
+            }
+        } catch (Exception e) {
+            log.warn("ML analysis failed: {}", e.getMessage());
+        }
 
         return AnalyzeResponse.builder()
                 .language(parsed.language())
@@ -99,17 +110,8 @@ public class AnalyzeService {
                 .rootCause(parsed.rootCause())
                 .results(results)
                 .mlAnalysis(mlAnalysis)
+                .toolsUsed(toolsUsed)
                 .build();
-    }
-
-    private String getMlAnalysis(String stackTrace) {
-        try {
-            Optional<MlAnalyzeResponse> mlResponse = mlServiceClient.analyze(stackTrace);
-            return mlResponse.map(MlAnalyzeResponse::analysis).orElse(null);
-        } catch (Exception e) {
-            log.warn("ML analysis failed: {}", e.getMessage());
-            return null;
-        }
     }
 
     private SearchResult boostAnsweredStackOverflow(SearchResult result) {

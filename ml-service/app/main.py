@@ -160,5 +160,6 @@ async def analyze_stack_trace(request: AnalyzeRequest):
     return AnalyzeResponse(
         analysis=agent_result.get("analysis") or "Agent analysis unavailable",
         similar_errors=[SearchResult(**r) for r in similar_errors],
-        context_used=bool(similar_errors)
+        context_used=bool(similar_errors),
+        tools_used=agent_result.get("tools_used", [])
     )
