@@ -93,6 +93,7 @@ React 19 + TypeScript with Vite.
 * Loading states and skeleton components
 * Copy-to-clipboard for results
 * Error boundaries for runtime error handling
+* Agent analysis with rendered Markdown and visible tool selection
 
 **Testing:**
 * Unit/Component tests: Vitest + Testing Library
@@ -129,7 +130,7 @@ docker compose down
 }
 ```
 
-Response includes language, exceptionType, keywords, rootCause, heuristic results from GitHub/Stack Overflow, and mlAnalysis with the agent's explanation.
+Response includes language, exceptionType, keywords, rootCause, heuristic results from GitHub/Stack Overflow, mlAnalysis with the agent's explanation, and toolsUsed listing which tools the agent autonomously selected.
 
 ### History (JWT-protected)
 
