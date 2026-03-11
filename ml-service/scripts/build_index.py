@@ -13,6 +13,17 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 
+def build_document(sample: dict) -> str:
+    parts = [
+        f"Exception: {sample.get('exception', '')}",
+        f"Framework: {sample.get('framework', '')}",
+        f"Language: {sample.get('language', '')}",
+        f"Trace: {sample.get('trace', '')}",
+        f"Fix: {sample.get('solution', '')}",
+    ]
+    return "\n".join(parts).strip()
+
+
 def main():
     data_dir = Path(__file__).parent.parent / "data"
     sample_file = data_dir / "sample_traces.json"
@@ -22,30 +33,41 @@ def main():
     with open(sample_file, "r", encoding="utf-8") as f:
         samples = json.load(f)
 
+    documents = [build_document(sample) for sample in samples]
+
     model = SentenceTransformer("all-MiniLM-L6-v2")
-    texts = [sample["trace"] for sample in samples]
-    embeddings = model.encode(texts, show_progress_bar=True, normalize_embeddings=True)
+    embeddings = model.encode(
+        documents,
+        show_progress_bar=True,
+        normalize_embeddings=True,
+    )
+
+    embeddings = np.asarray(embeddings, dtype=np.float32)
 
     index = faiss.IndexFlatIP(embeddings.shape[1])
-    index.add(embeddings.astype(np.float32))
+    index.add(embeddings)
     faiss.write_index(index, str(index_file))
 
-    metadata = [
-        {
-            "id": s["id"],
-            "text": s["trace"],
-            "language": s["language"],
-            "framework": s["framework"],
-            "exception": s["exception"],
-            "solution": s["solution"],
-            "url": s["url"]
-        }
-        for s in samples
-    ]
-    with open(metadata_file, "w", encoding="utf-8") as f:
-        json.dump(metadata, f, indent=2)
+    metadata = []
+    for sample, document in zip(samples, documents):
+        metadata.append(
+            {
+                "id": sample["id"],
+                "document": document,
+                "text": sample["trace"],
+                "language": sample["language"],
+                "framework": sample["framework"],
+                "exception": sample["exception"],
+                "solution": sample["solution"],
+                "url": sample["url"],
+            }
+        )
 
-    print(f"Indexed {index.ntotal} vectors ({embeddings.shape[1]} dim)")
+    with open(metadata_file, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2, ensure_ascii=False)
+
+    print(f"Indexed {index.ntotal} vectors with dimension {embeddings.shape[1]}")
+    print("Saved metadata with document field")
 
 
 if __name__ == "__main__":

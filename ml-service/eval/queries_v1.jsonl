@@ -1,0 +1,15 @@
+{"query_id":"q001","query_text":"java.lang.NullPointerException: Cannot invoke method on null object reference at com.example.service.UserService.getUser(UserService.java:42)","expected_id":3,"query_type":"full_trace","difficulty":"easy"}
+{"query_id":"q002","query_text":"org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'dataSource' defined in class path resource","expected_id":12,"query_type":"full_trace","difficulty":"easy"}
+{"query_id":"q003","query_text":"java.lang.OutOfMemoryError: Java heap space at java.base/java.util.Arrays.copyOf(Arrays.java:3537)","expected_id":9,"query_type":"full_trace","difficulty":"easy"}
+{"query_id":"q004","query_text":"org.springframework.beans.factory.BeanCurrentlyInCreationException: Error creating bean with name 'securityConfig' Requested bean is currently in creation","expected_id":12,"query_type":"full_trace","difficulty":"medium"}
+{"query_id":"q005","query_text":"com.fasterxml.jackson.core.JsonParseException: Unexpected character at line 1 column 2 while parsing request body","expected_id":32,"query_type":"full_trace","difficulty":"easy"}
+{"query_id":"q006","query_text":"NullPointerException in UserService when calling getUser and an object is null","expected_id":3,"query_type":"paraphrase","difficulty":"easy"}
+{"query_id":"q007","query_text":"Spring Boot startup fails because datasource bean cannot be created","expected_id":12,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q008","query_text":"Application crashes because JVM heap space is exhausted during array copy","expected_id":9,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q009","query_text":"Spring reports bean currently in creation during startup because of circular dependency","expected_id":12,"query_type":"paraphrase","difficulty":"hard"}
+{"query_id":"q010","query_text":"Backend fails because request JSON contains invalid syntax and cannot be parsed","expected_id":32,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q011","query_text":"java.lang.NullPointerException at com.example.service.UserService.getUser","expected_id":3,"query_type":"truncated_trace","difficulty":"easy"}
+{"query_id":"q012","query_text":"BeanCreationException creating bean dataSource during application startup","expected_id":12,"query_type":"truncated_trace","difficulty":"medium"}
+{"query_id":"q013","query_text":"OutOfMemoryError Java heap space","expected_id":9,"query_type":"truncated_trace","difficulty":"easy"}
+{"query_id":"q014","query_text":"BeanCurrentlyInCreationException securityConfig bean currently in creation","expected_id":12,"query_type":"truncated_trace","difficulty":"medium"}
+{"query_id":"q015","query_text":"JsonParseException unexpected character while parsing body","expected_id":32,"query_type":"truncated_trace","difficulty":"easy"}
