@@ -13,3 +13,38 @@
 {"query_id":"q013","query_text":"OutOfMemoryError Java heap space","expected_id":9,"query_type":"truncated_trace","difficulty":"easy"}
 {"query_id":"q014","query_text":"BeanCurrentlyInCreationException securityConfig bean currently in creation","expected_id":12,"query_type":"truncated_trace","difficulty":"medium"}
 {"query_id":"q015","query_text":"JsonParseException unexpected character while parsing body","expected_id":32,"query_type":"truncated_trace","difficulty":"easy"}
+{"query_id":"q016","query_text":"Spring cannot autowire UserService because no qualifying bean of that type is available","expected_id":1,"query_type":"paraphrase","difficulty":"hard"}
+{"query_id":"q017","query_text":"Hibernate fails with could not initialize proxy no Session when accessing lazy loaded orders outside transaction","expected_id":2,"query_type":"paraphrase","difficulty":"hard"}
+{"query_id":"q018","query_text":"java.util.ConcurrentModificationException while removing items from an ArrayList inside a foreach loop","expected_id":4,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q019","query_text":"Recursive parser keeps calling itself until the JVM stack is exhausted","expected_id":5,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q020","query_text":"Hibernate says object references an unsaved transient instance because Order points to Customer that was never persisted","expected_id":11,"query_type":"paraphrase","difficulty":"hard"}
+{"query_id":"q021","query_text":"Authenticated user gets access denied on protected Spring endpoint because required role or authority is missing","expected_id":15,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q022","query_text":"JWT parsing fails because the token expiration time is already in the past","expected_id":16,"query_type":"paraphrase","difficulty":"easy"}
+{"query_id":"q023","query_text":"java.net.ConnectException connection refused because target service is not listening on the host and port","expected_id":18,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q024","query_text":"Insert fails with unique email constraint violation in Spring Data JPA","expected_id":20,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q025","query_text":"Jackson cannot serialize UserResponse because no serializer is found and no properties are discovered","expected_id":22,"query_type":"paraphrase","difficulty":"hard"}
+{"query_id":"q026","query_text":"Error creating bean userController because dependency userService is unsatisfied","expected_id":29,"query_type":"truncated_trace","difficulty":"medium"}
+{"query_id":"q027","query_text":"Hibernate MappingException unknown entity com.example.entity.User","expected_id":30,"query_type":"truncated_trace","difficulty":"medium"}
+{"query_id":"q028","query_text":"Spring Data repository method fails because property findByName does not exist on entity User","expected_id":41,"query_type":"paraphrase","difficulty":"hard"}
+{"query_id":"q029","query_text":"PKIX path building failed unable to find valid certification path to requested target during SSL handshake","expected_id":42,"query_type":"truncated_trace","difficulty":"medium"}
+{"query_id":"q030","query_text":"Request rejected because content type text plain is not supported and endpoint expects JSON","expected_id":44,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q031","query_text":"Spring startup fails because a controller requires a bean that is not present in the application context","expected_id":1,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q032","query_text":"No qualifying bean of type com.example.service.UserService available for dependency injection","expected_id":1,"query_type":"truncated_trace","difficulty":"medium"}
+{"query_id":"q033","query_text":"Lazy loaded collection is accessed after the Hibernate session is already closed","expected_id":2,"query_type":"paraphrase","difficulty":"hard"}
+{"query_id":"q034","query_text":"could not initialize proxy no Session","expected_id":2,"query_type":"truncated_trace","difficulty":"hard"}
+{"query_id":"q035","query_text":"Null pointer occurs because a service dependency is missing when loadUser is called","expected_id":3,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q036","query_text":"ConcurrentModificationException while iterating over list and deleting elements in same loop","expected_id":4,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q037","query_text":"Deep recursive method causes stack overflow during tree traversal","expected_id":5,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q038","query_text":"Entity references another entity that has not been saved yet and Hibernate refuses to flush","expected_id":11,"query_type":"paraphrase","difficulty":"hard"}
+{"query_id":"q039","query_text":"Circular dependency between Spring beans causes startup failure during bean creation","expected_id":12,"query_type":"paraphrase","difficulty":"hard"}
+{"query_id":"q040","query_text":"User is authenticated but still receives 403 forbidden on secured endpoint","expected_id":15,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q041","query_text":"Token validation fails because the JWT is already expired","expected_id":16,"query_type":"paraphrase","difficulty":"easy"}
+{"query_id":"q042","query_text":"connection refused when backend tries to call downstream service on localhost 8081","expected_id":18,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q043","query_text":"Saving a second account with the same email breaks because of a database uniqueness constraint","expected_id":20,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q044","query_text":"Jackson fails to map incoming JSON into DTO because a field has the wrong type","expected_id":22,"query_type":"paraphrase","difficulty":"hard"}
+{"query_id":"q045","query_text":"Error creating bean with name userController unsatisfied dependency expressed through field userService","expected_id":29,"query_type":"truncated_trace","difficulty":"medium"}
+{"query_id":"q046","query_text":"Hibernate does not know entity com.example.User and throws unknown entity mapping error","expected_id":30,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q047","query_text":"Malformed JSON request body contains invalid character near the beginning of the payload","expected_id":32,"query_type":"paraphrase","difficulty":"medium"}
+{"query_id":"q048","query_text":"Repository method name references a property that does not exist on the entity model","expected_id":41,"query_type":"paraphrase","difficulty":"hard"}
+{"query_id":"q049","query_text":"SSL handshake fails because the certificate chain cannot be validated by the JVM truststore","expected_id":42,"query_type":"paraphrase","difficulty":"hard"}
+{"query_id":"q050","query_text":"Endpoint rejects request because content type application xml is not supported","expected_id":44,"query_type":"paraphrase","difficulty":"medium"}
