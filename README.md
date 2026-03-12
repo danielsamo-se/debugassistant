@@ -15,9 +15,9 @@ DebugAssistant analyzes stack traces using semantic search and an LLM debug agen
 * Sentence-BERT embeddings (all-MiniLM-L6-v2) with FAISS vector search
 * LLM debug agent with autonomous tool calling (Google Gemini)
 * 3 agent tools: stack trace analysis, semantic error search, framework best practices
-* Retrieval evaluation with Precision@K, MRR and score separation analysis (87% hit rate @3)
+* Retrieval benchmark with 50 manually designed queries and a TF IDF baseline comparison
 * Parallel heuristic search against GitHub Issues and Stack Overflow
-* Supports Java and Python stack traces
+* Focused on Java and Spring debugging workflows
 * Redis cache with MD5 key and 24h TTL
 * JWT-protected per-user history in PostgreSQL
 * OpenAPI/Swagger documentation
@@ -65,16 +65,14 @@ The agent iterates until it has enough context, then generates a structured expl
 
 ## Evaluation
 
-Retrieval quality evaluated in `ml-service/evaluation.ipynb` with 15 test queries across 3 difficulty levels.
+Retrieval benchmark in `ml-service/evaluation.ipynb` with 50 manually designed Java and Spring debugging queries.
 
-* 87% hit rate @3
-* MRR 0.87
-* Score separation between relevant and irrelevant results: 0.22 mean difference
-* Average retrieval latency ~8ms
+* Sentence BERT + FAISS: Hit@1 0.88, Hit@3 0.98, MRR 0.927
+* TF IDF baseline: Hit@1 0.68, Hit@3 0.86, MRR 0.763
+* Top 1 retrieval improved from 34/50 to 44/50
+* Complete misses in top 3 reduced from 7 cases to 1 case
 
-Includes score distribution analysis, hit rate by difficulty, t-SNE visualization of embedding space and failure analysis.
-
-![Evaluation Results](ml-service/evaluation_results.png)
+Includes breakdown by query type and difficulty plus a short failure analysis.
 
 ---
 
