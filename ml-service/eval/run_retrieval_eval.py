@@ -129,6 +129,46 @@ def run_sbert_faiss(
     return predictions
 
 
+def get_title_map(metadata: list[dict]) -> dict[int, str]:
+    title_map = {}
+    for item in metadata:
+        title_map[item["id"]] = item["exception"]
+    return title_map
+
+
+def build_detailed_results(
+        queries_data: list[dict],
+        tfidf_predictions: list[list[int]],
+        sbert_predictions: list[list[int]],
+        title_map: dict[int, str],
+) -> list[dict]:
+    rows = []
+
+    for query, tfidf_ids, sbert_ids in zip(queries_data, tfidf_predictions, sbert_predictions):
+        expected_id = query["expected_id"]
+
+        row = {
+            "query_id": query["query_id"],
+            "query_text": query["query_text"],
+            "query_type": query["query_type"],
+            "difficulty": query["difficulty"],
+            "expected_id": expected_id,
+            "expected_exception": title_map.get(expected_id, "unknown"),
+            "tfidf_top_3_ids": tfidf_ids,
+            "tfidf_top_3_exceptions": [title_map.get(doc_id, "unknown") for doc_id in tfidf_ids],
+            "tfidf_hit_at_1": len(tfidf_ids) > 0 and tfidf_ids[0] == expected_id,
+            "tfidf_hit_at_3": expected_id in tfidf_ids[:3],
+            "sbert_top_3_ids": sbert_ids,
+            "sbert_top_3_exceptions": [title_map.get(doc_id, "unknown") for doc_id in sbert_ids],
+            "sbert_hit_at_1": len(sbert_ids) > 0 and sbert_ids[0] == expected_id,
+            "sbert_hit_at_3": expected_id in sbert_ids[:3],
+        }
+
+        rows.append(row)
+
+    return rows
+
+
 def main():
     base_dir = Path(__file__).resolve().parent.parent
     data_dir = base_dir / "data"
@@ -139,6 +179,7 @@ def main():
 
     documents = get_documents(metadata)
     document_ids = get_document_ids(metadata)
+    title_map = get_title_map(metadata)
 
     queries = [item["query_text"] for item in queries_data]
     expected_ids = [item["expected_id"] for item in queries_data]
@@ -159,11 +200,23 @@ def main():
         "sentence_bert_faiss": sbert_result,
     }
 
+    detailed_results = build_detailed_results(
+        queries_data,
+        tfidf_predictions,
+        sbert_predictions,
+        title_map,
+    )
+
     output_path = eval_dir / "results_v1.json"
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
 
+    detailed_output_path = eval_dir / "detailed_results_v1.json"
+    with open(detailed_output_path, "w", encoding="utf-8") as f:
+        json.dump(detailed_results, f, indent=2, ensure_ascii=False)
+
     print(json.dumps(results, indent=2, ensure_ascii=False))
+    print("Saved detailed results to eval/detailed_results_v1.json")
 
 
 if __name__ == "__main__":
