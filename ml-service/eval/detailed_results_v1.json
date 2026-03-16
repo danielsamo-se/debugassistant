@@ -1,0 +1,1602 @@
+[
+  {
+    "query_id": "q001",
+    "query_text": "java.lang.NullPointerException: Cannot invoke method on null object reference at com.example.service.UserService.getUser(UserService.java:42)",
+    "query_type": "full_trace",
+    "difficulty": "easy",
+    "expected_id": 3,
+    "expected_exception": "NullPointerException",
+    "tfidf_top_3_ids": [
+      3,
+      37,
+      50
+    ],
+    "tfidf_top_3_exceptions": [
+      "NullPointerException",
+      "ClassCastException",
+      "InterruptedException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      3,
+      41,
+      33
+    ],
+    "sbert_top_3_exceptions": [
+      "NullPointerException",
+      "PropertyReferenceException",
+      "NoHandlerFoundException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q002",
+    "query_text": "org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'dataSource' defined in class path resource",
+    "query_type": "full_trace",
+    "difficulty": "easy",
+    "expected_id": 12,
+    "expected_exception": "BeanCreationException",
+    "tfidf_top_3_ids": [
+      12,
+      29,
+      1
+    ],
+    "tfidf_top_3_exceptions": [
+      "BeanCreationException",
+      "UnsatisfiedDependencyException",
+      "NoSuchBeanDefinitionException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      12,
+      41,
+      29
+    ],
+    "sbert_top_3_exceptions": [
+      "BeanCreationException",
+      "PropertyReferenceException",
+      "UnsatisfiedDependencyException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q003",
+    "query_text": "java.lang.OutOfMemoryError: Java heap space at java.base/java.util.Arrays.copyOf(Arrays.java:3537)",
+    "query_type": "full_trace",
+    "difficulty": "easy",
+    "expected_id": 9,
+    "expected_exception": "OutOfMemoryError",
+    "tfidf_top_3_ids": [
+      9,
+      43,
+      4
+    ],
+    "tfidf_top_3_exceptions": [
+      "OutOfMemoryError",
+      "OutOfMemoryError",
+      "ConcurrentModificationException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      9,
+      43,
+      24
+    ],
+    "sbert_top_3_exceptions": [
+      "OutOfMemoryError",
+      "OutOfMemoryError",
+      "ArrayIndexOutOfBoundsException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q004",
+    "query_text": "org.springframework.beans.factory.BeanCurrentlyInCreationException: Error creating bean with name 'securityConfig' Requested bean is currently in creation",
+    "query_type": "full_trace",
+    "difficulty": "medium",
+    "expected_id": 12,
+    "expected_exception": "BeanCreationException",
+    "tfidf_top_3_ids": [
+      12,
+      29,
+      1
+    ],
+    "tfidf_top_3_exceptions": [
+      "BeanCreationException",
+      "UnsatisfiedDependencyException",
+      "NoSuchBeanDefinitionException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      12,
+      15,
+      29
+    ],
+    "sbert_top_3_exceptions": [
+      "BeanCreationException",
+      "AccessDeniedException",
+      "UnsatisfiedDependencyException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q005",
+    "query_text": "com.fasterxml.jackson.core.JsonParseException: Unexpected character at line 1 column 2 while parsing request body",
+    "query_type": "full_trace",
+    "difficulty": "easy",
+    "expected_id": 32,
+    "expected_exception": "JsonParseException",
+    "tfidf_top_3_ids": [
+      32,
+      22,
+      8
+    ],
+    "tfidf_top_3_exceptions": [
+      "JsonParseException",
+      "JsonMappingException",
+      "InvalidFormatException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      32,
+      8,
+      22
+    ],
+    "sbert_top_3_exceptions": [
+      "JsonParseException",
+      "InvalidFormatException",
+      "JsonMappingException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q006",
+    "query_text": "NullPointerException in UserService when calling getUser and an object is null",
+    "query_type": "paraphrase",
+    "difficulty": "easy",
+    "expected_id": 3,
+    "expected_exception": "NullPointerException",
+    "tfidf_top_3_ids": [
+      3,
+      36,
+      12
+    ],
+    "tfidf_top_3_exceptions": [
+      "NullPointerException",
+      "MethodArgumentNotValidException",
+      "BeanCreationException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      3,
+      33,
+      41
+    ],
+    "sbert_top_3_exceptions": [
+      "NullPointerException",
+      "NoHandlerFoundException",
+      "PropertyReferenceException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q007",
+    "query_text": "Spring Boot startup fails because datasource bean cannot be created",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 12,
+    "expected_exception": "BeanCreationException",
+    "tfidf_top_3_ids": [
+      7,
+      37,
+      3
+    ],
+    "tfidf_top_3_exceptions": [
+      "PortInUseException",
+      "ClassCastException",
+      "NullPointerException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": false,
+    "sbert_top_3_ids": [
+      12,
+      49,
+      41
+    ],
+    "sbert_top_3_exceptions": [
+      "BeanCreationException",
+      "ApplicationContextException",
+      "PropertyReferenceException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q008",
+    "query_text": "Application crashes because JVM heap space is exhausted during array copy",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 9,
+    "expected_exception": "OutOfMemoryError",
+    "tfidf_top_3_ids": [
+      9,
+      3,
+      25
+    ],
+    "tfidf_top_3_exceptions": [
+      "OutOfMemoryError",
+      "NullPointerException",
+      "HttpMessageNotReadableException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      9,
+      43,
+      24
+    ],
+    "sbert_top_3_exceptions": [
+      "OutOfMemoryError",
+      "OutOfMemoryError",
+      "ArrayIndexOutOfBoundsException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q009",
+    "query_text": "Spring reports bean currently in creation during startup because of circular dependency",
+    "query_type": "paraphrase",
+    "difficulty": "hard",
+    "expected_id": 12,
+    "expected_exception": "BeanCreationException",
+    "tfidf_top_3_ids": [
+      12,
+      1,
+      29
+    ],
+    "tfidf_top_3_exceptions": [
+      "BeanCreationException",
+      "NoSuchBeanDefinitionException",
+      "UnsatisfiedDependencyException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      12,
+      29,
+      1
+    ],
+    "sbert_top_3_exceptions": [
+      "BeanCreationException",
+      "UnsatisfiedDependencyException",
+      "NoSuchBeanDefinitionException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q010",
+    "query_text": "Backend fails because request JSON contains invalid syntax and cannot be parsed",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 32,
+    "expected_exception": "JsonParseException",
+    "tfidf_top_3_ids": [
+      25,
+      34,
+      37
+    ],
+    "tfidf_top_3_exceptions": [
+      "HttpMessageNotReadableException",
+      "DateTimeParseException",
+      "ClassCastException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": false,
+    "sbert_top_3_ids": [
+      32,
+      25,
+      16
+    ],
+    "sbert_top_3_exceptions": [
+      "JsonParseException",
+      "HttpMessageNotReadableException",
+      "ExpiredJwtException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q011",
+    "query_text": "java.lang.NullPointerException at com.example.service.UserService.getUser",
+    "query_type": "truncated_trace",
+    "difficulty": "easy",
+    "expected_id": 3,
+    "expected_exception": "NullPointerException",
+    "tfidf_top_3_ids": [
+      3,
+      37,
+      50
+    ],
+    "tfidf_top_3_exceptions": [
+      "NullPointerException",
+      "ClassCastException",
+      "InterruptedException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      3,
+      33,
+      41
+    ],
+    "sbert_top_3_exceptions": [
+      "NullPointerException",
+      "NoHandlerFoundException",
+      "PropertyReferenceException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q012",
+    "query_text": "BeanCreationException creating bean dataSource during application startup",
+    "query_type": "truncated_trace",
+    "difficulty": "medium",
+    "expected_id": 12,
+    "expected_exception": "BeanCreationException",
+    "tfidf_top_3_ids": [
+      12,
+      29,
+      1
+    ],
+    "tfidf_top_3_exceptions": [
+      "BeanCreationException",
+      "UnsatisfiedDependencyException",
+      "NoSuchBeanDefinitionException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      12,
+      29,
+      49
+    ],
+    "sbert_top_3_exceptions": [
+      "BeanCreationException",
+      "UnsatisfiedDependencyException",
+      "ApplicationContextException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q013",
+    "query_text": "OutOfMemoryError Java heap space",
+    "query_type": "truncated_trace",
+    "difficulty": "easy",
+    "expected_id": 9,
+    "expected_exception": "OutOfMemoryError",
+    "tfidf_top_3_ids": [
+      9,
+      43,
+      26
+    ],
+    "tfidf_top_3_exceptions": [
+      "OutOfMemoryError",
+      "OutOfMemoryError",
+      "NumberFormatException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      9,
+      43,
+      24
+    ],
+    "sbert_top_3_exceptions": [
+      "OutOfMemoryError",
+      "OutOfMemoryError",
+      "ArrayIndexOutOfBoundsException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q014",
+    "query_text": "BeanCurrentlyInCreationException securityConfig bean currently in creation",
+    "query_type": "truncated_trace",
+    "difficulty": "medium",
+    "expected_id": 12,
+    "expected_exception": "BeanCreationException",
+    "tfidf_top_3_ids": [
+      12,
+      1,
+      36
+    ],
+    "tfidf_top_3_exceptions": [
+      "BeanCreationException",
+      "NoSuchBeanDefinitionException",
+      "MethodArgumentNotValidException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      12,
+      15,
+      29
+    ],
+    "sbert_top_3_exceptions": [
+      "BeanCreationException",
+      "AccessDeniedException",
+      "UnsatisfiedDependencyException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q015",
+    "query_text": "JsonParseException unexpected character while parsing body",
+    "query_type": "truncated_trace",
+    "difficulty": "easy",
+    "expected_id": 32,
+    "expected_exception": "JsonParseException",
+    "tfidf_top_3_ids": [
+      32,
+      23,
+      13
+    ],
+    "tfidf_top_3_exceptions": [
+      "JsonParseException",
+      "HttpClientErrorException",
+      "SQLException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      32,
+      16,
+      25
+    ],
+    "sbert_top_3_exceptions": [
+      "JsonParseException",
+      "ExpiredJwtException",
+      "HttpMessageNotReadableException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q016",
+    "query_text": "Spring cannot autowire UserService because no qualifying bean of that type is available",
+    "query_type": "paraphrase",
+    "difficulty": "hard",
+    "expected_id": 1,
+    "expected_exception": "NoSuchBeanDefinitionException",
+    "tfidf_top_3_ids": [
+      1,
+      3,
+      12
+    ],
+    "tfidf_top_3_exceptions": [
+      "NoSuchBeanDefinitionException",
+      "NullPointerException",
+      "BeanCreationException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      1,
+      29,
+      12
+    ],
+    "sbert_top_3_exceptions": [
+      "NoSuchBeanDefinitionException",
+      "UnsatisfiedDependencyException",
+      "BeanCreationException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q017",
+    "query_text": "Hibernate fails with could not initialize proxy no Session when accessing lazy loaded orders outside transaction",
+    "query_type": "paraphrase",
+    "difficulty": "hard",
+    "expected_id": 2,
+    "expected_exception": "LazyInitializationException",
+    "tfidf_top_3_ids": [
+      2,
+      27,
+      40
+    ],
+    "tfidf_top_3_exceptions": [
+      "LazyInitializationException",
+      "UnexpectedRollbackException",
+      "NoClassDefFoundError"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      2,
+      11,
+      14
+    ],
+    "sbert_top_3_exceptions": [
+      "LazyInitializationException",
+      "TransientPropertyValueException",
+      "OptimisticLockException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q018",
+    "query_text": "java.util.ConcurrentModificationException while removing items from an ArrayList inside a foreach loop",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 4,
+    "expected_exception": "ConcurrentModificationException",
+    "tfidf_top_3_ids": [
+      4,
+      9,
+      45
+    ],
+    "tfidf_top_3_exceptions": [
+      "ConcurrentModificationException",
+      "OutOfMemoryError",
+      "ZipException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      4,
+      9,
+      24
+    ],
+    "sbert_top_3_exceptions": [
+      "ConcurrentModificationException",
+      "OutOfMemoryError",
+      "ArrayIndexOutOfBoundsException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q019",
+    "query_text": "Recursive parser keeps calling itself until the JVM stack is exhausted",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 5,
+    "expected_exception": "StackOverflowError",
+    "tfidf_top_3_ids": [
+      46,
+      5,
+      39
+    ],
+    "tfidf_top_3_exceptions": [
+      "WeakKeyException",
+      "StackOverflowError",
+      "JpaSystemException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      5,
+      4,
+      43
+    ],
+    "sbert_top_3_exceptions": [
+      "StackOverflowError",
+      "ConcurrentModificationException",
+      "OutOfMemoryError"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q020",
+    "query_text": "Hibernate says object references an unsaved transient instance because Order points to Customer that was never persisted",
+    "query_type": "paraphrase",
+    "difficulty": "hard",
+    "expected_id": 11,
+    "expected_exception": "TransientPropertyValueException",
+    "tfidf_top_3_ids": [
+      11,
+      48,
+      14
+    ],
+    "tfidf_top_3_exceptions": [
+      "TransientPropertyValueException",
+      "StaleObjectStateException",
+      "OptimisticLockException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      11,
+      48,
+      14
+    ],
+    "sbert_top_3_exceptions": [
+      "TransientPropertyValueException",
+      "StaleObjectStateException",
+      "OptimisticLockException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q021",
+    "query_text": "Authenticated user gets access denied on protected Spring endpoint because required role or authority is missing",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 15,
+    "expected_exception": "AccessDeniedException",
+    "tfidf_top_3_ids": [
+      15,
+      48,
+      2
+    ],
+    "tfidf_top_3_exceptions": [
+      "AccessDeniedException",
+      "StaleObjectStateException",
+      "LazyInitializationException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      15,
+      33,
+      36
+    ],
+    "sbert_top_3_exceptions": [
+      "AccessDeniedException",
+      "NoHandlerFoundException",
+      "MethodArgumentNotValidException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q022",
+    "query_text": "JWT parsing fails because the token expiration time is already in the past",
+    "query_type": "paraphrase",
+    "difficulty": "easy",
+    "expected_id": 16,
+    "expected_exception": "ExpiredJwtException",
+    "tfidf_top_3_ids": [
+      46,
+      7,
+      16
+    ],
+    "tfidf_top_3_exceptions": [
+      "WeakKeyException",
+      "PortInUseException",
+      "ExpiredJwtException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      16,
+      34,
+      32
+    ],
+    "sbert_top_3_exceptions": [
+      "ExpiredJwtException",
+      "DateTimeParseException",
+      "JsonParseException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q023",
+    "query_text": "java.net.ConnectException connection refused because target service is not listening on the host and port",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 18,
+    "expected_exception": "ConnectException",
+    "tfidf_top_3_ids": [
+      18,
+      46,
+      3
+    ],
+    "tfidf_top_3_exceptions": [
+      "ConnectException",
+      "WeakKeyException",
+      "NullPointerException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      18,
+      7,
+      37
+    ],
+    "sbert_top_3_exceptions": [
+      "ConnectException",
+      "PortInUseException",
+      "ClassCastException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q024",
+    "query_text": "Insert fails with unique email constraint violation in Spring Data JPA",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 20,
+    "expected_exception": "DataIntegrityViolationException",
+    "tfidf_top_3_ids": [
+      41,
+      20,
+      36
+    ],
+    "tfidf_top_3_exceptions": [
+      "PropertyReferenceException",
+      "DataIntegrityViolationException",
+      "MethodArgumentNotValidException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      20,
+      39,
+      14
+    ],
+    "sbert_top_3_exceptions": [
+      "DataIntegrityViolationException",
+      "JpaSystemException",
+      "OptimisticLockException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q025",
+    "query_text": "Jackson cannot serialize UserResponse because no serializer is found and no properties are discovered",
+    "query_type": "paraphrase",
+    "difficulty": "hard",
+    "expected_id": 22,
+    "expected_exception": "JsonMappingException",
+    "tfidf_top_3_ids": [
+      22,
+      3,
+      8
+    ],
+    "tfidf_top_3_exceptions": [
+      "JsonMappingException",
+      "NullPointerException",
+      "InvalidFormatException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      22,
+      25,
+      8
+    ],
+    "sbert_top_3_exceptions": [
+      "JsonMappingException",
+      "HttpMessageNotReadableException",
+      "InvalidFormatException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q026",
+    "query_text": "Error creating bean userController because dependency userService is unsatisfied",
+    "query_type": "truncated_trace",
+    "difficulty": "medium",
+    "expected_id": 29,
+    "expected_exception": "UnsatisfiedDependencyException",
+    "tfidf_top_3_ids": [
+      29,
+      3,
+      12
+    ],
+    "tfidf_top_3_exceptions": [
+      "UnsatisfiedDependencyException",
+      "NullPointerException",
+      "BeanCreationException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      29,
+      1,
+      12
+    ],
+    "sbert_top_3_exceptions": [
+      "UnsatisfiedDependencyException",
+      "NoSuchBeanDefinitionException",
+      "BeanCreationException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q027",
+    "query_text": "Hibernate MappingException unknown entity com.example.entity.User",
+    "query_type": "truncated_trace",
+    "difficulty": "medium",
+    "expected_id": 30,
+    "expected_exception": "MappingException",
+    "tfidf_top_3_ids": [
+      30,
+      11,
+      48
+    ],
+    "tfidf_top_3_exceptions": [
+      "MappingException",
+      "TransientPropertyValueException",
+      "StaleObjectStateException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      30,
+      41,
+      48
+    ],
+    "sbert_top_3_exceptions": [
+      "MappingException",
+      "PropertyReferenceException",
+      "StaleObjectStateException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q028",
+    "query_text": "Spring Data repository method fails because property findByName does not exist on entity User",
+    "query_type": "paraphrase",
+    "difficulty": "hard",
+    "expected_id": 41,
+    "expected_exception": "PropertyReferenceException",
+    "tfidf_top_3_ids": [
+      41,
+      35,
+      30
+    ],
+    "tfidf_top_3_exceptions": [
+      "PropertyReferenceException",
+      "PSQLException",
+      "MappingException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      41,
+      30,
+      29
+    ],
+    "sbert_top_3_exceptions": [
+      "PropertyReferenceException",
+      "MappingException",
+      "UnsatisfiedDependencyException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q029",
+    "query_text": "PKIX path building failed unable to find valid certification path to requested target during SSL handshake",
+    "query_type": "truncated_trace",
+    "difficulty": "medium",
+    "expected_id": 42,
+    "expected_exception": "SSLHandshakeException",
+    "tfidf_top_3_ids": [
+      42,
+      49,
+      47
+    ],
+    "tfidf_top_3_exceptions": [
+      "SSLHandshakeException",
+      "ApplicationContextException",
+      "ConversionNotSupportedException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      42,
+      46,
+      18
+    ],
+    "sbert_top_3_exceptions": [
+      "SSLHandshakeException",
+      "WeakKeyException",
+      "ConnectException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q030",
+    "query_text": "Request rejected because content type text plain is not supported and endpoint expects JSON",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 44,
+    "expected_exception": "HttpMediaTypeNotSupportedException",
+    "tfidf_top_3_ids": [
+      44,
+      6,
+      25
+    ],
+    "tfidf_top_3_exceptions": [
+      "HttpMediaTypeNotSupportedException",
+      "HttpRequestMethodNotSupportedException",
+      "HttpMessageNotReadableException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      25,
+      44,
+      32
+    ],
+    "sbert_top_3_exceptions": [
+      "HttpMessageNotReadableException",
+      "HttpMediaTypeNotSupportedException",
+      "JsonParseException"
+    ],
+    "sbert_hit_at_1": false,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q031",
+    "query_text": "Spring startup fails because a controller requires a bean that is not present in the application context",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 1,
+    "expected_exception": "NoSuchBeanDefinitionException",
+    "tfidf_top_3_ids": [
+      12,
+      46,
+      3
+    ],
+    "tfidf_top_3_exceptions": [
+      "BeanCreationException",
+      "WeakKeyException",
+      "NullPointerException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": false,
+    "sbert_top_3_ids": [
+      29,
+      12,
+      49
+    ],
+    "sbert_top_3_exceptions": [
+      "UnsatisfiedDependencyException",
+      "BeanCreationException",
+      "ApplicationContextException"
+    ],
+    "sbert_hit_at_1": false,
+    "sbert_hit_at_3": false
+  },
+  {
+    "query_id": "q032",
+    "query_text": "No qualifying bean of type com.example.service.UserService available for dependency injection",
+    "query_type": "truncated_trace",
+    "difficulty": "medium",
+    "expected_id": 1,
+    "expected_exception": "NoSuchBeanDefinitionException",
+    "tfidf_top_3_ids": [
+      1,
+      3,
+      29
+    ],
+    "tfidf_top_3_exceptions": [
+      "NoSuchBeanDefinitionException",
+      "NullPointerException",
+      "UnsatisfiedDependencyException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      29,
+      1,
+      12
+    ],
+    "sbert_top_3_exceptions": [
+      "UnsatisfiedDependencyException",
+      "NoSuchBeanDefinitionException",
+      "BeanCreationException"
+    ],
+    "sbert_hit_at_1": false,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q033",
+    "query_text": "Lazy loaded collection is accessed after the Hibernate session is already closed",
+    "query_type": "paraphrase",
+    "difficulty": "hard",
+    "expected_id": 2,
+    "expected_exception": "LazyInitializationException",
+    "tfidf_top_3_ids": [
+      2,
+      46,
+      7
+    ],
+    "tfidf_top_3_exceptions": [
+      "LazyInitializationException",
+      "WeakKeyException",
+      "PortInUseException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      2,
+      48,
+      11
+    ],
+    "sbert_top_3_exceptions": [
+      "LazyInitializationException",
+      "StaleObjectStateException",
+      "TransientPropertyValueException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q034",
+    "query_text": "could not initialize proxy no Session",
+    "query_type": "truncated_trace",
+    "difficulty": "hard",
+    "expected_id": 2,
+    "expected_exception": "LazyInitializationException",
+    "tfidf_top_3_ids": [
+      2,
+      40,
+      20
+    ],
+    "tfidf_top_3_exceptions": [
+      "LazyInitializationException",
+      "NoClassDefFoundError",
+      "DataIntegrityViolationException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      2,
+      18,
+      23
+    ],
+    "sbert_top_3_exceptions": [
+      "LazyInitializationException",
+      "ConnectException",
+      "HttpClientErrorException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q035",
+    "query_text": "Null pointer occurs because a service dependency is missing when loadUser is called",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 3,
+    "expected_exception": "NullPointerException",
+    "tfidf_top_3_ids": [
+      3,
+      12,
+      46
+    ],
+    "tfidf_top_3_exceptions": [
+      "NullPointerException",
+      "BeanCreationException",
+      "WeakKeyException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      3,
+      29,
+      37
+    ],
+    "sbert_top_3_exceptions": [
+      "NullPointerException",
+      "UnsatisfiedDependencyException",
+      "ClassCastException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q036",
+    "query_text": "ConcurrentModificationException while iterating over list and deleting elements in same loop",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 4,
+    "expected_exception": "ConcurrentModificationException",
+    "tfidf_top_3_ids": [
+      36,
+      22,
+      4
+    ],
+    "tfidf_top_3_exceptions": [
+      "MethodArgumentNotValidException",
+      "JsonMappingException",
+      "ConcurrentModificationException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      4,
+      9,
+      14
+    ],
+    "sbert_top_3_exceptions": [
+      "ConcurrentModificationException",
+      "OutOfMemoryError",
+      "OptimisticLockException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q037",
+    "query_text": "Deep recursive method causes stack overflow during tree traversal",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 5,
+    "expected_exception": "StackOverflowError",
+    "tfidf_top_3_ids": [
+      6,
+      31,
+      50
+    ],
+    "tfidf_top_3_exceptions": [
+      "HttpRequestMethodNotSupportedException",
+      "IllegalArgumentException",
+      "InterruptedException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": false,
+    "sbert_top_3_ids": [
+      5,
+      43,
+      9
+    ],
+    "sbert_top_3_exceptions": [
+      "StackOverflowError",
+      "OutOfMemoryError",
+      "OutOfMemoryError"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q038",
+    "query_text": "Entity references another entity that has not been saved yet and Hibernate refuses to flush",
+    "query_type": "paraphrase",
+    "difficulty": "hard",
+    "expected_id": 11,
+    "expected_exception": "TransientPropertyValueException",
+    "tfidf_top_3_ids": [
+      30,
+      11,
+      48
+    ],
+    "tfidf_top_3_exceptions": [
+      "MappingException",
+      "TransientPropertyValueException",
+      "StaleObjectStateException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      48,
+      11,
+      14
+    ],
+    "sbert_top_3_exceptions": [
+      "StaleObjectStateException",
+      "TransientPropertyValueException",
+      "OptimisticLockException"
+    ],
+    "sbert_hit_at_1": false,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q039",
+    "query_text": "Circular dependency between Spring beans causes startup failure during bean creation",
+    "query_type": "paraphrase",
+    "difficulty": "hard",
+    "expected_id": 12,
+    "expected_exception": "BeanCreationException",
+    "tfidf_top_3_ids": [
+      12,
+      1,
+      29
+    ],
+    "tfidf_top_3_exceptions": [
+      "BeanCreationException",
+      "NoSuchBeanDefinitionException",
+      "UnsatisfiedDependencyException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      12,
+      29,
+      1
+    ],
+    "sbert_top_3_exceptions": [
+      "BeanCreationException",
+      "UnsatisfiedDependencyException",
+      "NoSuchBeanDefinitionException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q040",
+    "query_text": "User is authenticated but still receives 403 forbidden on secured endpoint",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 15,
+    "expected_exception": "AccessDeniedException",
+    "tfidf_top_3_ids": [
+      36,
+      12,
+      46
+    ],
+    "tfidf_top_3_exceptions": [
+      "MethodArgumentNotValidException",
+      "BeanCreationException",
+      "WeakKeyException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": false,
+    "sbert_top_3_ids": [
+      15,
+      46,
+      35
+    ],
+    "sbert_top_3_exceptions": [
+      "AccessDeniedException",
+      "WeakKeyException",
+      "PSQLException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q041",
+    "query_text": "Token validation fails because the JWT is already expired",
+    "query_type": "paraphrase",
+    "difficulty": "easy",
+    "expected_id": 16,
+    "expected_exception": "ExpiredJwtException",
+    "tfidf_top_3_ids": [
+      46,
+      16,
+      7
+    ],
+    "tfidf_top_3_exceptions": [
+      "WeakKeyException",
+      "ExpiredJwtException",
+      "PortInUseException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      16,
+      46,
+      36
+    ],
+    "sbert_top_3_exceptions": [
+      "ExpiredJwtException",
+      "WeakKeyException",
+      "MethodArgumentNotValidException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q042",
+    "query_text": "connection refused when backend tries to call downstream service on localhost 8081",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 18,
+    "expected_exception": "ConnectException",
+    "tfidf_top_3_ids": [
+      18,
+      37,
+      36
+    ],
+    "tfidf_top_3_exceptions": [
+      "ConnectException",
+      "ClassCastException",
+      "MethodArgumentNotValidException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      18,
+      7,
+      49
+    ],
+    "sbert_top_3_exceptions": [
+      "ConnectException",
+      "PortInUseException",
+      "ApplicationContextException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q043",
+    "query_text": "Saving a second account with the same email breaks because of a database uniqueness constraint",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 20,
+    "expected_exception": "DataIntegrityViolationException",
+    "tfidf_top_3_ids": [
+      46,
+      20,
+      36
+    ],
+    "tfidf_top_3_exceptions": [
+      "WeakKeyException",
+      "DataIntegrityViolationException",
+      "MethodArgumentNotValidException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      20,
+      39,
+      14
+    ],
+    "sbert_top_3_exceptions": [
+      "DataIntegrityViolationException",
+      "JpaSystemException",
+      "OptimisticLockException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q044",
+    "query_text": "Jackson fails to map incoming JSON into DTO because a field has the wrong type",
+    "query_type": "paraphrase",
+    "difficulty": "hard",
+    "expected_id": 22,
+    "expected_exception": "JsonMappingException",
+    "tfidf_top_3_ids": [
+      25,
+      22,
+      47
+    ],
+    "tfidf_top_3_exceptions": [
+      "HttpMessageNotReadableException",
+      "JsonMappingException",
+      "ConversionNotSupportedException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      22,
+      8,
+      25
+    ],
+    "sbert_top_3_exceptions": [
+      "JsonMappingException",
+      "InvalidFormatException",
+      "HttpMessageNotReadableException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q045",
+    "query_text": "Error creating bean with name userController unsatisfied dependency expressed through field userService",
+    "query_type": "truncated_trace",
+    "difficulty": "medium",
+    "expected_id": 29,
+    "expected_exception": "UnsatisfiedDependencyException",
+    "tfidf_top_3_ids": [
+      29,
+      12,
+      3
+    ],
+    "tfidf_top_3_exceptions": [
+      "UnsatisfiedDependencyException",
+      "BeanCreationException",
+      "NullPointerException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      29,
+      1,
+      41
+    ],
+    "sbert_top_3_exceptions": [
+      "UnsatisfiedDependencyException",
+      "NoSuchBeanDefinitionException",
+      "PropertyReferenceException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q046",
+    "query_text": "Hibernate does not know entity com.example.User and throws unknown entity mapping error",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 30,
+    "expected_exception": "MappingException",
+    "tfidf_top_3_ids": [
+      30,
+      48,
+      11
+    ],
+    "tfidf_top_3_exceptions": [
+      "MappingException",
+      "StaleObjectStateException",
+      "TransientPropertyValueException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      30,
+      48,
+      41
+    ],
+    "sbert_top_3_exceptions": [
+      "MappingException",
+      "StaleObjectStateException",
+      "PropertyReferenceException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q047",
+    "query_text": "Malformed JSON request body contains invalid character near the beginning of the payload",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 32,
+    "expected_exception": "JsonParseException",
+    "tfidf_top_3_ids": [
+      46,
+      25,
+      11
+    ],
+    "tfidf_top_3_exceptions": [
+      "WeakKeyException",
+      "HttpMessageNotReadableException",
+      "TransientPropertyValueException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": false,
+    "sbert_top_3_ids": [
+      25,
+      32,
+      16
+    ],
+    "sbert_top_3_exceptions": [
+      "HttpMessageNotReadableException",
+      "JsonParseException",
+      "ExpiredJwtException"
+    ],
+    "sbert_hit_at_1": false,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q048",
+    "query_text": "Repository method name references a property that does not exist on the entity model",
+    "query_type": "paraphrase",
+    "difficulty": "hard",
+    "expected_id": 41,
+    "expected_exception": "PropertyReferenceException",
+    "tfidf_top_3_ids": [
+      35,
+      11,
+      46
+    ],
+    "tfidf_top_3_exceptions": [
+      "PSQLException",
+      "TransientPropertyValueException",
+      "WeakKeyException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": false,
+    "sbert_top_3_ids": [
+      30,
+      12,
+      41
+    ],
+    "sbert_top_3_exceptions": [
+      "MappingException",
+      "BeanCreationException",
+      "PropertyReferenceException"
+    ],
+    "sbert_hit_at_1": false,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q049",
+    "query_text": "SSL handshake fails because the certificate chain cannot be validated by the JVM truststore",
+    "query_type": "paraphrase",
+    "difficulty": "hard",
+    "expected_id": 42,
+    "expected_exception": "SSLHandshakeException",
+    "tfidf_top_3_ids": [
+      46,
+      42,
+      37
+    ],
+    "tfidf_top_3_exceptions": [
+      "WeakKeyException",
+      "SSLHandshakeException",
+      "ClassCastException"
+    ],
+    "tfidf_hit_at_1": false,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      42,
+      46,
+      18
+    ],
+    "sbert_top_3_exceptions": [
+      "SSLHandshakeException",
+      "WeakKeyException",
+      "ConnectException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  },
+  {
+    "query_id": "q050",
+    "query_text": "Endpoint rejects request because content type application xml is not supported",
+    "query_type": "paraphrase",
+    "difficulty": "medium",
+    "expected_id": 44,
+    "expected_exception": "HttpMediaTypeNotSupportedException",
+    "tfidf_top_3_ids": [
+      44,
+      6,
+      3
+    ],
+    "tfidf_top_3_exceptions": [
+      "HttpMediaTypeNotSupportedException",
+      "HttpRequestMethodNotSupportedException",
+      "NullPointerException"
+    ],
+    "tfidf_hit_at_1": true,
+    "tfidf_hit_at_3": true,
+    "sbert_top_3_ids": [
+      44,
+      6,
+      25
+    ],
+    "sbert_top_3_exceptions": [
+      "HttpMediaTypeNotSupportedException",
+      "HttpRequestMethodNotSupportedException",
+      "HttpMessageNotReadableException"
+    ],
+    "sbert_hit_at_1": true,
+    "sbert_hit_at_3": true
+  }
+]

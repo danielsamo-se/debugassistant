@@ -27,11 +27,11 @@ class SimilaritySearch:
         metadata_path = data_dir / "error_metadata.json"
 
         if not index_path.exists():
-            logger.info(f"No pre-built index found, starting empty")
+            logger.info("No pre-built index found, starting empty")
             return
 
         if not metadata_path.exists():
-            logger.warning(f"Index found but no metadata, starting empty")
+            logger.warning("Index found but no metadata, starting empty")
             return
 
         try:

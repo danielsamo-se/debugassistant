@@ -1,0 +1,20 @@
+{
+  "tfidf": {
+    "method": "tfidf",
+    "num_queries": 50,
+    "hit_at_1": 0.68,
+    "hit_at_3": 0.86,
+    "mrr": 0.7633333333333333,
+    "hit_at_1_count": 34,
+    "hit_at_3_count": 43
+  },
+  "sentence_bert_faiss": {
+    "method": "sentence_bert_faiss",
+    "num_queries": 50,
+    "hit_at_1": 0.88,
+    "hit_at_3": 0.98,
+    "mrr": 0.9266666666666667,
+    "hit_at_1_count": 44,
+    "hit_at_3_count": 49
+  }
+}

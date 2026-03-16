@@ -4,7 +4,6 @@ Debug agent using simple tool-calling loop with Gemini
 
 import os
 import logging
-from typing import Optional
 
 from google import genai
 from google.genai import types
