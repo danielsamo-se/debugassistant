@@ -3,7 +3,7 @@ Pydantic models for API requests and responses
 """
 
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+from typing import List, Dict, Any
 
 
 class EmbedRequest(BaseModel):
