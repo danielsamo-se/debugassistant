@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from '../ProtectedRoute';
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from '../../context/auth';
 
 const renderProtectedRoute = (isAuthenticated: boolean, isLoading: boolean) => {
   const authContextValue = {
