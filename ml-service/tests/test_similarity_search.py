@@ -2,18 +2,10 @@
 Tests for similarity search endpoints
 """
 
-import pytest
 from fastapi.testclient import TestClient
 from app.main import app
-from app.services.similarity_search import get_similarity_search
 
 client = TestClient(app)
-
-
-@pytest.fixture(autouse=True)
-def clear_store():
-    yield
-    get_similarity_search().clear()
 
 
 def test_index_single_document():
