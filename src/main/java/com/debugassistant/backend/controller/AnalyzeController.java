@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * REST endpoint for stack trace analysis
  */
 @RestController
-@RequestMapping("/api/analyze")
+@RequestMapping("/api/v1/analyze")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Analyze", description = "Stack trace analysis endpoints")

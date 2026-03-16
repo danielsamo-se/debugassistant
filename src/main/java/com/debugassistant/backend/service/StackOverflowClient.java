@@ -38,43 +38,33 @@ public class StackOverflowClient {
         if (queries == null || queries.isEmpty()) return List.of();
 
         String tagged = mapLanguageToTag(language); // narrow by language tag
-        List<StackOverflowQuestion> collected = new ArrayList<>();
-        int MIN_RESULTS = 5; // early stop threshold
 
-        // strict -> broad
+        // one request per query, strict → broad — return on first non-empty result
         for (String q : queries) {
-            if (q == null || q.isBlank()) continue; // skip blanks
+            if (q == null || q.isBlank()) continue;
 
-            var res = searchAdvanced(q, tagged, true, false); // require answers
-            if (!res.isEmpty()) {
-                collected.addAll(res);
-                if (collected.size() >= MIN_RESULTS) return collected; // stop early
-            }
-
-            res = searchAdvanced(q, tagged, false, false); // relax constraints
-            if (!res.isEmpty()) {
-                collected.addAll(res);
-                if (collected.size() >= MIN_RESULTS) return collected; // stop early
-            }
+            List<StackOverflowQuestion> res = searchAdvanced(q, tagged, exceptionType);
+            if (!res.isEmpty()) return res;
         }
-        return collected;
+        return List.of();
     }
 
-    private List<StackOverflowQuestion> searchAdvanced(String q, String tagged, boolean requireAnswers, boolean requireAccepted) {
+    private List<StackOverflowQuestion> searchAdvanced(String q, String tagged, String exceptionType) {
         try {
             UriComponentsBuilder b = UriComponentsBuilder
                     .fromPath("/search/advanced")
                     .queryParam("site", "stackoverflow")
                     .queryParam("order", "desc")
                     .queryParam("sort", "relevance")
+                    .queryParam("answers", 1)       // require at least one answer
+                    .queryParam("accepted", "true") // prefer accepted answers
                     .queryParam("pagesize", 30);
 
-            if (requireAnswers) b.queryParam("answers", 1);          // filter zero-answer
-            if (requireAccepted) b.queryParam("accepted", "true");   // stricter filter
-            if (tagged != null && !tagged.isBlank()) b.queryParam("tagged", tagged); // language scope
-            if (q != null && !q.isBlank()) b.queryParam("q", q);     // query text
+            if (tagged != null && !tagged.isBlank()) b.queryParam("tagged", tagged);
+            if (q != null && !q.isBlank()) b.queryParam("q", q);
+            if (exceptionType != null && !exceptionType.isBlank()) b.queryParam("intitle", exceptionType);
 
-            String uri = b.encode(StandardCharsets.UTF_8).build().toUriString(); // safe encoding
+            String uri = b.encode(StandardCharsets.UTF_8).build().toUriString();
             log.info("StackOverflow request URI: {}", uri);
 
             StackOverflowResponse response = restClient.get()
