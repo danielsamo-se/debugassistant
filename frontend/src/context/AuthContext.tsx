@@ -1,24 +1,10 @@
-import { createContext, useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import type { AuthResponse, User } from '../types';
+import { AuthContext, TOKEN_KEY, USER_KEY, EXPIRES_AT_KEY } from './auth';
 import {
   login as apiLogin,
   register as apiRegister,
 } from '../services/authService';
-
-interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name?: string) => Promise<void>;
-  logout: () => void;
-}
-
-export const AuthContext = createContext<AuthContextType | null>(null);
-
-const TOKEN_KEY = 'token';
-const USER_KEY = 'user';
-const EXPIRES_AT_KEY = 'expiresAt';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -30,16 +16,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const expiresAtRaw = localStorage.getItem(EXPIRES_AT_KEY);
     const expiresAt = expiresAtRaw ? Number(expiresAtRaw) : null;
 
-    // if token exists but expiry missing -> reset (keeps behavior consistent)
     if (token && !expiresAt) {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
       localStorage.removeItem(EXPIRES_AT_KEY);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoading(false);
       return;
     }
 
-    // if token expired, clear everything
     if (expiresAt && Date.now() > expiresAt) {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
@@ -57,7 +42,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem(EXPIRES_AT_KEY);
       }
     }
-
     setIsLoading(false);
   }, []);
 

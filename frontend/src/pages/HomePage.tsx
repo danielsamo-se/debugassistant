@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import { saveHistory } from '../services/historyService';
 import { analyzeStackTrace } from '../services/analyzeService';
 
 import type { AnalyzeResponse } from '../types';
@@ -12,8 +10,6 @@ import SkeletonSummary from '../components/skeletons/SkeletonSummary';
 import SkeletonResultCard from '../components/skeletons/SkeletonResultCard';
 
 export function HomePage() {
-  const { isAuthenticated } = useAuth();
-
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState('');

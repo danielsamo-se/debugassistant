@@ -10,17 +10,29 @@ vi.mock('../../hooks/useAuth');
 vi.mock('../../services/analyzeService');
 vi.mock('../../services/historyService');
 
+const mockAnalyzeResponse = {
+  language: 'Java',
+  exceptionType: 'NullPointerException',
+  message: 'Null pointer exception at line 10',
+  keywords: ['nullpointer', 'java'],
+  rootCause: 'NullPointerException',
+  results: [],
+  mlAnalysis: null,
+  toolsUsed: null,
+};
+
 describe('HomePage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should analyze stack trace but not save history when unauthenticated', async () => {
-    (useAuth as any).mockReturnValue({ isAuthenticated: false });
-    (analyzeStackTrace as any).mockResolvedValue({
-      language: 'Java',
-      exceptionType: 'NullPointerException',
-    });
+    vi.mocked(useAuth).mockReturnValue({ isAuthenticated: false } as ReturnType<
+      typeof useAuth
+    >);
+    vi.mocked(useAuth).mockReturnValue({ isAuthenticated: true } as ReturnType<
+      typeof useAuth
+    >);
 
     render(<HomePage />);
     const user = userEvent.setup();
@@ -39,10 +51,16 @@ describe('HomePage', () => {
   });
 
   it('should save history after analysis when authenticated', async () => {
-    (useAuth as any).mockReturnValue({ isAuthenticated: true });
-    (analyzeStackTrace as any).mockResolvedValue({
+    vi.mocked(useAuth).mockReturnValue({ isAuthenticated: true } as ReturnType<
+      typeof useAuth
+    >);
+    vi.mocked(analyzeStackTrace).mockResolvedValue({
+      ...mockAnalyzeResponse,
       language: 'Python',
       exceptionType: 'ValueError',
+      message: 'Value error in script',
+      keywords: ['valueerror', 'python'],
+      rootCause: 'ValueError',
     });
 
     render(<HomePage />);

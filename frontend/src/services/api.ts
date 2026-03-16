@@ -31,7 +31,9 @@ api.interceptors.response.use(
     if (typeof data === 'string') {
       message = data;
     } else if (data && typeof data === 'object') {
-      message = (data as any).message || JSON.stringify(data).slice(0, 300);
+      message =
+        ((data as Record<string, unknown>).message as string) ||
+        JSON.stringify(data).slice(0, 300);
     }
 
     // if unauthorized, clear token

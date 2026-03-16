@@ -8,18 +8,20 @@ vi.mock('../../services/historyService');
 
 const mockHistoryData = [
   {
-    id: '1',
+    id: 1,
     searchedAt: '2023-10-10T10:00:00Z',
     language: 'Python',
     exceptionType: 'ValueError',
     stackTraceSnippet: 'Traceback (most recent call last)...',
+    searchUrl: 'https://github.com/example/repo/issues/1',
   },
   {
-    id: '2',
+    id: 2,
     searchedAt: '2023-10-11T14:30:00Z',
     language: 'Java',
     exceptionType: 'NullPointerException',
     stackTraceSnippet: 'at com.example.Main.main(Main.java:10)',
+    searchUrl: 'https://stackoverflow.com/questions/123',
   },
 ];
 
@@ -37,7 +39,7 @@ describe('HistoryPage', () => {
   };
 
   it('should show loading state initially', () => {
-    (getHistory as any).mockReturnValue(new Promise(() => {}));
+    vi.mocked(getHistory).mockReturnValue(new Promise(() => {}));
 
     renderHistoryPage();
 
@@ -45,7 +47,7 @@ describe('HistoryPage', () => {
   });
 
   it('should render history list after loading', async () => {
-    (getHistory as any).mockResolvedValue(mockHistoryData);
+    vi.mocked(getHistory).mockResolvedValue(mockHistoryData);
 
     renderHistoryPage();
 
@@ -56,12 +58,11 @@ describe('HistoryPage', () => {
     expect(screen.getByText('Python')).toBeInTheDocument();
     expect(screen.getByText('ValueError')).toBeInTheDocument();
     expect(screen.getByText('Java')).toBeInTheDocument();
-    // Checken ob der Stacktrace Snippet da ist
     expect(screen.getByText(/Traceback/)).toBeInTheDocument();
   });
 
   it('should show empty state when no history exists', async () => {
-    (getHistory as any).mockResolvedValue([]);
+    vi.mocked(getHistory).mockResolvedValue([]);
 
     renderHistoryPage();
 
@@ -75,7 +76,7 @@ describe('HistoryPage', () => {
   });
 
   it('should show error message if API fails', async () => {
-    (getHistory as any).mockRejectedValue(new Error('Network error'));
+    vi.mocked(getHistory).mockRejectedValue(new Error('Network error'));
 
     renderHistoryPage();
 

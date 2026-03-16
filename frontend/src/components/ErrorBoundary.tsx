@@ -14,6 +14,7 @@ export default class ErrorBoundary extends React.Component<
 > {
   state: ErrorBoundaryState = { hasError: false };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static getDerivedStateFromError(_: Error) {
     return { hasError: true };
   }

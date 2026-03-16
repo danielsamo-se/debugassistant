@@ -5,6 +5,6 @@ import type { AnalyzeResponse } from '../types';
 export const analyzeStackTrace = async (
   stackTrace: string,
 ): Promise<AnalyzeResponse> => {
-  const response = await api.post<AnalyzeResponse>('/analyze', { stackTrace });
+  const response = await api.post<AnalyzeResponse>('/v1/analyze', { stackTrace });
   return response.data;
 };
