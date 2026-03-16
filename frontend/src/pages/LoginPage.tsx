@@ -40,8 +40,9 @@ export function LoginPage() {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label>Email</label>
+            <label htmlFor="email">Email</label>
             <input
+              id="email"
               type="email"
               value={email}
               placeholder="you@example.com"
@@ -51,8 +52,9 @@ export function LoginPage() {
           </div>
 
           <div className="form-group">
-            <label>Password</label>
+            <label htmlFor="password">Password</label>
             <input
+              id="password"
               type="password"
               value={password}
               placeholder="••••••••"

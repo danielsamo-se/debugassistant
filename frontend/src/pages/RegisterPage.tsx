@@ -53,8 +53,9 @@ export function RegisterPage() {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label>Name (optional)</label>
+            <label htmlFor="name">Name (optional)</label>
             <input
+              id="name"
               type="text"
               value={name}
               placeholder="John Doe"
@@ -63,8 +64,9 @@ export function RegisterPage() {
           </div>
 
           <div className="form-group">
-            <label>Email</label>
+            <label htmlFor="email">Email</label>
             <input
+              id="email"
               type="email"
               value={email}
               placeholder="you@example.com"
@@ -74,8 +76,9 @@ export function RegisterPage() {
           </div>
 
           <div className="form-group">
-            <label>Password</label>
+            <label htmlFor="password">Password</label>
             <input
+              id="password"
               type="password"
               value={password}
               placeholder="••••••••"
@@ -85,8 +88,9 @@ export function RegisterPage() {
           </div>
 
           <div className="form-group">
-            <label>Confirm Password</label>
+            <label htmlFor="confirmPassword">Confirm Password</label>
             <input
+              id="confirmPassword"
               type="password"
               value={confirmPassword}
               placeholder="••••••••"

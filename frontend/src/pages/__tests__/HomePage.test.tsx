@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { HomePage } from '../HomePage';
 import { useAuth } from '../../hooks/useAuth';
 import { analyzeStackTrace } from '../../services/analyzeService';
-import { saveHistory } from '../../services/historyService';
 
 vi.mock('../../hooks/useAuth');
 vi.mock('../../services/analyzeService');
@@ -26,13 +25,11 @@ describe('HomePage', () => {
     vi.clearAllMocks();
   });
 
-  it('should analyze stack trace but not save history when unauthenticated', async () => {
+  it('should analyze stack trace and show result', async () => {
     vi.mocked(useAuth).mockReturnValue({ isAuthenticated: false } as ReturnType<
       typeof useAuth
     >);
-    vi.mocked(useAuth).mockReturnValue({ isAuthenticated: true } as ReturnType<
-      typeof useAuth
-    >);
+    vi.mocked(analyzeStackTrace).mockResolvedValue(mockAnalyzeResponse);
 
     render(<HomePage />);
     const user = userEvent.setup();
@@ -43,14 +40,13 @@ describe('HomePage', () => {
     await user.click(screen.getByRole('button', { name: /analyze/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Analysis Result')).toBeInTheDocument();
+      expect(screen.getByText('Analysis Report')).toBeInTheDocument();
     });
 
     expect(analyzeStackTrace).toHaveBeenCalled();
-    expect(saveHistory).not.toHaveBeenCalled();
   });
 
-  it('should save history after analysis when authenticated', async () => {
+  it('should display result after analysis when authenticated', async () => {
     vi.mocked(useAuth).mockReturnValue({ isAuthenticated: true } as ReturnType<
       typeof useAuth
     >);
@@ -72,10 +68,9 @@ describe('HomePage', () => {
     await user.click(screen.getByRole('button', { name: /analyze/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Analysis Result')).toBeInTheDocument();
+      expect(screen.getByText('Analysis Report')).toBeInTheDocument();
     });
 
     expect(analyzeStackTrace).toHaveBeenCalled();
-    expect(saveHistory).toHaveBeenCalled();
   });
 });

@@ -19,11 +19,7 @@ export function HistoryPage() {
         if (!cancelled) setHistory(data);
       } catch (err) {
         console.error(err);
-        if (!cancelled) {
-          setError(
-            err instanceof Error ? err.message : 'Failed to load history',
-          );
-        }
+        if (!cancelled) setError('Failed to load history');
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -51,6 +47,7 @@ export function HistoryPage() {
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto animate-fade-in mt-6">
+        <span className="sr-only">Loading history</span>
         <SkeletonHistoryList />
       </div>
     );
