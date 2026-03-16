@@ -1,5 +1,9 @@
 # DebugAssistant
 
+[![Backend CI](https://github.com/USERNAME/debugassistant/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/USERNAME/debugassistant/actions/workflows/backend-ci.yml)
+[![Frontend CI](https://github.com/USERNAME/debugassistant/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/USERNAME/debugassistant/actions/workflows/frontend-ci.yml)
+[![ML Service CI](https://github.com/USERNAME/debugassistant/actions/workflows/ml-service-ci.yml/badge.svg)](https://github.com/USERNAME/debugassistant/actions/workflows/ml-service-ci.yml)
+
 DebugAssistant analyzes stack traces using semantic search and an LLM debug agent. It matches errors against 50 curated error patterns using Sentence-BERT embeddings and FAISS, then an autonomous Gemini agent selects tools to generate structured explanations.
 
 ---
