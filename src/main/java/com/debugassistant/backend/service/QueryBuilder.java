@@ -43,11 +43,9 @@ public class QueryBuilder {
         List<String> parts = new ArrayList<>();
 
         // Prefer root cause over top exception
-        String exception = error.exceptionType();
-
-        String root = (error.rootCause() != null && !error.rootCause().isBlank())
-                ? error.rootCause().split(":")[0]
-                : null; // class token only
+        String exception = (error.rootCause() != null && !error.rootCause().isBlank())
+                ? error.rootCause().split(":")[0].trim()
+                : error.exceptionType();
 
         String library = extractLibraryName(exception);
         if (library != null) {
@@ -135,18 +133,40 @@ public class QueryBuilder {
             exception = "Exception"; // fallback anchor
         }
 
-        String messageStart = extractFirstWords(parsed.message(), 4);  // add specificity
+        String strongPhrase = extractStrongPhrase(parsed.message());
 
-        if (!messageStart.isBlank()) {
-            queries.add(exception + " " + messageStart);
+        if (strongPhrase != null && !strongPhrase.isBlank()) {
+            queries.add(exception + " \"" + strongPhrase + "\""); // precision: exception + quoted phrase
+            queries.add("\"" + strongPhrase + "\"");               // phrase-only fallback
+        } else {
+            String messageStart = extractFirstWords(parsed.message(), 4); // add specificity
+            if (!messageStart.isBlank()) {
+                queries.add(exception + " " + messageStart);
+            }
+            queries.add(exception); // broad fallback
         }
-
-        queries.add(exception); // broad fallback
 
         return queries.stream()
                 .filter(q -> q != null && !q.isBlank())
                 .distinct()
                 .toList();
+    }
+
+    /**
+     * Extracts the first two meaningful words from an error message as a quoted SO search phrase.
+     * Strips SO operator noise (e.g. "in:title,body") before extraction.
+     */
+    private String extractStrongPhrase(String message) {
+        if (message == null || message.isBlank()) return null;
+        String cleaned = message.replaceAll("\\s*in:\\S+", "").trim();
+        String[] words = cleaned.split("\\s+");
+        if (words.length < 2) return null;
+        String phrase = Arrays.stream(words)
+                .limit(2)
+                .map(w -> w.replaceAll("^\"|\"$", "").trim())
+                .filter(w -> !w.isBlank())
+                .collect(Collectors.joining(" "));
+        return phrase.length() >= 4 ? phrase : null;
     }
 
     private String extractFirstWords(String message, int count) {

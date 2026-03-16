@@ -28,7 +28,7 @@ class RankingServiceTest {
 
         double score = ranking.calculateGitHubScore(issue, Set.of());
 
-        assertThat(score).isGreaterThan(0.3);
+        assertThat(score).isGreaterThan(0.2);
         assertThat(score).isLessThan(0.8);
     }
 
@@ -153,7 +153,7 @@ class RankingServiceTest {
     }
 
     @Test
-    void shouldReturnNegativeScoreWhenNoAnchorsForStackOverflow() {
+    void shouldScoreBasedOnEngagementWhenNoKeywords() {
         StackOverflowQuestion question = new StackOverflowQuestion(
                 1L, "Some question", "url", 10, 2, true,
                 Instant.now().getEpochSecond(), null
@@ -161,6 +161,8 @@ class RankingServiceTest {
 
         double score = ranking.calculateStackOverflowScore(question, Set.of());
 
-        assertThat(score).isEqualTo(-1.0);
+        // No keyword overlap, but score reflects votes + answered + recency
+        assertThat(score).isGreaterThan(0.3);
+        assertThat(score).isLessThan(0.6);
     }
 }

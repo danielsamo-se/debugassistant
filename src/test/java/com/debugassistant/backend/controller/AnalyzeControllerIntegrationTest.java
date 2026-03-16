@@ -78,7 +78,7 @@ class AnalyzeControllerIntegrationTest {
                     at com.example.Test.main(Test.java:10)
                 """);
 
-        mockMvc.perform(post("/api/analyze")
+        mockMvc.perform(post("/api/v1/analyze")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -92,7 +92,7 @@ class AnalyzeControllerIntegrationTest {
     void analyzeReturns400ForBlankStackTrace() throws Exception {
         AnalyzeRequest request = new AnalyzeRequest("   ");
 
-        mockMvc.perform(post("/api/analyze")
+        mockMvc.perform(post("/api/v1/analyze")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())

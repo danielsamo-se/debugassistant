@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('analyze stacktrace and show results', async ({ page }) => {
-  await page.route('**/api/analyze', async (route) => {
+  await page.route('**/api/v1/analyze', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',

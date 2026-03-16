@@ -28,7 +28,7 @@ public class RankingService {
     ); // ecosystem bias
 
     public double calculateGitHubScore(GitHubIssue issue, Set<String> keywords) {
-        if (issue == null) return -1.0; // invalid item
+        if (issue == null) return 0.0; // invalid item
 
         if (issue.title() != null && !issue.title().matches(".*[a-zA-Z]{3,}.*")) {
             return -1.0; // low-signal title
