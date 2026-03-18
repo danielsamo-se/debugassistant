@@ -19,10 +19,7 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class AsyncSearchService {
 
-    /**
-     * Two threads — one per external API. Using a virtual-thread executor keeps
-     * things cheap while the HTTP calls block on I/O.
-     */
+    // Executor for parallel searches
     private final Executor searchExecutor =
             Executors.newThreadPerTaskExecutor(
                     Thread.ofVirtual().name("search-", 0).factory()
