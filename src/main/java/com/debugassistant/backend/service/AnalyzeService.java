@@ -8,6 +8,7 @@ import com.debugassistant.backend.dto.ml.MlAnalyzeResponse;
 import com.debugassistant.backend.dto.stackoverflow.StackOverflowQuestion;
 import com.debugassistant.backend.parser.ParsedError;
 import com.debugassistant.backend.parser.ParserRegistry;
+import com.debugassistant.backend.service.AsyncSearchService.SearchResults;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -34,8 +35,7 @@ public class AnalyzeService {
 
     private final ParserRegistry parserRegistry;
     private final QueryBuilder queryBuilder;
-    private final GitHubClient gitHubClient;
-    private final StackOverflowClient stackOverflowClient;
+    private final AsyncSearchService asyncSearchService;
     private final RankingService rankingService;
     private final MlServiceClient mlServiceClient;
 
@@ -52,12 +52,13 @@ public class AnalyzeService {
         log.info("Parsed {} error: {}", parsed.language(), parsed.exceptionType());
 
         List<String> ghQueries = queryBuilder.buildGitHubQueries(parsed, request.stackTrace());
-        List<GitHubIssue> githubIssues = gitHubClient.searchOnion(ghQueries);
-
         List<String> soQueries = queryBuilder.buildStackOverflowQueries(parsed, request.stackTrace());
-        List<StackOverflowQuestion> soQuestions = stackOverflowClient.searchOnion(
-                soQueries, parsed.language(), parsed.exceptionType()
+
+        SearchResults searched = asyncSearchService.searchParallel(
+                ghQueries, soQueries, parsed.language(), parsed.exceptionType()
         );
+        List<GitHubIssue> githubIssues = searched.githubIssues();
+        List<StackOverflowQuestion> soQuestions = searched.soQuestions();
 
         log.info("Found {} GitHub issues, {} Stack Overflow questions",
                 githubIssues.size(), soQuestions.size());
