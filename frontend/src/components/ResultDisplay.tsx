@@ -9,109 +9,97 @@ interface Props {
 }
 
 export default function ResultDisplay({ result }: Props): JSX.Element {
-  const githubCount = result.results.filter(
-    (r) => r.source === 'github',
-  ).length;
-
-  const soCount = result.results.filter(
-    (r) => r.source === 'stackoverflow',
-  ).length;
+  const githubCount = result.results.filter((r) => r.source === 'github').length;
+  const soCount = result.results.filter((r) => r.source === 'stackoverflow').length;
 
   return (
-    <div className="space-y-6 animate-slide-up pb-8">
-      {/* summary section */}
-      <div className="bg-zinc-900/50 rounded-md border border-zinc-800 overflow-hidden">
-        <div className="grid grid-cols-2 divide-x divide-zinc-800 border-b border-zinc-800">
-          <div className="p-3">
-            <span className="text-zinc-500 text-xs uppercase block mb-1">
-              Language
-            </span>
-            <strong className="text-zinc-200 font-mono text-sm uppercase">
-              {result.language}
-            </strong>
-          </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', paddingBottom: '48px' }}>
 
-          <div className="p-3">
-            <span className="text-zinc-500 text-xs uppercase block mb-1">
-              Type
-            </span>
-            <strong className="text-red-400 font-mono text-sm break-all">
-              {result.exceptionType}
-            </strong>
-          </div>
-        </div>
+      {/* Summary */}
+      <div>
+        <h1 style={{
+          fontSize: '20px',
+          fontWeight: 500,
+          color: '#1a1a18',
+          letterSpacing: '-0.02em',
+          marginBottom: '8px',
+        }}>
+          {result.exceptionType}
+        </h1>
 
         {result.rootCause && (
-          <div className="p-3 bg-zinc-900">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-zinc-500 text-xs uppercase">
-                Root Cause
-              </span>
-              <CopyButton text={result.rootCause} />
-            </div>
-
-            <strong className="text-zinc-300 font-mono text-sm break-words font-normal">
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+            <p style={{ fontSize: '13px', color: '#6b6b68', lineHeight: '1.7', flex: 1, fontFamily: 'IBM Plex Mono, monospace' }}>
               {result.rootCause}
-            </strong>
+            </p>
+            <CopyButton text={result.rootCause} />
           </div>
         )}
       </div>
 
-      {/* agent analysis */}
+      {/* Agent analysis */}
       {result.mlAnalysis && (
-        <div className="bg-zinc-900/50 rounded-md border border-zinc-800 overflow-hidden">
-          <div className="flex justify-between items-center p-3 border-b border-zinc-800">
-            <span className="text-zinc-500 text-xs uppercase flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              Agent Analysis
-            </span>
-            <CopyButton text={result.mlAnalysis} />
+        <div>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            marginBottom: '16px',
+          }}>
+            <div style={{ border: '0.5px solid #e4e4e0', borderRadius: '3px', padding: '4px' }}>
+              <CopyButton text={result.mlAnalysis} />
+            </div>
           </div>
 
-          {result.toolsUsed && result.toolsUsed.length > 0 && (
-            <div className="flex gap-2 flex-wrap px-4 pt-3">
-              <span className="text-zinc-600 text-[10px] uppercase tracking-wider self-center">Tools used:</span>
-              {result.toolsUsed.map((tool) => (
-                <span
-                  key={tool}
-                  className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-sm bg-emerald-900/30 text-emerald-400 border border-emerald-800"
-                >
-                  {tool.replace(/_/g, ' ')}
-                </span>
-              ))}
-            </div>
-          )}
-
-          <div className="p-4 text-sm">
+          <div style={{ fontSize: '13px', color: '#6b6b68', lineHeight: '1.7' }}>
             <ReactMarkdown
               components={{
-                p: ({ children }) => <p className="text-zinc-300 leading-relaxed my-2">{children}</p>,
-                strong: ({ children }) => <strong className="text-zinc-200 font-semibold">{children}</strong>,
-                em: ({ children }) => <em className="text-zinc-300 italic">{children}</em>,
-                h1: ({ children }) => <h1 className="text-zinc-200 text-lg font-bold mt-4 mb-2">{children}</h1>,
-                h2: ({ children }) => <h2 className="text-zinc-200 text-base font-bold mt-4 mb-2">{children}</h2>,
-                h3: ({ children }) => <h3 className="text-zinc-200 text-sm font-bold mt-3 mb-1">{children}</h3>,
-                ul: ({ children }) => <ul className="list-disc list-inside my-2 space-y-1">{children}</ul>,
-                ol: ({ children }) => <ol className="list-decimal list-inside my-2 space-y-1">{children}</ol>,
-                li: ({ children }) => <li className="text-zinc-300">{children}</li>,
+                p: ({ children }) => <p style={{ margin: '0 0 12px', color: '#6b6b68', lineHeight: '1.7' }}>{children}</p>,
+                strong: ({ children }) => <strong style={{ color: '#1a1a18', fontWeight: 500 }}>{children}</strong>,
+                em: ({ children }) => <em style={{ color: '#6b6b68' }}>{children}</em>,
+                h1: ({ children }) => <h1 style={{ fontSize: '15px', fontWeight: 500, color: '#1a1a18', margin: '20px 0 8px' }}>{children}</h1>,
+                h2: ({ children }) => <h2 style={{ fontSize: '14px', fontWeight: 500, color: '#1a1a18', margin: '16px 0 6px' }}>{children}</h2>,
+                h3: ({ children }) => <h3 style={{ fontSize: '13px', fontWeight: 500, color: '#1a1a18', margin: '12px 0 4px' }}>{children}</h3>,
+                ul: ({ children }) => <ul style={{ paddingLeft: '20px', margin: '8px 0' }}>{children}</ul>,
+                ol: ({ children }) => <ol style={{ paddingLeft: '20px', margin: '8px 0' }}>{children}</ol>,
+                li: ({ children }) => <li style={{ color: '#6b6b68', marginBottom: '4px' }}>{children}</li>,
                 code: ({ className, children }) => {
                   const isBlock = className?.includes('language-');
                   if (isBlock) {
                     return (
-                      <code className="block bg-zinc-800 border border-zinc-700 rounded-md p-3 my-3 text-emerald-400 text-xs overflow-x-auto whitespace-pre">
+                      <code style={{
+                        display: 'block',
+                        fontFamily: 'IBM Plex Mono, monospace',
+                        fontSize: '12px',
+                        background: '#f6f6f4',
+                        borderLeft: '3px solid #c8c8c4',
+                        padding: '12px 16px',
+                        margin: '12px 0',
+                        overflowX: 'auto',
+                        whiteSpace: 'pre',
+                        color: '#1a1a18',
+                      }}>
                         {children}
                       </code>
                     );
                   }
                   return (
-                    <code className="bg-zinc-800 text-emerald-400 px-1 py-0.5 rounded text-xs">
+                    <code style={{
+                      fontFamily: 'IBM Plex Mono, monospace',
+                      fontSize: '12px',
+                      background: '#f6f6f4',
+                      border: '1px solid #e4e4e0',
+                      padding: '1px 5px',
+                      borderRadius: '2px',
+                      color: '#1a1a18',
+                    }}>
                       {children}
                     </code>
                   );
                 },
-                pre: ({ children }) => <div className="my-3">{children}</div>,
+                pre: ({ children }) => <div style={{ margin: '12px 0' }}>{children}</div>,
                 a: ({ href, children }) => (
-                  <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                  <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: '#d44c2d', textDecoration: 'none' }}>
                     {children}
                   </a>
                 ),
@@ -123,20 +111,28 @@ export default function ResultDisplay({ result }: Props): JSX.Element {
         </div>
       )}
 
-      {/* result list header */}
+      {/* Results */}
       <div>
-        <h3 className="text-sm font-bold text-zinc-200 mb-4 flex items-center gap-2 uppercase tracking-wide">
-          Found {result.results.length} Solutions
-          <span className="text-xs font-normal text-zinc-500 ml-2 font-mono normal-case">
-            ({soCount} Stack Overflow, {githubCount} GitHub)
+        <div style={{
+          borderTop: '1px solid #e4e4e0',
+          paddingTop: '20px',
+          marginBottom: '4px',
+        }}>
+          <span style={{
+            fontSize: '11px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.07em',
+            color: '#a0a09c',
+          }}>
+            {result.results.length} results · {soCount} Stack Overflow · {githubCount} GitHub
           </span>
-        </h3>
+        </div>
 
-        <div className="space-y-3">
+        <div>
           {result.results.length === 0 ? (
-            <div className="text-center p-8 bg-zinc-900/50 rounded-md border border-zinc-800 border-dashed text-zinc-500 text-sm">
+            <p style={{ fontSize: '13px', color: '#a0a09c', padding: '20px 0' }}>
               No matches found. Try a different stack trace.
-            </div>
+            </p>
           ) : (
             result.results.map((item, index) => (
               <ResultCard

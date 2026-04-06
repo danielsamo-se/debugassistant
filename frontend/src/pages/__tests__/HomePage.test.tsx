@@ -40,7 +40,7 @@ describe('HomePage', () => {
     await user.click(screen.getByRole('button', { name: /analyze/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Analysis Report')).toBeInTheDocument();
+      expect(screen.getByText('New search')).toBeInTheDocument();
     });
 
     expect(analyzeStackTrace).toHaveBeenCalled();
@@ -68,7 +68,7 @@ describe('HomePage', () => {
     await user.click(screen.getByRole('button', { name: /analyze/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Analysis Report')).toBeInTheDocument();
+      expect(screen.getByText('New search')).toBeInTheDocument();
     });
 
     expect(analyzeStackTrace).toHaveBeenCalled();

@@ -3,9 +3,10 @@ import { useState } from 'react';
 interface Props {
   onAnalyze: (trace: string) => void;
   loading: boolean;
+  collapsed?: boolean;
 }
 
-export default function StackTraceInput({ onAnalyze, loading }: Props) {
+export default function StackTraceInput({ onAnalyze, loading, collapsed = false }: Props) {
   const [localTrace, setLocalTrace] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -16,68 +17,55 @@ export default function StackTraceInput({ onAnalyze, loading }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col h-full group">
-      {/* Editor Area */}
-      <div className="relative flex-grow bg-zinc-950/30">
+    <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <textarea
           value={localTrace}
           onChange={(e) => setLocalTrace(e.target.value)}
-          placeholder="// Paste your error stack trace here..."
-          className="w-full h-full p-5 bg-transparent text-zinc-300 font-mono text-sm resize-none focus:outline-none placeholder-zinc-700 leading-relaxed"
-          spellCheck={false}
+          placeholder="Paste your error stack trace here..."
           disabled={loading}
+          spellCheck={false}
+          style={{
+            width: '100%',
+            height: collapsed ? '32px' : '72px',
+            overflow: collapsed ? 'hidden' : 'auto',
+            fontFamily: 'IBM Plex Mono, monospace',
+            fontSize: '12px',
+            lineHeight: '1.65',
+            color: '#1a1a18',
+            background: 'transparent',
+            border: 'none',
+            borderBottom: '1px solid #c8c8c4',
+            borderRadius: 0,
+            padding: '4px 0 8px',
+            resize: 'none',
+            outline: 'none',
+          }}
         />
+        <span style={{ fontSize: '11px', color: '#a0a09c' }}>
+          {localTrace.length} chars
+        </span>
       </div>
 
-      {/* Toolbar / Footer */}
-      <div className="border-t border-zinc-800/50 bg-zinc-900/50 p-4 flex justify-between items-center shrink-0 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-zinc-500 font-mono">
-            {localTrace.length} chars
-          </span>
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading || !localTrace.trim()}
-          className={`
-            px-5 py-2 text-sm font-semibold rounded shadow-lg transition-all transform active:scale-95
-            ${
-              loading || !localTrace.trim()
-                ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed border border-zinc-700'
-                : 'bg-zinc-100 text-zinc-900 hover:bg-white hover:shadow-zinc-500/10 border border-transparent'
-            }
-          `}
-        >
-          {loading ? (
-            <span className="flex items-center gap-2">
-              <svg
-                className="animate-spin h-4 w-4 text-zinc-500"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              Analyzing...
-            </span>
-          ) : (
-            'Analyze Trace'
-          )}
-        </button>
-      </div>
+      <button
+        type="submit"
+        disabled={loading || !localTrace.trim()}
+        style={{
+          fontSize: '13px',
+          fontWeight: 500,
+          color: loading || !localTrace.trim() ? '#a0a09c' : '#ffffff',
+          background: loading || !localTrace.trim() ? '#f6f6f4' : '#1a1a18',
+          border: 'none',
+          padding: '8px 18px',
+          borderRadius: '3px',
+          cursor: loading || !localTrace.trim() ? 'not-allowed' : 'pointer',
+          fontFamily: 'IBM Plex Sans, sans-serif',
+          whiteSpace: 'nowrap',
+          marginBottom: '20px',
+        }}
+      >
+        {loading ? 'Analyzing...' : 'Analyze'}
+      </button>
     </form>
   );
 }

@@ -1,11 +1,8 @@
 import { useState } from 'react';
 import { analyzeStackTrace } from '../services/analyzeService';
-
 import type { AnalyzeResponse } from '../types';
-
 import StackTraceInput from '../components/StackTraceInput';
 import ResultDisplay from '../components/ResultDisplay';
-
 import SkeletonSummary from '../components/skeletons/SkeletonSummary';
 import SkeletonResultCard from '../components/skeletons/SkeletonResultCard';
 
@@ -30,94 +27,143 @@ export function HomePage() {
     }
   };
 
-  const showEmptyState = !result && !isAnalyzing;
-
   return (
-    <div className="relative min-h-[calc(100vh-3.5rem)] bg-zinc-950 flex flex-col overflow-hidden">
-      <div className="absolute inset-0 bg-grid-pattern opacity-[0.15] pointer-events-none" />
-
+    <div style={{ minHeight: 'calc(100vh - 48px)', background: '#ffffff' }}>
+      {/* input */}
       <div
-        className={`
-    relative z-10 flex transition-all duration-700 ease-in-out h-full
-    ${
-      showEmptyState
-        ? 'flex-col max-w-3xl mx-auto w-full justify-center pb-20 px-6'
-        : 'flex-col lg:flex-row w-full max-w-6xl mx-auto px-6'
-    }
-  `}
+        style={{
+          borderBottom: '1px solid #e4e4e0',
+          padding: '24px 32px 20px',
+        }}
       >
-        <div
-          className={`
-            flex flex-col transition-all duration-500
-            ${showEmptyState ? 'w-full' : 'w-full lg:w-1/2 lg:border-r lg:border-zinc-800/50 min-w-0 bg-zinc-950/50 backdrop-blur-sm p-6 lg:sticky lg:top-0 lg:self-start'}
-        `}
-        >
-          <div
-            className={`mb-6 ${showEmptyState ? 'text-center space-y-3' : ''}`}
+        {!result && !isAnalyzing && (
+          <h1
+            style={{
+              fontSize: '22px',
+              fontWeight: 500,
+              color: '#1a1a18',
+              letterSpacing: '-0.02em',
+              marginBottom: '16px',
+            }}
           >
-            <h1
-              className={`font-bold tracking-tight text-white transition-all duration-500 ${showEmptyState ? 'text-4xl' : 'text-sm uppercase text-zinc-400'}`}
-            >
-              {showEmptyState ? 'Debug Assistant' : 'Input Trace'}
-            </h1>
-
-            {showEmptyState && (
-              <p className="text-zinc-400 text-lg">
-                Paste your stack trace below. The system will analyze the
-                structure and find solutions.
-              </p>
-            )}
-          </div>
-
-          <div
-            className={`
-                flex flex-col min-h-0 rounded-xl overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-500
-                ${showEmptyState ? 'flex-grow h-[400px] bg-zinc-900' : 'h-[300px] bg-zinc-900/50'}
-            `}
-          >
-            <StackTraceInput onAnalyze={handleAnalyze} loading={isAnalyzing} />
-          </div>
-
-          {error && (
-            <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-sm text-center">
-              {error}
-            </div>
-          )}
-        </div>
-
-        {(result || isAnalyzing) && (
-          <div className="lg:w-1/2 w-full min-w-0 bg-zinc-950/80 p-6 flex flex-col overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500">
-            <div className="mb-4 flex justify-between items-center border-b border-zinc-800 pb-4">
-              <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
-                <span
-                  className={`w-2 h-2 rounded-full ${isAnalyzing ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}
-                ></span>
-                Analysis Report
-              </h2>
-              {result && (
-                <button
-                  onClick={() => setResult(null)}
-                  className="px-3 py-1 text-xs font-medium text-zinc-400 hover:text-white border border-zinc-700 rounded hover:bg-zinc-800 transition-colors"
-                >
-                  Start New Search
-                </button>
-              )}
-            </div>
-
-            <div className="flex-grow overflow-y-auto pr-2 custom-scrollbar">
-              {isAnalyzing && (
-                <div className="space-y-6 opacity-60">
-                  <SkeletonSummary />
-                  <SkeletonResultCard />
-                  <SkeletonResultCard />
-                </div>
-              )}
-
-              {!isAnalyzing && result && <ResultDisplay result={result} />}
-            </div>
-          </div>
+            Paste a stack trace
+          </h1>
+        )}
+        <StackTraceInput
+          onAnalyze={handleAnalyze}
+          loading={isAnalyzing}
+          collapsed={!!result}
+        />
+        {error && (
+          <p style={{ marginTop: '10px', fontSize: '13px', color: '#d44c2d' }}>
+            {error}
+          </p>
         )}
       </div>
+
+      {/* results */}
+      {(result || isAnalyzing) && (
+        <div
+          style={{ display: 'flex', minHeight: 'calc(100vh - 48px - 130px)' }}
+        >
+          {result && (
+            <div
+              style={{
+                width: '200px',
+                minWidth: '200px',
+                borderRight: '1px solid #e4e4e0',
+                padding: '28px 24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '22px',
+              }}
+            >
+              <MetaGroup label="Language" value={result.language} />
+              <MetaGroup
+                label="Exception"
+                value={result.exceptionType}
+                mono
+                accent
+              />
+              <button
+                onClick={() => setResult(null)}
+                style={{
+                  fontSize: '12px',
+                  color: '#6b6b68',
+                  background: 'none',
+                  border: '1px solid #e4e4e0',
+                  padding: '5px 10px',
+                  borderRadius: '3px',
+                  cursor: 'pointer',
+                  fontFamily: 'IBM Plex Sans, sans-serif',
+                  marginTop: 'auto',
+                  textAlign: 'left',
+                }}
+              >
+                New search
+              </button>
+            </div>
+          )}
+
+          <div style={{ flex: 1, padding: '36px 48px', maxWidth: '800px' }}>
+            {isAnalyzing && (
+              <div
+                style={{
+                  opacity: 0.5,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '24px',
+                }}
+              >
+                <SkeletonSummary />
+                <SkeletonResultCard />
+                <SkeletonResultCard />
+              </div>
+            )}
+            {!isAnalyzing && result && <ResultDisplay result={result} />}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MetaGroup({
+  label,
+  value,
+  mono = false,
+  accent = false,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+  accent?: boolean;
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <span
+        style={{
+          fontSize: '11px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.07em',
+          color: '#a0a09c',
+        }}
+      >
+        {label}
+      </span>
+      <span
+        style={{
+          fontSize: mono ? '11px' : '13px',
+          fontWeight: mono ? 400 : 500,
+          color: accent ? '#d44c2d' : '#1a1a18',
+          fontFamily: mono
+            ? 'IBM Plex Mono, monospace'
+            : 'IBM Plex Sans, sans-serif',
+          wordBreak: 'break-word',
+        }}
+      >
+        {value}
+      </span>
     </div>
   );
 }

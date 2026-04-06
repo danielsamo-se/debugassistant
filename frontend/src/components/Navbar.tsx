@@ -6,65 +6,86 @@ export function Navbar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // clear local auth state and redirect
     logout();
     navigate('/');
   };
 
   return (
-    <nav className="bg-zinc-950 border-b border-zinc-800 z-50">
-      <div className="w-full px-6 h-14 flex justify-between items-center">
-        <Link
-          to="/"
-          className="text-lg font-bold font-mono text-white tracking-tight flex items-center gap-2"
-        >
-          <span className="text-zinc-600">{'>'}</span> Debug Assistant
+    <nav style={{
+      borderBottom: '1px solid #e4e4e0',
+      padding: '0 32px',
+      height: '48px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      background: '#ffffff',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        <Link to="/" style={{
+          fontSize: '13px',
+          fontWeight: 500,
+          color: '#1a1a18',
+          textDecoration: 'none',
+          letterSpacing: '-0.01em',
+        }}>
+          Debug Assistant
         </Link>
 
-        <div className="flex items-center gap-6 text-sm">
-          {isAuthenticated ? (
-            <>
-              {/* history is only visible for logged-in users */}
-              <Link
-                to="/history"
-                className="text-zinc-400 hover:text-white font-medium transition-colors"
-              >
-                History
-              </Link>
+        {isAuthenticated && (
+          <Link to="/history" style={{
+            fontSize: '13px',
+            color: '#6b6b68',
+            textDecoration: 'none',
+          }}>
+            History
+          </Link>
+        )}
+      </div>
 
-              {/* shows user identity + logout action */}
-              <div className="flex items-center gap-4 border-l border-zinc-800 pl-6">
-                <span className="text-zinc-500 text-xs hidden sm:block font-mono">
-                  {user?.name || user?.email}
-                </span>
-
-                <button
-                  onClick={handleLogout}
-                  className="text-zinc-400 hover:text-white text-xs uppercase font-bold tracking-wider hover:underline decoration-zinc-600 underline-offset-4"
-                >
-                  Logout
-                </button>
-              </div>
-            </>
-          ) : (
-            // guest view (no authentication)
-            <div className="flex items-center gap-4">
-              <Link
-                to="/login"
-                className="text-zinc-400 hover:text-white font-medium transition-colors"
-              >
-                Login
-              </Link>
-
-              <Link
-                to="/register"
-                className="px-3 py-1.5 bg-white text-black hover:bg-zinc-200 text-xs font-bold uppercase tracking-wide rounded-sm transition-all"
-              >
-                Sign Up
-              </Link>
-            </div>
-          )}
-        </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {isAuthenticated ? (
+          <>
+            <span style={{ fontSize: '12px', color: '#a0a09c', fontFamily: 'IBM Plex Mono, monospace' }}>
+              {user?.name || user?.email}
+            </span>
+            <button onClick={handleLogout} style={{
+              fontSize: '13px',
+              color: '#6b6b68',
+              background: 'none',
+              border: '1px solid #e4e4e0',
+              padding: '5px 12px',
+              cursor: 'pointer',
+              borderRadius: '3px',
+              fontFamily: 'IBM Plex Sans, sans-serif',
+            }}>
+              Log out
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/login" style={{
+              fontSize: '13px',
+              color: '#6b6b68',
+              textDecoration: 'none',
+              padding: '5px 12px',
+              border: '1px solid #e4e4e0',
+              borderRadius: '3px',
+            }}>
+              Log in
+            </Link>
+            <Link to="/register" style={{
+              fontSize: '13px',
+              fontWeight: 500,
+              color: '#ffffff',
+              background: '#1a1a18',
+              textDecoration: 'none',
+              padding: '5px 12px',
+              borderRadius: '3px',
+            }}>
+              Sign up
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );
